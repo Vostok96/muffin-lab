@@ -4,7 +4,7 @@ import os
 from datetime import date, datetime, timezone
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.database import SessionLocal
@@ -219,6 +219,9 @@ def get_development_password() -> str:
 
 def get_or_create_catalog(db, model: type, code: str, **values: Any) -> Any:
     entity = db.scalar(select(model).where(model.code == code))
+    if not entity and model is Organism and values.get("name"):
+        normalized_name = values["name"].strip().lower()
+        entity = db.scalar(select(model).where(func.lower(model.name) == normalized_name))
     if entity:
         for field, value in values.items():
             setattr(entity, field, value)
