@@ -1467,6 +1467,7 @@ class Handler(BaseHTTPRequestHandler):
         selected_filter = self._extract_query_param(request_path, "orden_filtro") or "ALL"
         selected_culture_result = selected_area.upper()
         culture_result_filters = {"POSITIVO", "NEGATIVO", "NO_TRAJO_MUESTRA", "MUESTRA_INADECUADA", "SIN_RESULTADO"}
+        status_filters = {"Nuevos", "Recepcionado", "Guardados", "Preliminar", "Final", "Instrumento"}
         query = []
         if date_from:
             query.append(f"from={quote(date_from, safe='')}")
@@ -1487,7 +1488,13 @@ class Handler(BaseHTTPRequestHandler):
             ]
         elif selected_area and selected_area not in {"ALL", "0"}:
             translated = [row for row in translated if row["oMic_examen"]["area_id"] == selected_area]
-        if selected_filter == "Nuevos":
+        if selected_filter and selected_filter not in {"ALL", "0"} and selected_filter not in status_filters:
+            translated = [
+                row
+                for row in translated
+                if row["oMic_orden"]["oMic_procedencia"]["procedencia_id"] == selected_filter
+            ]
+        elif selected_filter == "Nuevos":
             translated = [row for row in translated if not row["fecha_proc_resultado"]]
         elif selected_filter == "Recepcionado":
             translated = [row for row in translated if row["orden_det_estado"] == "RECEIVED"]

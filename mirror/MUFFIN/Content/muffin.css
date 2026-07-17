@@ -722,13 +722,21 @@ h1, h2, h3, h4, h5, h6 { color: var(--muffin-ink) !important; }
     width: 100%;
 }
 
+@media (min-width: 576px) {
+    .muffin-results-card .card-body > .row:first-of-type > [class*="col-"]:first-child {
+        min-width: 18.5rem;
+    }
+}
+
 .muffin-results-card .input-group,
 .muffin-results-card .input-group-sm {
     flex-wrap: nowrap;
 }
 
 .muffin-results-card #cboFiltro {
-    min-width: 0;
+    flex: 1 1 15rem;
+    min-width: 15rem;
+    padding-left: 0.85rem;
 }
 
 .muffin-results-card .input-group-text {

@@ -125,11 +125,13 @@ de la muestra.
 
 - `/api/v1/result-worklist` alimenta la bandeja de resultados.
 - Busqueda por orden, paciente, examen, muestra y codigo de barras.
-- Filtros por fecha, estado y resultado de cultivo.
+- Filtros por fecha, procedencia y resultado de cultivo.
+- El selector principal `Filtro` carga el catalogo de procedencias
+  (`CONSULTA EXTERNA`, `HOSPITALIZACION`, etc.) y filtra por `procedencia_id`.
 - El selector derecho de la bandeja muestra estados de resultado de cultivo:
   positivo, negativo, no trajo muestra, muestra inadecuada y sin resultado.
-- El proxy conserva compatibilidad con filtros por area si recibe un UUID de
-  area heredado, pero la UI ya no expone ese selector en esta pantalla.
+- El proxy conserva compatibilidad con filtros por estado o area heredados si
+  los recibe, pero la UI ya no expone esos selectores en esta pantalla.
 - Pacientes recibidos sin resultado aparecen como pendientes.
 - Parametros dinamicos por examen cargan y guardan desde el frontend.
 - Guardado en proceso, validacion preliminar, validacion final y reapertura.
@@ -243,9 +245,9 @@ corregir silenciosamente datos clinicos.
   una carrera de cierre en modales anidados al guardar paneles rapidamente.
 - Se corrigio el menu de sesion en la barra lateral para que abra hacia arriba
   sin recortarse en escritorio.
-- Se corrigio el layout de filtros de `Resultados` para que el selector de
-  estado no se recorte, y el selector derecho ahora filtra por resultado de
-  cultivo.
+- Se corrigio el layout de filtros de `Resultados` para que el selector
+  principal no se recorte. Ese selector ahora filtra por procedencia y el
+  selector derecho filtra por resultado de cultivo.
 - La ruta heredada `/MUFFIN/Trans_pdf/Download_res_es?orden_id=...` ya no cae al
   stub local; genera una vista HTML imprimible del reporte de resultados con
   boton `Imprimir / guardar PDF`.

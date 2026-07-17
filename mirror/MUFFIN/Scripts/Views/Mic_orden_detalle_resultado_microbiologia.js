@@ -60,10 +60,46 @@ function muffinCargarFiltroResultadoCultivo() {
     combo.closest(".card").addClass("muffin-results-card");
 }
 
+function muffinCargarFiltroProcedencia() {
+    var combo = $("#cboFiltro");
+    combo.html("");
+    $("<option>").attr({ "value": "ALL" }).text("[ TODAS LAS PROCEDENCIAS ]").appendTo(combo);
+    combo.val("ALL");
+    combo.attr("title", "Filtrar por procedencia");
+
+    jQuery.ajax({
+        url: $.MisUrls.url._ObtenerMic_procedencia,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            if (data.data != null) {
+                $.each(data.data, function (_i, item) {
+                    $("<option>")
+                        .attr({ "value": item.procedencia_uuid })
+                        .text(item.procedencia_desc)
+                        .appendTo(combo);
+                });
+            }
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+}
+
+function muffinRecargarListadoResultados() {
+    if ($.fn.DataTable.isDataTable('#tbdata')) {
+        $('#tbdata').DataTable().destroy();
+    }
+    listarRistros($("#txtfechaInicio").val(), $("#txtfechaFin").val(), $("#txtBuscar").val(), $("#cboArea").val(), $("#cboFiltro").val(), $("#session_user_id").val());
+}
+
 $(document).ready(function () {
     activarMenu("Mantenedor_resultado_micro");
 
     muffinCargarFiltroResultadoCultivo();
+    muffinCargarFiltroProcedencia();
 
     $("#btnGuardarCambios").click(function () {
         _GuardarResultadoMicrobiologia(0, true);
@@ -169,19 +205,12 @@ $(document).ready(function () {
 
 
     $('#cboFiltro').change(function () {
-        cboFiltro = $(this).val();
-        if (cboFiltro == 'Instrumento') {
-            $('#thTlbOrdenColumFecha').html('Proceso Inst. Fecha');
-        } else {
-            $('#thTlbOrdenColumFecha').html('Órden Fecha');
-        }
-        
+        $('#thTlbOrdenColumFecha').html('Órden Fecha');
+        muffinRecargarListadoResultados();
     });
 
     $('#cboArea').change(function () {
-        var table = $('#tbdata').DataTable();
-        table.destroy();
-        listarRistros($("#txtfechaInicio").val(), $("#txtfechaFin").val(), $("#txtBuscar").val(), $("#cboArea").val(), $("#cboFiltro").val(), $("#session_user_id").val())
+        muffinRecargarListadoResultados();
     });
 
     $("#btnDeletePanel").click(function () {
