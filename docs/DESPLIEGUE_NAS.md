@@ -7,10 +7,11 @@ Tenant inicial: `Hospital Sub Regional de Andahuaylas`.
 ## Servicios
 
 - `muffin-api`: FastAPI, dos workers y limite de 768 MB.
+- `muffin-frontend`: servidor web MUFFIN, proxy local hacia la API y limite de 256 MB.
 - `muffin-postgres`: PostgreSQL 16, limite de 1.5 GB.
 - Proxy reverso: usar el ya existente en el NAS para HTTPS y el dominio interno; no se incluye un proxy adicional.
 
-El presupuesto inicial de MUFFIN es menor de 2.5 GB. Esto deja memoria para el sistema NAS y las otras aplicaciones sobre un equipo de 8 GB.
+El presupuesto inicial de MUFFIN es menor de 2.8 GB. Esto deja memoria para el sistema NAS y las otras aplicaciones sobre un equipo de 8 GB.
 
 ## Almacenamiento
 
@@ -26,7 +27,8 @@ El presupuesto inicial de MUFFIN es menor de 2.5 GB. Esto deja memoria para el s
 3. Reemplazar `POSTGRES_PASSWORD`, `JWT_SECRET` y `BOOTSTRAP_ADMIN_PASSWORD` por secretos unicos. `JWT_SECRET` debe tener al menos 32 caracteres. Esta variante ya define `DEFAULT_INSTITUTION_NAME` y `DEFAULT_INSTITUTION_SLUG` para Andahuaylas; ajustar solo si cambia el cliente.
 4. Ejecutar `docker compose up -d --build`.
 5. Verificar `http://IP_DEL_NAS:8000/api/v1/health`.
-6. Configurar el proxy reverso hacia `muffin-api:8000` o `IP_DEL_NAS:8000`, segun el proxy existente.
+6. Verificar `http://IP_DEL_NAS:8501/MUFFIN/Login/Index`.
+7. Configurar el proxy reverso o Cloudflare Tunnel hacia `IP_DEL_NAS:8501` para publicar la aplicacion web. La API puede quedar limitada a red local.
 
 Las imagenes oficiales de Python y PostgreSQL seleccionan automaticamente la variante `linux/arm64` en el NAS RK3588C. No fijar una imagen `amd64`.
 

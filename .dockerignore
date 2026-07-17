@@ -1,5 +1,15 @@
 *
 !backend/
 !backend/**
+!server.py
+!mirror/
+!mirror/**
+!CLIENTES/
+!CLIENTES/**
+!MUFFIN_FAVICON.png
+!MUFFIN_ICONO.jpg
+!MUFFIN_SINFONDO.png
 backend/**/__pycache__/
 backend/**/*.pyc
+mirror/**/__pycache__/
+mirror/**/*.pyc

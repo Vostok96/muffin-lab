@@ -61,6 +61,29 @@ services:
     mem_limit: 768m
     cpus: 1.5
 
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: muffin-frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      SIMCORE_CLONE_HOST: 0.0.0.0
+      SIMCORE_CLONE_PORT: 8501
+      MUFFIN_API_URL: http://api:8000/api/v1
+    ports:
+      - "${MUFFIN_BIND_ADDRESS:-0.0.0.0}:${MUFFIN_FRONTEND_PORT:-8501}:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/MUFFIN/Login/Index')"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+    mem_limit: 256m
+    cpus: 0.75
+
 volumes:
   muffin_postgres_data:
     name: muffin_postgres_data
