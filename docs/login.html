@@ -21,6 +21,8 @@
                 radial-gradient(circle at 15% 18%, rgba(118,205,184,.16) 0 12%, transparent 13%),
                 radial-gradient(circle at 85% 12%, rgba(244,173,131,.16) 0 10%, transparent 11%),
                 linear-gradient(145deg, #06121b 0%, #0b1f2d 45%, #173748 100%);
+            box-sizing: border-box;
+            margin: 0;
             min-height: 100vh;
             padding: 1.2rem;
             display: flex;
@@ -32,7 +34,7 @@
             background: rgba(255, 255, 255, 0.97);
             border-radius: 1.4rem;
             box-sizing: border-box;
-            padding: 3rem 2.25rem 2.2rem;
+            padding: 2.75rem 2.25rem 1.85rem;
             position: relative;
             width: 100%;
             max-width: 440px;
@@ -40,7 +42,7 @@
         }
         .login-card .brand {
             text-align: center;
-            margin-bottom: 1.8rem;
+            margin-bottom: 1.55rem;
         }
         .login-card .brand img {
             width: 64px;
@@ -67,6 +69,47 @@
         }
         .login-card form {
             margin-top: 0.2rem;
+        }
+        .product-footer {
+            align-items: center;
+            border-top: 1px solid #dceae7;
+            display: grid;
+            gap: 0.68rem;
+            grid-template-columns: auto minmax(0, 1fr);
+            margin-top: 1.05rem;
+            padding-top: 0.88rem;
+            text-align: left;
+        }
+        .product-footer img {
+            background: #fff;
+            border: 1px solid #d3e6e0;
+            border-radius: 0.85rem;
+            display: block;
+            height: 42px;
+            object-fit: contain;
+            padding: 4px;
+            width: 42px;
+        }
+        .product-footer strong {
+            color: var(--muffin-ink);
+            display: block;
+            font-size: 0.78rem;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+        .product-footer span {
+            color: var(--muffin-muted);
+            display: block;
+            font-size: 0.68rem;
+            line-height: 1.25;
+            margin-top: 0.08rem;
+        }
+        .product-footer small {
+            color: #829799;
+            display: block;
+            font-size: 0.64rem;
+            line-height: 1.25;
+            margin-top: 0.18rem;
         }
         .login-card .form-group {
             display: block;
@@ -128,7 +171,13 @@
                 radial-gradient(circle at 88% 12%, rgba(196,122,94,.12) 0 9%, transparent 10%),
                 linear-gradient(145deg, #061018 0%, #0a1b27 46%, #102c3d 100%); }
         [data-theme="dark"] .login-card { background: rgba(16,32,42,.94); box-shadow: 0 24px 64px rgba(0,0,0,.56); }
-        [data-theme="dark"] .login-card .brand h1 { color: #d4e8e2; }
+        [data-theme="dark"] .login-card .brand h1 { color: #d4e8e2 !important; }
+        [data-theme="dark"] .login-card .brand p { color: #96b5b0 !important; }
+        [data-theme="dark"] .product-footer { border-color: #25474d; }
+        [data-theme="dark"] .product-footer img { background: #e8f3ef; border-color: #2e5960; }
+        [data-theme="dark"] .product-footer strong { color: #d4e8e2; }
+        [data-theme="dark"] .product-footer span { color: #95b5b0; }
+        [data-theme="dark"] .product-footer small { color: #72918d; }
         [data-theme="dark"] .login-card label { color: #b4c8c3; }
         [data-theme="dark"] .login-card .form-control { background: #0f222b; border-color: #1e3e44; color: #d4e8e2; }
         [data-theme="dark"] .login-card .form-control::placeholder { color: #5a7a72; }
@@ -161,7 +210,7 @@
         }
         @media (max-width: 520px) {
             .login-card {
-                padding: 2.5rem 1.35rem 1.9rem;
+                padding: 2.35rem 1.35rem 1.55rem;
             }
             .theme-pill {
                 right: 0.75rem;
@@ -238,6 +287,15 @@
                 <span id="btn-spinner" class="spinner-border spinner-border-sm" style="display:none;" role="status"></span>
             </button>
         </form>
+
+        <footer class="product-footer" aria-label="Información corporativa de MUFFIN">
+            <img src="/MUFFIN_PRODUCTO.jpg" alt="Logo MUFFIN">
+            <div>
+                <strong>MUFFIN</strong>
+                <span>Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales.</span>
+                <small>&copy; 2026 RyM SAC. Propiedad intelectual de RyM SAC.</small>
+            </div>
+        </footer>
     </div>
 
     <script>

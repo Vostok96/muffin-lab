@@ -182,64 +182,74 @@
 		<section class="muffin-hero" aria-labelledby="muffin-title">
 			<div>
 				<p class="muffin-eyebrow">Microbiología hospitalaria</p>
-				<h1 id="muffin-title">Bienvenido a <span>MUFFIN</span></h1>
-				<p class="muffin-hero-copy">Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales. Una estación de trabajo clara para cuidar cada muestra, resultado y decisión clínica.</p>
+				<h1 id="muffin-title">Hospital Sub Regional de Andahuaylas</h1>
+				<div class="muffin-hero-product" aria-label="Producto MUFFIN">
+					<img src="/MUFFIN_PRODUCTO.jpg" alt="">
+					<span>Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales</span>
+				</div>
 				<div class="muffin-hero-actions">
 					<a class="muffin-button muffin-button-primary" href="/MUFFIN/Mic_orden/"><i class="fas fa-plus-circle"></i> Nueva orden</a>
 					<a class="muffin-button muffin-button-secondary" href="/MUFFIN/Mic_orden_detalle/Resultado_microbiologia"><i class="fas fa-flask"></i> Ir a resultados</a>
 				</div>
 			</div>
 			<div class="muffin-mascot-wrap">
-				<img class="muffin-mascot" src="/MUFFIN_ICONO.jpg" alt="Mascota MUFFIN con microorganismos">
+				<img class="muffin-mascot" src="/MUFFIN_ICONO.jpg" alt="Logo del Hospital Sub Regional de Andahuaylas">
 			</div>
 		</section>
 
 		<div class="muffin-section-heading">
 			<div>
-				<h2>Estaciones de trabajo</h2>
-				<p>El flujo clínico se organiza desde la muestra hasta el informe.</p>
+				<h2>Producción en tiempo real</h2>
+				<p>Conteos operativos del día y tendencia corta.</p>
 			</div>
 		</div>
 
-		<section class="muffin-module-grid" aria-label="Módulos principales">
-			<a class="muffin-module" href="/MUFFIN/Mic_orden/">
-				<span class="muffin-module-icon"><i class="fas fa-clipboard-list"></i></span>
-				<h3>Solicitudes y muestras</h3>
-				<p>Registrar pacientes, órdenes, exámenes, toma y recepción de muestras.</p>
-			</a>
-			<a class="muffin-module" href="/MUFFIN/Mic_destinos_orden_detalle/">
-				<span class="muffin-module-icon"><i class="fas fa-barcode"></i></span>
-				<h3>Recepción y trazabilidad</h3>
-				<p>Verificar destinos, códigos de barras y el tránsito de cada muestra.</p>
-			</a>
-			<a class="muffin-module" href="/MUFFIN/Mic_orden_detalle/Resultado_microbiologia">
-				<span class="muffin-module-icon"><i class="fas fa-microscope"></i></span>
-				<h3>Resultados y AST</h3>
-				<p>Procesar parámetros, microorganismos, recuentos y antibiogramas.</p>
-			</a>
-			<a class="muffin-module" href="/MUFFIN/Trans_reportes/Microbiologia_rep_produccion">
-				<span class="muffin-module-icon"><i class="fas fa-chart-pie"></i></span>
-				<h3>Informes y vigilancia</h3>
-				<p>Consultar producción, emitir hojas de trabajo y apoyar la vigilancia nosocomial.</p>
-			</a>
+		<section class="muffin-live-stats" aria-label="Resumen de producción">
+			<article class="muffin-stat-card">
+				<span class="muffin-stat-icon"><i class="fas fa-clipboard-list"></i></span>
+				<span class="muffin-stat-label">Órdenes hoy</span>
+				<strong data-dashboard-field="hoy.ordenes">--</strong>
+			</article>
+			<article class="muffin-stat-card">
+				<span class="muffin-stat-icon"><i class="fas fa-hourglass-half"></i></span>
+				<span class="muffin-stat-label">Pendientes</span>
+				<strong data-dashboard-field="hoy.pendientes">--</strong>
+			</article>
+			<article class="muffin-stat-card">
+				<span class="muffin-stat-icon"><i class="fas fa-vials"></i></span>
+				<span class="muffin-stat-label">En proceso</span>
+				<strong data-dashboard-field="hoy.en_proceso">--</strong>
+			</article>
+			<article class="muffin-stat-card">
+				<span class="muffin-stat-icon"><i class="fas fa-check-circle"></i></span>
+				<span class="muffin-stat-label">Finalizados</span>
+				<strong data-dashboard-field="hoy.finalizados">--</strong>
+			</article>
 		</section>
 
-		<div class="muffin-section-heading">
-			<div>
-				<h2>Panel de turno</h2>
-				<p>La información operativa aparecerá aquí al conectar el backend de MUFFIN.</p>
+		<section class="muffin-production-strip" aria-label="Producción acumulada">
+			<div class="muffin-production-brand">
+				<img src="/MUFFIN_PRODUCTO.jpg" alt="">
+				<div>
+					<h3>MUFFIN</h3>
+					<p>Producción acumulada de resultados</p>
+				</div>
 			</div>
-		</div>
-
-		<section class="muffin-workbench" aria-label="Resumen operativo">
-			<div>
-				<h3>Actividad pendiente</h3>
-				<div class="muffin-empty-state"><i class="fas fa-seedling"></i><span>Sin datos de demostración. La portada está lista para mostrar órdenes pendientes, muestras por verificar y validaciones por realizar.</span></div>
+			<div class="muffin-production-metric">
+				<span>Total 7 días</span>
+				<strong data-dashboard-field="ultimos_7_dias.total">--</strong>
 			</div>
-			<div class="muffin-status">
-				<p class="muffin-status-label">Estado del entorno</p>
-				<strong>Modo de diseño local</strong>
-				<span>Interfaz funcional de referencia sin datos clínicos reales.</span>
+			<div class="muffin-production-metric">
+				<span>Finalizados 7 días</span>
+				<strong data-dashboard-field="ultimos_7_dias.finalizados">--</strong>
+			</div>
+			<div class="muffin-production-metric">
+				<span>Avance</span>
+				<strong><span data-dashboard-field="ultimos_7_dias.porcentaje_finalizado">--</span>%</strong>
+			</div>
+			<div class="muffin-production-update">
+				<span>Actualizado</span>
+				<strong data-dashboard-field="actualizado">--</strong>
 			</div>
 		</section>
 
@@ -578,6 +588,44 @@
 				}
 			});
 		}
+
+		(function cargarResumenDashboard() {
+			function valor(data, path) {
+				return path.split('.').reduce(function (current, key) {
+					return current && current[key] !== undefined ? current[key] : null;
+				}, data);
+			}
+
+			function pintar(data) {
+				document.querySelectorAll('[data-dashboard-field]').forEach(function (node) {
+					var raw = valor(data, node.getAttribute('data-dashboard-field'));
+					node.textContent = raw === null || raw === undefined || raw === '' ? '--' : raw;
+				});
+			}
+
+			function cargar() {
+				var token = localStorage.getItem('muffin_token');
+				if (!token) return;
+				fetch('/MUFFIN/Dashboard/Resumen', { headers: { 'Authorization': 'Bearer ' + token } })
+					.then(function (response) {
+						if (!response.ok) throw new Error('dashboard');
+						return response.json();
+					})
+					.then(function (data) {
+						if (data && data.resultado) pintar(data);
+					})
+					.catch(function () {
+						pintar({});
+					});
+			}
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', cargar);
+			} else {
+				cargar();
+			}
+			setInterval(cargar, 45000);
+		})();
 
 </script>
 	

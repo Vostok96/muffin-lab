@@ -59,9 +59,13 @@ body {
 
 .muffin-nav .navbar-brand::after {
     color: #fff8ec;
-    content: "H.S.R. ANDAHUAYLAS";
-    font-size: 0.96rem;
+    content: "MUFFIN";
+    font-size: 1rem;
+    font-weight: 900;
     line-height: 1.08;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .muffin-nav .navbar-brand img {
@@ -87,6 +91,75 @@ body {
 .muffin-nav .nav-link:hover,
 .muffin-nav .nav-link:focus {
     background: rgba(255, 255, 255, 0.16);
+}
+
+.muffin-client-panel {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 0.95rem;
+    color: #f2fbf7;
+    display: grid;
+    gap: 0.32rem;
+    justify-items: center;
+    margin: 1rem 0 0.5rem;
+    padding: 0.9rem 0.75rem;
+    text-align: center;
+}
+
+.muffin-client-panel img {
+    background: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    height: 4rem;
+    object-fit: contain;
+    padding: 0.2rem;
+    width: 4rem;
+}
+
+.muffin-client-kicker {
+    color: rgba(255, 248, 236, 0.72);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.muffin-client-panel strong {
+    color: #fff8ec;
+    font-size: 0.94rem;
+    font-weight: 800;
+    line-height: 1.14;
+}
+
+.muffin-sidebar-mascot {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 0.55rem 0 0.95rem;
+    min-height: 6.25rem;
+    padding: 0.25rem 0;
+    pointer-events: auto;
+}
+
+.muffin-sidebar-mascot img {
+    display: block;
+    filter: drop-shadow(0 12px 16px rgba(6, 48, 58, 0.2));
+    height: 5.8rem;
+    object-fit: contain;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    width: 5.8rem;
+}
+
+.muffin-sidebar-mascot:hover img {
+    animation: muffin-hop 520ms ease-in-out;
+    filter: drop-shadow(0 16px 20px rgba(6, 48, 58, 0.26));
+}
+
+@keyframes muffin-hop {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    35% { transform: translateY(-8px) rotate(-4deg); }
+    65% { transform: translateY(-3px) rotate(3deg); }
 }
 
 .muffin-nav .dropdown-menu {
@@ -141,11 +214,12 @@ body {
 
 .muffin-hero h1 {
     color: var(--muffin-ink);
-    font-size: clamp(2rem, 4.4vw, 3.75rem);
-    font-weight: 800;
+    font-size: clamp(2.25rem, 4.8vw, 4.25rem);
+    font-weight: 900;
     letter-spacing: 0;
-    line-height: 0.95;
+    line-height: 0.98;
     margin-bottom: 1rem;
+    max-width: 56rem;
 }
 
 .muffin-hero h1 span {
@@ -157,6 +231,28 @@ body {
     font-size: 1.06rem;
     line-height: 1.65;
     max-width: 43rem;
+}
+
+.muffin-hero-product {
+    align-items: center;
+    color: var(--muffin-teal-dark);
+    display: inline-flex;
+    font-size: 0.92rem;
+    font-weight: 800;
+    gap: 0.55rem;
+    line-height: 1.25;
+    margin-top: 0.55rem;
+    max-width: 34rem;
+}
+
+.muffin-hero-product img {
+    background: #fff;
+    border: 1px solid rgba(35, 156, 163, 0.18);
+    border-radius: 0.75rem;
+    height: 2.35rem;
+    object-fit: contain;
+    padding: 0.18rem;
+    width: 2.35rem;
 }
 
 .muffin-hero-actions {
@@ -205,9 +301,13 @@ body {
 }
 
 .muffin-mascot {
+    background: #fff;
+    border: 1px solid rgba(35, 156, 163, 0.2);
+    border-radius: 50%;
     filter: drop-shadow(0 14px 12px rgba(41, 76, 82, 0.18));
     max-height: 245px;
     object-fit: contain;
+    padding: 0.45rem;
     transform: rotate(3deg);
     width: min(100%, 245px);
 }
@@ -431,6 +531,16 @@ body {
     border-color: rgba(214, 227, 222, 0.66);
 }
 
+[data-theme="dark"] .muffin-client-panel {
+    background: rgba(18, 39, 43, 0.62);
+    border-color: rgba(214, 227, 222, 0.16);
+}
+
+[data-theme="dark"] .muffin-client-panel img {
+    background: #d6e3de;
+    border-color: rgba(214, 227, 222, 0.66);
+}
+
 [data-theme="dark"] .modal-content {
     background: var(--muffin-surface);
     box-shadow: 0 20px 50px rgba(5, 16, 18, 0.34);
@@ -474,6 +584,123 @@ body {
     font-size: 0.88rem;
     line-height: 1.48;
     margin: 0;
+}
+
+.muffin-live-stats {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.muffin-stat-card {
+    background: var(--muffin-surface);
+    border: 1px solid var(--muffin-line);
+    border-radius: 0.9rem;
+    color: var(--muffin-ink);
+    cursor: default;
+    display: grid;
+    gap: 0.55rem;
+    min-height: 9rem;
+    padding: 1rem;
+    text-decoration: none !important;
+    transition: background .3s;
+}
+
+.muffin-stat-icon {
+    align-items: center;
+    border-radius: 0.75rem;
+    display: inline-flex;
+    font-size: 1.05rem;
+    height: 2.45rem;
+    justify-content: center;
+    width: 2.45rem;
+}
+
+.muffin-stat-card:nth-child(1) .muffin-stat-icon { background: #d9f4ed; color: #187d80; }
+.muffin-stat-card:nth-child(2) .muffin-stat-icon { background: #fff0cf; color: #a56b12; }
+.muffin-stat-card:nth-child(3) .muffin-stat-icon { background: #dceeff; color: #2f6898; }
+.muffin-stat-card:nth-child(4) .muffin-stat-icon { background: #e0f3e8; color: #2f7d53; }
+
+.muffin-stat-label {
+    color: var(--muffin-muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.muffin-stat-card strong {
+    color: var(--muffin-ink);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 0.95;
+}
+
+.muffin-production-strip {
+    align-items: center;
+    background: var(--muffin-surface);
+    border: 1px solid var(--muffin-line);
+    border-radius: 0.9rem;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(14rem, 1.4fr) repeat(4, minmax(8rem, 0.65fr));
+    margin-top: 1rem;
+    padding: 1rem 1.1rem;
+}
+
+.muffin-production-brand {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.muffin-production-brand img {
+    background: #fff;
+    border: 1px solid var(--muffin-line);
+    border-radius: 0.75rem;
+    height: 3.2rem;
+    object-fit: contain;
+    padding: 0.25rem;
+    width: 3.2rem;
+}
+
+.muffin-production-brand h3 {
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    margin: 0;
+}
+
+.muffin-production-brand p,
+.muffin-production-metric span,
+.muffin-production-update span {
+    color: var(--muffin-muted);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.muffin-production-metric,
+.muffin-production-update {
+    display: grid;
+    gap: 0.18rem;
+    min-width: 0;
+}
+
+.muffin-production-metric strong,
+.muffin-production-update strong {
+    color: var(--muffin-ink);
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.muffin-production-update strong {
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .muffin-workbench {
@@ -541,6 +768,27 @@ body {
     font-size: 0.86rem;
 }
 [data-theme="dark"] .muffin-status span { color: #b89680; }
+
+[data-theme="dark"] .muffin-hero-product,
+[data-theme="dark"] .muffin-stat-card,
+[data-theme="dark"] .muffin-production-strip {
+    background: var(--muffin-surface);
+    border-color: var(--muffin-line);
+}
+
+[data-theme="dark"] .muffin-hero-product img,
+[data-theme="dark"] .muffin-production-brand img {
+    background: #d6e3de;
+}
+
+[data-theme="dark"] .muffin-hero-product {
+    color: #9ed5cf;
+}
+
+[data-theme="dark"] .muffin-stat-card:nth-child(1) .muffin-stat-icon { background: #1f4646; color: #8ad5cc; }
+[data-theme="dark"] .muffin-stat-card:nth-child(2) .muffin-stat-icon { background: #46391f; color: #e2bc6d; }
+[data-theme="dark"] .muffin-stat-card:nth-child(3) .muffin-stat-icon { background: #20394c; color: #9fc8e4; }
+[data-theme="dark"] .muffin-stat-card:nth-child(4) .muffin-stat-icon { background: #1f4330; color: #93d5aa; }
 
 /* ── Bootstrap dark overrides ── */
 [data-theme="dark"] .dropdown-menu { background: #1a2d30; border-color: var(--muffin-line); }
@@ -672,12 +920,16 @@ body {
 
 @media (max-width: 991px) {
     .muffin-module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .muffin-live-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .muffin-production-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .muffin-production-brand { grid-column: 1 / -1; }
 }
 
 @media (max-width: 767px) {
     .muffin-dashboard { padding: 1.25rem 0.85rem; }
     .muffin-hero { grid-template-columns: 1fr; padding: 1.45rem; }
     .muffin-mascot-wrap { display: none; }
+    .muffin-hero-product { align-items: flex-start; }
     .muffin-section-heading { align-items: start; flex-direction: column; gap: 0.3rem; }
     .muffin-workbench { grid-template-columns: 1fr; }
     .muffin-footer {
@@ -691,6 +943,8 @@ body {
 
 @media (max-width: 460px) {
     .muffin-module-grid { grid-template-columns: 1fr; }
+    .muffin-live-stats { grid-template-columns: 1fr; }
+    .muffin-production-strip { grid-template-columns: 1fr; }
     .muffin-hero-actions { flex-direction: column; }
     .muffin-button { justify-content: center; }
 }
@@ -1220,6 +1474,8 @@ h1, h2, h3, h4, h5, h6 { color: var(--muffin-ink) !important; }
     }
 
     body.muffin-sidebar-collapsed .muffin-nav .navbar-brand::after,
+    body.muffin-sidebar-collapsed .muffin-nav .muffin-client-panel,
+    body.muffin-sidebar-collapsed .muffin-nav .muffin-sidebar-mascot,
     body.muffin-sidebar-collapsed .muffin-nav .nav-link::after,
     body.muffin-sidebar-collapsed .muffin-nav .dropdown-menu {
         display: none !important;

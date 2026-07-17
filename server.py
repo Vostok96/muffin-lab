@@ -18,6 +18,25 @@ MANIFEST = ROOT / "docs" / "capture_manifest.json"
 INSTITUTION_NAME = "Hospital Sub Regional de Andahuaylas"
 CLIENT_ROOT = ROOT / "CLIENTES" / "Hospital Sub Regional Andahuaylas"
 BRAND_IMAGE = CLIENT_ROOT / "logo andahuylas.png"
+PRODUCT_IMAGE = ROOT / "MUFFIN_ICONO.jpg"
+MASCOT_IMAGE = ROOT / "MUFFIN_SINFONDO.png"
+CLIENT_SIGNERS = (
+    {
+        "slug": "katherine-pena-vega",
+        "name": "Katherine Mariely Peña Vega",
+        "title": "Bióloga - Microbióloga - Parasitóloga",
+        "credential": "CBP 16728",
+        "file": CLIENT_ROOT / "usuarios" / "Katherine Mariely Peña Vega" / "KATHERINE.jpeg",
+    },
+    {
+        "slug": "ruth-calderon-de-la-cruz",
+        "name": "Ruth N. Calderon De La Cruz",
+        "title": "Bióloga - Microbióloga",
+        "credential": "CBP 17484",
+        "file": CLIENT_ROOT / "usuarios" / "Ruth N. Calderon De La Cruz" / "RUTH.jpeg",
+    },
+)
+SIGNATURE_IMAGE_ROUTES = {f"/MUFFIN/firmas/{signer['slug']}.jpeg": signer["file"] for signer in CLIENT_SIGNERS}
 FAVICON = ROOT / "MUFFIN_FAVICON.png"
 FAVICON_MARKUP = b'\n\t<link rel="icon" type="image/png" sizes="256x256" href="/MUFFIN_FAVICON.png?v=muffin-20260716-v2">\n'
 HOST = os.environ.get("SIMCORE_CLONE_HOST", "127.0.0.1")
@@ -156,7 +175,7 @@ APP_FOOTER_MARKUP = """		<footer class="muffin-footer" role="contentinfo">
 			</div>
 			<div class="muffin-footer-legal">
 				<span>&copy; 2026 Hospital Sub Regional de Andahuaylas.</span>
-				<span>Plataforma MUFFIN. Propiedad intelectual de RyM SAC.</span>
+				<span>MUFFIN Microbiolog&iacute;a Hospitalaria. Propiedad intelectual de RyM SAC.</span>
 			</div>
 			<span class="muffin-footer-version">v1.0</span>
 		</footer>""".encode("utf-8")
@@ -185,6 +204,12 @@ var API='http://127.0.0.1:8000/api/v1';
 var token=localStorage.getItem('muffin_token');
 if(!token){window.location.href='/MUFFIN/Login/Index';return;}
 if(window.jQuery){jQuery.ajaxPrefilter(function(options,originalOptions,jqXHR){if(options.url&&options.url.indexOf('/MUFFIN/')===0)jqXHR.setRequestHeader('Authorization','Bearer '+token);});}
+
+var shellBrandImg=document.querySelector('.muffin-nav .navbar-brand img');
+if(shellBrandImg){
+    shellBrandImg.src='/MUFFIN_PRODUCTO.jpg';
+    shellBrandImg.alt='MUFFIN';
+}
 
 function cleanName(value){
     var namePrefixes=['DR','DRA','LIC','MG','MGR','MBA','BLGA','BLGO','MBLGA','MBLGO','ING','ABG','ABGA','MED'];
@@ -293,6 +318,21 @@ fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+token}})
 
     var menus=RM2[roleNum]||[];
     menus.forEach(function(m){var el=document.querySelector(SM[m]);if(el)el.style.display='';});
+    if(!document.querySelector('.muffin-client-panel')){
+        var menuList=document.querySelector('.muffin-nav .navbar-nav.mr-auto');
+        var reportItem=document.querySelector('.muffin-nav .cl_permiso_proceso_reportes');
+        if(menuList){
+            var clientItem=document.createElement('li');
+            clientItem.className='nav-item muffin-client-panel';
+            clientItem.innerHTML='<img src="/MUFFIN_ICONO.jpg" alt=""><span class="muffin-client-kicker">Instituci&oacute;n</span><strong>Hospital Sub Regional de Andahuaylas</strong>';
+            if(reportItem&&reportItem.parentNode===menuList)reportItem.insertAdjacentElement('afterend',clientItem);
+            else menuList.appendChild(clientItem);
+            var mascotItem=document.createElement('li');
+            mascotItem.className='nav-item muffin-sidebar-mascot';
+            mascotItem.innerHTML='<img src="/MUFFIN_MASCOTA.png" alt="Mascota MUFFIN">';
+            clientItem.insertAdjacentElement('afterend',mascotItem);
+        }
+    }
 })
 .catch(function(){localStorage.removeItem('muffin_token');window.location.href='/MUFFIN/Login/Index';});
 })();
@@ -344,6 +384,36 @@ def clean_display_name(given_name: object, family_name: object) -> str:
     cleaned_given = _strip_name_prefixes(given_name)
     parts = [cleaned_given, str(family_name or "").strip()]
     return " ".join(part for part in parts if part).strip()
+
+
+def render_report_signatures() -> str:
+    cards = []
+    for signer in CLIENT_SIGNERS:
+        signature_file = signer["file"]
+        if not isinstance(signature_file, Path) or not signature_file.exists():
+            continue
+        name = html.escape(str(signer["name"]))
+        title = html.escape(str(signer["title"]))
+        credential = html.escape(str(signer["credential"]))
+        slug = quote(str(signer["slug"]), safe="")
+        cards.append(
+            f"""
+    <div class="signature-card">
+      <div class="signature-image"><img src="/MUFFIN/firmas/{slug}.jpeg" alt="Sello y firma de {name}"></div>
+      <div class="signature-line"></div>
+      <strong>{name}</strong>
+      <span>{credential}</span>
+      <small>{title}</small>
+    </div>"""
+        )
+    if not cards:
+        return ""
+    return f"""
+  <section class="signature-panel" aria-label="Firmas autorizadas">
+    <div class="signature-title">Responsables autorizadas</div>
+    <div class="signature-grid">{"".join(cards)}
+    </div>
+  </section>"""
 
 
 def local_datetime_value(value: object) -> str:
@@ -418,6 +488,8 @@ CATALOG_CREATE_MAP = {
 }
 
 API_PROXIES = {
+    # ── Dashboard ──
+    "Dashboard/Resumen": ("GET", "/dashboard/summary", "dashboard_summary"),
     # ── Users ──
     "Mic_usuario/Obtener": ("GET", "/admin/users", "user_list"),
     "Mic_usuario/Guardar": ("POST", "/admin/users", "user_create"),
@@ -622,6 +694,15 @@ class Handler(BaseHTTPRequestHandler):
         if request_path in {"/MUFFIN_ICONO.jpg", "/MUFFIN/Imagenes/MUFFIN_ICONO.jpg"}:
             self.serve_file(BRAND_IMAGE, request_path)
             return
+        if request_path in {"/MUFFIN_PRODUCTO.jpg", "/MUFFIN/Imagenes/MUFFIN_PRODUCTO.jpg"}:
+            self.serve_file(PRODUCT_IMAGE, request_path)
+            return
+        if request_path in {"/MUFFIN_MASCOTA.png", "/MUFFIN/Imagenes/MUFFIN_MASCOTA.png"}:
+            self.serve_file(MASCOT_IMAGE, request_path)
+            return
+        if request_path in SIGNATURE_IMAGE_ROUTES:
+            self.serve_file(SIGNATURE_IMAGE_ROUTES[request_path], request_path)
+            return
         if request_path.rstrip("/") == "/MUFFIN/Home/Salir":
             self.send_bytes(LOGOUT_REDIRECT, 200, "text/html; charset=utf-8")
             return
@@ -721,6 +802,7 @@ class Handler(BaseHTTPRequestHandler):
             "user_delete": lambda: self._proxy_user_delete(token),
             "user_reactivate": lambda: self._proxy_user_reactivate(token),
             "user_password_update": lambda: self._proxy_user_password_update(token),
+            "dashboard_summary": lambda: self._proxy_dashboard_summary(token),
             "catalog_list": lambda: self._proxy_catalog_list(token, api_url),
             "catalog_mapped_create": lambda: self._proxy_catalog_mapped_create(token, api_url),
             "area_permission_list": lambda: self._proxy_area_permission_list(token),
@@ -786,6 +868,63 @@ class Handler(BaseHTTPRequestHandler):
 
     def _proxy_stub_ok(self, msg: str) -> None:
         self.send_json({"resultado": True, "mensaje": msg})
+
+    # ── DASHBOARD HANDLERS ──
+
+    def _proxy_dashboard_summary(self, token: str) -> None:
+        today = datetime.now(LOCAL_TIMEZONE).date()
+        week_start = today - timedelta(days=6)
+
+        def load_worklist(start: date, end: date) -> list[dict]:
+            status, data = api_req("GET", f"/result-worklist?from={start.isoformat()}&to={end.isoformat()}", token)
+            return data if status == 200 and isinstance(data, list) else []
+
+        def load_order_count(start: date, end: date) -> int:
+            status, data = api_req("GET", f"/orders?from={start.isoformat()}&to={end.isoformat()}&page_size=100", token)
+            if status == 200 and isinstance(data, dict):
+                return int(data.get("total", len(data.get("data", [])) or 0))
+            if status == 200 and isinstance(data, list):
+                return len(data)
+            return 0
+
+        def item_status(row: dict) -> str:
+            item = row.get("item") or {}
+            result = row.get("result") or {}
+            return str(result.get("status") or item.get("status") or "SIN_RESULTADO")
+
+        def summarize(rows: list[dict]) -> dict[str, int]:
+            final = sum(1 for row in rows if item_status(row) == "FINAL_VALIDATED")
+            preliminary = sum(1 for row in rows if item_status(row) == "PRELIMINARY_VALIDATED")
+            saved = sum(1 for row in rows if item_status(row) in {"RESULT_SAVED", "IN_PROCESS"})
+            received = sum(1 for row in rows if item_status(row) in {"REGISTERED", "COLLECTED", "RECEIVED", "SIN_RESULTADO"})
+            pending = max(len(rows) - final, 0)
+            return {
+                "total": len(rows),
+                "pendientes": pending,
+                "recibidos": received,
+                "en_proceso": saved,
+                "preliminares": preliminary,
+                "finalizados": final,
+            }
+
+        today_rows = load_worklist(today, today)
+        week_rows = load_worklist(week_start, today)
+        today_summary = summarize(today_rows)
+        week_summary = summarize(week_rows)
+        today_summary["ordenes"] = load_order_count(today, today)
+        week_summary["ordenes"] = load_order_count(week_start, today)
+        week_summary["porcentaje_finalizado"] = round((week_summary["finalizados"] / week_summary["total"]) * 100) if week_summary["total"] else 0
+
+        self.send_json(
+            {
+                "resultado": True,
+                "fecha": today.isoformat(),
+                "rango_7_dias": {"desde": week_start.isoformat(), "hasta": today.isoformat()},
+                "hoy": today_summary,
+                "ultimos_7_dias": week_summary,
+                "actualizado": datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        )
 
     # ── USER HANDLERS ──
 
@@ -1826,6 +1965,7 @@ class Handler(BaseHTTPRequestHandler):
             return html.escape(str(value or ""))
 
         item_sections = "".join(self._render_report_item(item) for item in report_items)
+        signatures_html = render_report_signatures()
         generated_at = datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M")
         body = f"""<!DOCTYPE html>
 <html lang="es">
@@ -1853,8 +1993,19 @@ table {{ border-collapse: collapse; margin: 6px 0 12px; width: 100%; }}
 th, td {{ border: 1px solid var(--line); padding: 6px 7px; text-align: left; vertical-align: top; }}
 th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }}
 .empty {{ color: var(--muted); font-style: italic; padding: 6px 0 12px; }}
+.signature-panel {{ border-top: 1px solid var(--line); break-inside: avoid; margin-top: 20px; padding-top: 14px; page-break-inside: avoid; }}
+.signature-title {{ color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; margin-bottom: 8px; text-transform: uppercase; }}
+.signature-grid {{ display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+.signature-card {{ color: var(--ink); min-height: 150px; text-align: center; }}
+.signature-image {{ align-items: center; display: flex; height: 88px; justify-content: center; margin: 0 auto 5px; max-width: 330px; }}
+.signature-image img {{ display: block; max-height: 88px; max-width: 100%; mix-blend-mode: multiply; object-fit: contain; }}
+.signature-line {{ border-top: 1px solid var(--ink); margin: 4px auto 6px; width: 72%; }}
+.signature-card strong {{ display: block; font-size: 11px; text-transform: uppercase; }}
+.signature-card span {{ display: block; font-size: 11px; font-weight: 700; margin-top: 1px; }}
+.signature-card small {{ color: var(--muted); display: block; font-size: 9px; letter-spacing: .03em; margin-top: 1px; text-transform: uppercase; }}
 .footer {{ border-top: 1px solid var(--line); color: var(--muted); margin-top: 18px; padding-top: 10px; }}
-@media print {{ body {{ padding: 0; }} .sheet {{ border: 0; max-width: none; }} .no-print {{ display: none !important; }} }}
+@media (max-width: 640px) {{ .grid, .signature-grid {{ grid-template-columns: 1fr; }} }}
+@media print {{ body {{ padding: 0; }} .sheet {{ border: 0; max-width: none; }} .no-print {{ display: none !important; }} .signature-panel {{ page-break-inside: avoid; }} }}
 </style>
 </head>
 <body>
@@ -1880,6 +2031,7 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
     <div class="field"><strong>Médico</strong>{e((clinician.get('medico_apellidos') or '') + ' ' + (clinician.get('medico_nombres') or ''))}</div>
   </div>
   {item_sections}
+  {signatures_html}
   <div class="footer">Generado localmente: {e(generated_at)}. Este reporte debe revisarse contra el estado de validación del resultado.</div>
 </div>
 </body>
