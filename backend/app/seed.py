@@ -50,8 +50,6 @@ DEVELOPMENT_USERS = (
     ("dev-processor", "PROCESADOR", "DESARROLLO", ("PROCESSOR",)),
 )
 
-QUICK_LOGIN_USER = ("admin", "ADMINISTRADOR", "LOCAL", ("ADMIN",), "admin")
-
 DEVELOPMENT_AREAS = (
     ("MICROBIOLOGY", "MICROBIOLOGIA", "MICROBIOLOGY"),
     ("RECEPTION", "RECEPCION DE MUESTRAS", "MICROBIOLOGY"),
@@ -266,6 +264,8 @@ def seed() -> None:
 
         origin = get_or_create_catalog(db, Origin, "HOSPITALIZACION", name="HOSPITALIZACION")
         service = get_or_create_catalog(db, Service, "EMERGENCIA", name="EMERGENCIA")
+        get_or_create_catalog(db, Origin, "UCI", name="UCI", is_active=True)
+        get_or_create_catalog(db, Service, "UCI", name="UCI", is_active=True)
         clinician = get_or_create_catalog(
             db,
             Clinician,
@@ -348,7 +348,7 @@ def seed() -> None:
                     {"code": "NO_TRAJO_MUESTRA", "label": "NO TRAJO MUESTRA"},
                     {"code": "MUESTRA_INADECUADA", "label": "MUESTRA INADECUADA"},
                 ],
-                "CULTIVO",
+                "CULTIVO MANUAL",
                 "NEGATIVO",
             ),
             ("CULTURE_OBSERVATION", "OBSERVACIONES", 2, False, "LONG_TEXT", None, None, None),
@@ -359,11 +359,11 @@ def seed() -> None:
                 False,
                 "SELECT",
                 [
-                    {"code": "NEGATIVO", "label": "NEGATIVO"},
-                    {"code": "POSITIVO", "label": "POSITIVO"},
-                    {"code": "NO_APLICA", "label": "NO APLICA"},
+                    {"code": "COCOS_GRAM_POSITIVOS", "label": "COCOS GRAM POSITIVOS"},
+                    {"code": "BACILOS_GRAM_NEGATIVOS", "label": "BACILOS GRAM NEGATIVOS"},
+                    {"code": "LEVADURAS", "label": "LEVADURAS"},
                 ],
-                "GRAM",
+                "TINCIÓN GRAM",
                 None,
             ),
             (
@@ -377,7 +377,7 @@ def seed() -> None:
                     {"code": "POSITIVO", "label": "POSITIVO"},
                     {"code": "NO_APLICA", "label": "NO APLICA"},
                 ],
-                "NITRITO",
+                "TIRA REACTIVA",
                 None,
             ),
             (
@@ -387,10 +387,25 @@ def seed() -> None:
                 False,
                 "SELECT",
                 [
-                    {"code": "ESCASO", "label": "ESCASO"},
-                    {"code": "MODERADO", "label": "MODERADO"},
-                    {"code": "ABUNDANTE", "label": "ABUNDANTE"},
-                    {"code": "NO_APLICA", "label": "NO APLICA"},
+                    {"code": "001000", "label": "1,000 UFC/mL"},
+                    {"code": "002000", "label": "2,000 UFC/mL"},
+                    {"code": "003000", "label": "3,000 UFC/mL"},
+                    {"code": "004000", "label": "4,000 UFC/mL"},
+                    {"code": "005000", "label": "5,000 UFC/mL"},
+                    {"code": "006000", "label": "6,000 UFC/mL"},
+                    {"code": "007000", "label": "7,000 UFC/mL"},
+                    {"code": "008000", "label": "8,000 UFC/mL"},
+                    {"code": "009000", "label": "9,000 UFC/mL"},
+                    {"code": "010000", "label": "10,000 UFC/mL"},
+                    {"code": "020000", "label": "20,000 UFC/mL"},
+                    {"code": "030000", "label": "30,000 UFC/mL"},
+                    {"code": "040000", "label": "40,000 UFC/mL"},
+                    {"code": "050000", "label": "50,000 UFC/mL"},
+                    {"code": "060000", "label": "60,000 UFC/mL"},
+                    {"code": "070000", "label": "70,000 UFC/mL"},
+                    {"code": "080000", "label": "80,000 UFC/mL"},
+                    {"code": "090000", "label": "90,000 UFC/mL"},
+                    {"code": "100000", "label": "100,000 UFC/mL"},
                 ],
                 "RECUENTO",
                 None,
@@ -423,7 +438,8 @@ def seed() -> None:
                 parameter_values["methodology"] = methodology
             parameter = get_or_create_catalog(db, ParameterDefinition, code, **parameter_values)
             result_parameters[code] = parameter
-            if not db.get(ExamParameter, (exam.id, parameter.id)):
+            relation = db.get(ExamParameter, (exam.id, parameter.id))
+            if not relation:
                 db.add(
                     ExamParameter(
                         exam_id=exam.id,
@@ -446,6 +462,17 @@ def seed() -> None:
                         "is_required": is_required,
                     },
                 )
+            else:
+                relation.display_order = display_order
+                relation.external_code = f"DEV-{code}"
+                relation.is_required = is_required
+
+        antimicrobial_activity = result_parameters.get("CULTURE_ANTIMICROBIAL_ACTIVITY")
+        if antimicrobial_activity:
+            antimicrobial_activity.is_active = False
+            relation = db.get(ExamParameter, (exam.id, antimicrobial_activity.id))
+            if relation:
+                db.delete(relation)
 
         patient = db.scalar(select(Patient).where(Patient.medical_record_number == "DEV-HC-0001"))
         if not patient:
@@ -600,34 +627,52 @@ def seed() -> None:
         organism = get_or_create_catalog(db, Organism, "ECOLI", name="ESCHERICHIA COLI")
         get_or_create_catalog(db, Organism, "KPN", name="KLEBSIELLA PNEUMONIAE")
         get_or_create_catalog(db, Organism, "PAE", name="PSEUDOMONAS AERUGINOSA")
+        generic_sp_organisms = [
+            ("ACINETOBACTER_SP", "Acinetobacter sp."),
+            ("CANDIDA_SP", "Candida sp."),
+            ("ENTEROBACTER_SP", "Enterobacter sp."),
+            ("ENTEROCOCCUS_SP", "Enterococcus sp."),
+            ("ESCHERICHIA_SP", "Escherichia sp."),
+            ("KLEBSIELLA_SP", "Klebsiella sp."),
+            ("PROTEUS_SP", "Proteus sp."),
+            ("PSEUDOMONAS_SP", "Pseudomonas sp."),
+            ("STAPHYLOCOCCUS_SP", "Staphylococcus sp."),
+            ("STREPTOCOCCUS_SP", "Streptococcus sp."),
+        ]
+        for code, name in generic_sp_organisms:
+            existing = db.scalar(select(Organism).where(Organism.name.ilike(name)))
+            if existing:
+                existing.name = name
+                existing.is_active = True
+            else:
+                get_or_create_catalog(db, Organism, code, name=name)
 
         colony_count_options = [
-            ("001000", "1,000 UFC/mL - ESCASO"),
-            ("002000", "2,000 UFC/mL - ESCASO"),
-            ("003000", "3,000 UFC/mL - ESCASO"),
-            ("004000", "4,000 UFC/mL - ESCASO"),
-            ("005000", "5,000 UFC/mL - ESCASO"),
-            ("006000", "6,000 UFC/mL - ESCASO"),
-            ("007000", "7,000 UFC/mL - ESCASO"),
-            ("008000", "8,000 UFC/mL - ESCASO"),
-            ("009000", "9,000 UFC/mL - ESCASO"),
-            ("010000", "10,000 UFC/mL - MODERADO"),
-            ("020000", "20,000 UFC/mL - MODERADO"),
-            ("030000", "30,000 UFC/mL - MODERADO"),
-            ("040000", "40,000 UFC/mL - MODERADO"),
-            ("050000", "50,000 UFC/mL - MODERADO"),
-            ("060000", "60,000 UFC/mL - MODERADO"),
-            ("070000", "70,000 UFC/mL - MODERADO"),
-            ("080000", "80,000 UFC/mL - MODERADO"),
-            ("090000", "90,000 UFC/mL - MODERADO"),
-            ("100000", "100,000 UFC/mL - ABUNDANTE"),
-            ("100001", ">100,000 UFC/mL - ABUNDANTE"),
+            ("001000", "1,000 UFC/mL"),
+            ("002000", "2,000 UFC/mL"),
+            ("003000", "3,000 UFC/mL"),
+            ("004000", "4,000 UFC/mL"),
+            ("005000", "5,000 UFC/mL"),
+            ("006000", "6,000 UFC/mL"),
+            ("007000", "7,000 UFC/mL"),
+            ("008000", "8,000 UFC/mL"),
+            ("009000", "9,000 UFC/mL"),
+            ("010000", "10,000 UFC/mL"),
+            ("020000", "20,000 UFC/mL"),
+            ("030000", "30,000 UFC/mL"),
+            ("040000", "40,000 UFC/mL"),
+            ("050000", "50,000 UFC/mL"),
+            ("060000", "60,000 UFC/mL"),
+            ("070000", "70,000 UFC/mL"),
+            ("080000", "80,000 UFC/mL"),
+            ("090000", "90,000 UFC/mL"),
+            ("100000", "100,000 UFC/mL"),
         ]
         colony_count_option_entities = {
             code: get_or_create_catalog(db, ColonyCountOption, code, name=name)
             for code, name in colony_count_options
         }
-        for legacy_code in ("RARE", "MODERATE", "ABUNDANT"):
+        for legacy_code in ("RARE", "MODERATE", "ABUNDANT", "100001"):
             legacy_option = db.scalar(select(ColonyCountOption).where(ColonyCountOption.code == legacy_code))
             if legacy_option:
                 legacy_option.is_active = False
@@ -843,31 +888,6 @@ def seed() -> None:
                     action="DEVELOPMENT_SEED",
                     after_data={"username": user.username, "roles": list(role_codes)},
                 )
-        # Quick-login convenience user (password = "admin", for local dev only)
-        admin_username, admin_given, admin_family, admin_roles, admin_password = QUICK_LOGIN_USER
-        admin_user = db.scalar(select(User).where(User.username == admin_username))
-        if not admin_user:
-            admin_user = User(
-                username=admin_username,
-                given_name=admin_given,
-                family_name=admin_family,
-                password_hash=hash_password(admin_password),
-                roles=list(db.scalars(select(Role).where(Role.code.in_(admin_roles)))),
-            )
-            db.add(admin_user)
-            db.flush()
-            record_audit(
-                db,
-                actor_user_id=None,
-                entity_type="user",
-                entity_id=admin_user.id,
-                action="DEVELOPMENT_SEED",
-                after_data={"username": admin_username, "roles": list(admin_roles)},
-            )
-        else:
-            admin_user.given_name = admin_given
-            admin_user.family_name = admin_family
-
         # Normalize historic microbiology result snapshots so existing orders
         # use the current parameter definitions when reopened in development.
         for value, parameter in db.execute(

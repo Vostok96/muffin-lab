@@ -4,6 +4,7 @@ import html
 import json
 import mimetypes
 import os
+import unicodedata
 from datetime import date, datetime, timedelta, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -23,6 +24,7 @@ MASCOT_IMAGE = ROOT / "MUFFIN_SINFONDO.png"
 CLIENT_SIGNERS = (
     {
         "slug": "katherine-pena-vega",
+        "usernames": ("kpena",),
         "name": "Katherine Mariely Peña Vega",
         "title": "Bióloga - Microbióloga - Parasitóloga",
         "credential": "CBP 16728",
@@ -30,6 +32,7 @@ CLIENT_SIGNERS = (
     },
     {
         "slug": "ruth-calderon-de-la-cruz",
+        "usernames": ("rcalderon",),
         "name": "Ruth N. Calderon De La Cruz",
         "title": "Bióloga - Microbióloga",
         "credential": "CBP 17484",
@@ -37,6 +40,37 @@ CLIENT_SIGNERS = (
     },
 )
 SIGNATURE_IMAGE_ROUTES = {f"/MUFFIN/firmas/{signer['slug']}.jpeg": signer["file"] for signer in CLIENT_SIGNERS}
+GRAM_RESULT_OPTIONS = [
+    ("COCOS_GRAM_POSITIVOS", "COCOS GRAM POSITIVOS"),
+    ("BACILOS_GRAM_NEGATIVOS", "BACILOS GRAM NEGATIVOS"),
+    ("LEVADURAS", "LEVADURAS"),
+]
+COLONY_COUNT_RESULT_OPTIONS = [
+    ("001000", "1,000 UFC/mL"),
+    ("002000", "2,000 UFC/mL"),
+    ("003000", "3,000 UFC/mL"),
+    ("004000", "4,000 UFC/mL"),
+    ("005000", "5,000 UFC/mL"),
+    ("006000", "6,000 UFC/mL"),
+    ("007000", "7,000 UFC/mL"),
+    ("008000", "8,000 UFC/mL"),
+    ("009000", "9,000 UFC/mL"),
+    ("010000", "10,000 UFC/mL"),
+    ("020000", "20,000 UFC/mL"),
+    ("030000", "30,000 UFC/mL"),
+    ("040000", "40,000 UFC/mL"),
+    ("050000", "50,000 UFC/mL"),
+    ("060000", "60,000 UFC/mL"),
+    ("070000", "70,000 UFC/mL"),
+    ("080000", "80,000 UFC/mL"),
+    ("090000", "90,000 UFC/mL"),
+    ("100000", "100,000 UFC/mL"),
+]
+RESULT_PARAMETER_OPTION_OVERRIDES = {
+    "CULTURE_GRAM": GRAM_RESULT_OPTIONS,
+    "CULTURE_COLONY_COUNT": COLONY_COUNT_RESULT_OPTIONS,
+}
+SUPPRESSED_RESULT_PARAMETERS = {"CULTURE_ANTIMICROBIAL_ACTIVITY"}
 FAVICON = ROOT / "MUFFIN_FAVICON.png"
 FAVICON_MARKUP = b'\n\t<link rel="icon" type="image/png" sizes="256x256" href="/MUFFIN_FAVICON.png?v=muffin-20260716-v2">\n'
 HOST = os.environ.get("SIMCORE_CLONE_HOST", "127.0.0.1")
@@ -386,32 +420,89 @@ def clean_display_name(given_name: object, family_name: object) -> str:
     return " ".join(part for part in parts if part).strip()
 
 
-def render_report_signatures() -> str:
-    cards = []
-    for signer in CLIENT_SIGNERS:
-        signature_file = signer["file"]
-        if not isinstance(signature_file, Path) or not signature_file.exists():
-            continue
-        name = html.escape(str(signer["name"]))
-        title = html.escape(str(signer["title"]))
-        credential = html.escape(str(signer["credential"]))
-        slug = quote(str(signer["slug"]), safe="")
-        cards.append(
-            f"""
+def normalize_match_key(value: object) -> str:
+    text = unicodedata.normalize("NFKD", str(value or "").casefold())
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    return " ".join(text.replace(".", " ").replace("-", " ").split())
+
+
+def uppercase_report_value(value: object) -> str:
+    return str(value or "").strip().upper()
+
+
+def culture_result_code(result: dict) -> str:
+    values = result.get("values", []) if isinstance(result, dict) else []
+    for parameter in values:
+        if parameter.get("code") == "CULTURE_RESULT":
+            return uppercase_report_value(parameter.get("value_code") or parameter.get("value_text"))
+    return ""
+
+
+def report_status_label(status: object, culture_result: object = "") -> str:
+    status_key = uppercase_report_value(status)
+    culture_key = uppercase_report_value(culture_result)
+    if status_key == "REJECTED" or culture_key in {"NO_TRAJO_MUESTRA", "MUESTRA_INADECUADA"}:
+        return "RECHAZADO"
+    if status_key in {"FINAL", "FINAL_VALIDATED"}:
+        return "FINALIZADO"
+    if status_key == "CANCELLED":
+        return "ANULADO"
+    return "EN PROCESO"
+
+
+def report_parameter_method_label(code: object, value: object) -> str:
+    code_key = uppercase_report_value(code)
+    if code_key == "CULTURE_RESULT":
+        return "CULTIVO MANUAL"
+    if code_key == "CULTURE_GRAM":
+        return "TINCIÓN GRAM"
+    if code_key == "CULTURE_NITRITE":
+        return "TIRA REACTIVA"
+    if code_key == "CULTURE_COLONY_COUNT":
+        return "RECUENTO"
+    raw = uppercase_report_value(value)
+    key = normalize_match_key(raw)
+    if not key:
+        return "-"
+    if key == "cmi" or "microdilucion" in key or "automatizado" in key:
+        return "CULTIVO AUTOMATIZADO"
+    if key == "disco" or "difusion" in key or "manual" in key:
+        return "CULTIVO MANUAL"
+    return raw
+
+
+def editor_ast_method(value: object) -> str:
+    return "CMI" if uppercase_report_value(value) == "CMI" else "DISCO"
+
+
+def report_ast_method_label(value: object) -> str:
+    return editor_ast_method(value)
+
+
+def report_ast_value(method: object, value: object) -> str:
+    value_text = str(value or "").strip()
+    return value_text if editor_ast_method(method) == "CMI" and value_text else "-"
+
+
+def render_report_signatures(signer: dict | None) -> str:
+    if not signer:
+        return ""
+    signature_file = signer["file"]
+    if not isinstance(signature_file, Path) or not signature_file.exists():
+        return ""
+    name = html.escape(uppercase_report_value(signer["name"]))
+    credential = html.escape(str(signer["credential"]))
+    slug = quote(str(signer["slug"]), safe="")
+    return f"""
+  <section class="signature-panel" aria-label="Firma autorizada">
+    <div class="signature-title">Responsable autorizada</div>
+    <div class="signature-grid">
     <div class="signature-card">
       <div class="signature-image"><img src="/MUFFIN/firmas/{slug}.jpeg" alt="Sello y firma de {name}"></div>
       <div class="signature-line"></div>
       <strong>{name}</strong>
       <span>{credential}</span>
-      <small>{title}</small>
-    </div>"""
-        )
-    if not cards:
-        return ""
-    return f"""
-  <section class="signature-panel" aria-label="Firmas autorizadas">
-    <div class="signature-title">Responsables autorizadas</div>
-    <div class="signature-grid">{"".join(cards)}
+    </div>
     </div>
   </section>"""
 
@@ -534,6 +625,7 @@ API_PROXIES = {
     "Mic_Persona/Obtener": ("GET", "/patients", "patient_list"),
     "Mic_persona/ObtenerHC": ("GET", "/patients", "patient_list"),
     "Mic_Persona/Guardar": ("POST", "/patients", "patient_save"),
+    "Mic_Persona/Eliminar": ("POST", "/patients", "patient_delete"),
     # ── Orders ──
     "Mic_orden/Obtener": ("GET", "/orders", "order_list"),
     "Mic_orden/Guardar": ("POST", "/orders", "order_save"),
@@ -816,6 +908,7 @@ class Handler(BaseHTTPRequestHandler):
             "exam_param_remove": lambda: self._proxy_exam_param_remove(token, path),
             "patient_list": lambda: self._proxy_patient_list(token),
             "patient_save": lambda: self._proxy_patient_save(token),
+            "patient_delete": lambda: self._proxy_patient_delete(token),
             "order_list": lambda: self._proxy_order_list(token),
             "order_save": lambda: self._proxy_order_save(token),
             "order_detail_exams": lambda: self._proxy_order_detail_exams(token, path),
@@ -826,7 +919,7 @@ class Handler(BaseHTTPRequestHandler):
             "result_item_sample": lambda: self._proxy_result_item_sample(token),
             "order_item_sample_save": lambda: self._proxy_order_item_sample_save(token),
             "order_item_instrument": lambda: self._proxy_stub_ok("Instrumento enviado"),
-            "order_item_delete_events": lambda: self._proxy_stub_ok("Eventos eliminados"),
+            "order_item_delete_events": lambda: self._proxy_result_delete(token),
             "order_item_email_alarm": lambda: self._proxy_stub_ok("Alarma de email enviada"),
             "result_save": lambda: self._proxy_result_save(token),
             "result_get_by_order": lambda: self._proxy_result_get_by_order(token, path),
@@ -1065,6 +1158,10 @@ class Handler(BaseHTTPRequestHandler):
             items = data["data"]
         elif status == 200 and isinstance(data, list):
             items = data
+        if api_url == "/catalogs/organisms":
+            items = sorted(items, key=lambda item: normalize_match_key(item.get("name")))
+        elif api_url == "/catalogs/colony-count-options":
+            items = sorted(items, key=lambda item: item.get("code", ""))
         mapping = CATALOG_FIELD_MAP.get(api_url)
         if mapping and items:
             translated = [{dst: i.get(src, "") for src, dst in mapping.items()} for i in items]
@@ -1308,6 +1405,33 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"resultado": False, "mensaje": "Su usuario no tiene permiso para guardar pacientes"})
         else:
             self.send_json({"resultado": False, "mensaje": f"No se pudo guardar el paciente (HTTP {status})"})
+
+    def _proxy_patient_delete(self, token: str) -> None:
+        body = self._read_body()
+        request_path = self.path if hasattr(self, "path") else ""
+        obj = (body or {}).get("objeto", body or {})
+        patient_id = (
+            str(obj.get("persona_id", "")).strip()
+            or self._extract_query_param(request_path, "persona_id")
+            or self._extract_query_param(request_path, "patient_id")
+        )
+        if not patient_id:
+            self.send_json({"resultado": False, "mensaje": "Paciente requerido"})
+            return
+        status, data = api_req("DELETE", f"/patients/{quote(patient_id, safe='')}", token)
+        if status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": "Paciente eliminado correctamente"})
+        elif status == 409:
+            self.send_json(
+                {
+                    "resultado": False,
+                    "mensaje": "No se puede eliminar: el paciente tiene resultados finales validados",
+                }
+            )
+        elif status == 403:
+            self.send_json({"resultado": False, "mensaje": "Su usuario no tiene permiso para eliminar pacientes"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"No se pudo eliminar el paciente (HTTP {status})"})
 
     # ── ORDER HANDLERS ──
 
@@ -1608,7 +1732,13 @@ class Handler(BaseHTTPRequestHandler):
 
     def _proxy_order_item_delete(self, token: str) -> None:
         body = self._read_body()
-        item_id = (body or {}).get("item_id", "") or (body or {}).get("detalle_id", "")
+        request_path = self.path if hasattr(self, "path") else ""
+        item_id = (
+            (body or {}).get("item_id", "")
+            or (body or {}).get("detalle_id", "")
+            or self._extract_query_param(request_path, "orden_det_id")
+            or self._extract_query_param(request_path, "item_id")
+        )
         if not item_id:
             self.send_json({"resultado": False, "mensaje": "item_id requerido"})
             return
@@ -1828,7 +1958,12 @@ class Handler(BaseHTTPRequestHandler):
             return
         control_ids = str(obj.get("temporal1", "")).split("|")
         control_values = str(obj.get("temporal2", "")).split("|")
-        submitted = {control_id: value for control_id, value in zip(control_ids, control_values) if control_id}
+        submitted = {}
+        for control_id, value in zip(control_ids, control_values):
+            if not control_id:
+                continue
+            normalized_value = "" if value is None or str(value).strip().lower() in {"null", "undefined"} else value
+            submitted[control_id] = normalized_value
         translated_values = []
         for parameter in form.get("values", []):
             parameter_id = parameter.get("parameter_definition_id", "")
@@ -1843,7 +1978,11 @@ class Handler(BaseHTTPRequestHandler):
         payload = {"values": translated_values, "ready_for_validation": validation_type in {1, 2}}
         status, data = api_req("PUT", f"/order-items/{item_id}/result", token, payload)
         if status not in (200, 201):
-            message = "La muestra debe estar recibida antes de registrar resultados" if status == 409 else "Revise los valores requeridos del resultado"
+            message = (
+                "La muestra debe estar recibida antes de registrar resultados"
+                if status == 409
+                else self._api_error(status, data) or "Revise los valores requeridos del resultado"
+            )
             self.send_json({"resultado": False, "mensaje": message})
             return
         if validation_type in {1, 2}:
@@ -1854,6 +1993,24 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"resultado": True, "mensaje": "Resultado guardado correctamente"})
         else:
             self.send_json({"resultado": False, "mensaje": "El resultado se guardo, pero no pudo validarse"})
+
+    def _proxy_result_delete(self, token: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        item_id = (
+            self._extract_query_param(request_path, "orden_det_id")
+            or self._extract_query_param(request_path, "item_id")
+            or self._extract_query_param(request_path, "detalle_id")
+        )
+        if not item_id:
+            self.send_json({"resultado": False, "mensaje": "Orden detalle requerida"})
+            return
+        status, data = api_req("DELETE", f"/order-items/{quote(item_id, safe='')}/result", token)
+        if status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": "Resultado eliminado correctamente"})
+        elif status == 403:
+            self.send_json({"resultado": False, "mensaje": "Su usuario no tiene permiso para eliminar este resultado"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"No se pudo eliminar el resultado (HTTP {status})"})
 
     def _proxy_result_get_by_order(self, token: str, path: str) -> None:
         request_path = self.path if hasattr(self, "path") else path
@@ -1871,11 +2028,18 @@ class Handler(BaseHTTPRequestHandler):
             for parameter in data.get("values", []):
                 parameter_id = parameter.get("parameter_definition_id", "")
                 parameter_name = html.escape(str(parameter.get("name", "")))
-                required = " required" if parameter.get("is_required") else ""
-                value_type = parameter.get("value_type")
                 parameter_code = parameter.get("code", "")
+                required = " required" if parameter.get("is_required") else ""
+                if parameter_code == "CULTURE_NITRITE":
+                    required = ""
+                value_type = parameter.get("value_type")
+                if parameter_code in SUPPRESSED_RESULT_PARAMETERS:
+                    continue
                 if value_type == "SELECT":
-                    options = select_options_from_schema(parameter.get("options_schema"))
+                    options = RESULT_PARAMETER_OPTION_OVERRIDES.get(
+                        parameter_code,
+                        select_options_from_schema(parameter.get("options_schema")),
+                    )
                     options_html = "".join(
                         f'<option value="{html.escape(code)}">{html.escape(label)}</option>'
                         for code, label in options
@@ -1898,7 +2062,6 @@ class Handler(BaseHTTPRequestHandler):
                     "CULTURE_GRAM",
                     "CULTURE_NITRITE",
                     "CULTURE_COLONY_COUNT",
-                    "CULTURE_ANTIMICROBIAL_ACTIVITY",
                 }:
                     wrapper_classes.append("muffin-culture-positive-only")
                     wrapper_style = ' style="display:none"'
@@ -1957,15 +2120,21 @@ class Handler(BaseHTTPRequestHandler):
         order_info = first.get("oMic_orden", {})
         patient = order_info.get("oMic_persona", {})
         clinician = order_info.get("oMic_medico", {})
-        status_values = {item["result"].get("status", item["translated"].get("orden_det_estado", "")) for item in report_items}
-        status_label = " / ".join(sorted(value for value in status_values if value)) or "SIN RESULTADO"
-        final_notice = "" if status_values == {"FINAL"} or "FINAL_VALIDATED" in status_values else "<div class='notice'>Reporte generado para revisión local. El resultado puede no estar validado final.</div>"
+        status_values = {
+            report_status_label(
+                item["result"].get("status") or item["translated"].get("orden_det_estado", ""),
+                culture_result_code(item["result"]),
+            )
+            for item in report_items
+        }
+        status_label = " / ".join(sorted(value for value in status_values if value)) or "EN PROCESO"
+        final_notice = "" if status_values <= {"FINALIZADO", "RECHAZADO"} else "<div class='notice'>Constancia emitida con resultado en proceso. Verifique la validación final antes de usarla como informe definitivo.</div>"
 
         def e(value: object) -> str:
             return html.escape(str(value or ""))
 
         item_sections = "".join(self._render_report_item(item) for item in report_items)
-        signatures_html = render_report_signatures()
+        signatures_html = render_report_signatures(self._report_signer(token, report_items))
         generated_at = datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M")
         body = f"""<!DOCTYPE html>
 <html lang="es">
@@ -1995,14 +2164,13 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
 .empty {{ color: var(--muted); font-style: italic; padding: 6px 0 12px; }}
 .signature-panel {{ border-top: 1px solid var(--line); break-inside: avoid; margin-top: 20px; padding-top: 14px; page-break-inside: avoid; }}
 .signature-title {{ color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; margin-bottom: 8px; text-transform: uppercase; }}
-.signature-grid {{ display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-.signature-card {{ color: var(--ink); min-height: 150px; text-align: center; }}
+.signature-grid {{ display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); justify-items: center; }}
+.signature-card {{ color: var(--ink); max-width: 460px; min-height: 150px; text-align: center; width: 100%; }}
 .signature-image {{ align-items: center; display: flex; height: 88px; justify-content: center; margin: 0 auto 5px; max-width: 330px; }}
 .signature-image img {{ display: block; max-height: 88px; max-width: 100%; mix-blend-mode: multiply; object-fit: contain; }}
 .signature-line {{ border-top: 1px solid var(--ink); margin: 4px auto 6px; width: 72%; }}
 .signature-card strong {{ display: block; font-size: 11px; text-transform: uppercase; }}
 .signature-card span {{ display: block; font-size: 11px; font-weight: 700; margin-top: 1px; }}
-.signature-card small {{ color: var(--muted); display: block; font-size: 9px; letter-spacing: .03em; margin-top: 1px; text-transform: uppercase; }}
 .footer {{ border-top: 1px solid var(--line); color: var(--muted); margin-top: 18px; padding-top: 10px; }}
 @media (max-width: 640px) {{ .grid, .signature-grid {{ grid-template-columns: 1fr; }} }}
 @media print {{ body {{ padding: 0; }} .sheet {{ border: 0; max-width: none; }} .no-print {{ display: none !important; }} .signature-panel {{ page-break-inside: avoid; }} }}
@@ -2032,7 +2200,7 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
   </div>
   {item_sections}
   {signatures_html}
-  <div class="footer">Generado localmente: {e(generated_at)}. Este reporte debe revisarse contra el estado de validación del resultado.</div>
+  <div class="footer">Emitido por MUFFIN el {e(generated_at)}. Verifique identidad del paciente, muestra y estado del resultado antes de la entrega.</div>
 </div>
 </body>
 </html>"""
@@ -2043,6 +2211,45 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
 <style>body{{font-family:Arial,sans-serif;margin:32px;color:#294c52}}.box{{border:1px solid #d8ebe5;border-radius:8px;padding:18px;max-width:680px}}</style>
 </head><body><div class="box"><h1>Reporte no disponible</h1><p>{html.escape(message)}</p></div></body></html>"""
         self.send_bytes(body.encode("utf-8"), 404, "text/html; charset=utf-8")
+
+    def _client_signer_for_user(self, user: dict | None) -> dict | None:
+        if not isinstance(user, dict):
+            return None
+        username = normalize_match_key(user.get("username"))
+        full_name = normalize_match_key(f"{user.get('given_name', '')} {user.get('family_name', '')}")
+        for signer in CLIENT_SIGNERS:
+            usernames = {normalize_match_key(item) for item in signer.get("usernames", ())}
+            signer_name = normalize_match_key(signer.get("name"))
+            if username and username in usernames:
+                return signer
+            if signer_name and full_name and (signer_name == full_name or signer_name in full_name):
+                return signer
+        return None
+
+    def _report_signer(self, token: str, report_items: list[dict]) -> dict | None:
+        validator_ids = {
+            item.get("result", {}).get("final_by")
+            for item in report_items
+            if report_status_label(
+                item.get("result", {}).get("status") or item.get("translated", {}).get("orden_det_estado"),
+                culture_result_code(item.get("result", {})),
+            )
+            == "FINALIZADO"
+            and item.get("result", {}).get("final_by")
+        }
+        if len(validator_ids) != 1:
+            return None
+        validator_id = next(iter(validator_ids))
+        status, current_user = api_req("GET", "/auth/me", token)
+        if status == 200 and isinstance(current_user, dict):
+            if current_user.get("id") == validator_id:
+                return self._client_signer_for_user(current_user)
+        status, users = api_req("GET", "/admin/users", token)
+        if status == 200 and isinstance(users, list):
+            for user in users:
+                if isinstance(user, dict) and user.get("id") == validator_id:
+                    return self._client_signer_for_user(user)
+        return None
 
     def _build_report_item(self, token: str, raw_item: dict) -> dict | None:
         item_id = raw_item.get("id", "")
@@ -2104,11 +2311,15 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
 
         parameter_rows = []
         for parameter in sorted(result.get("values", []), key=lambda row: row.get("display_order") or 0):
+            if parameter.get("code") in SUPPRESSED_RESULT_PARAMETERS:
+                continue
             value = display_value(parameter)
             if not value:
                 continue
             parameter_rows.append(
-                f"<tr><td>{e(parameter.get('name'))}</td><td>{e(value)}</td><td>{e(parameter.get('methodology'))}</td></tr>"
+                f"<tr><td>{e(uppercase_report_value(parameter.get('name')))}</td>"
+                f"<td>{e(uppercase_report_value(value))}</td>"
+                f"<td>{e(report_parameter_method_label(parameter.get('code'), parameter.get('methodology')))}</td></tr>"
             )
         parameters_html = (
             "<table><thead><tr><th>Parámetro</th><th>Resultado</th><th>Método</th></tr></thead><tbody>"
@@ -2131,8 +2342,9 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
                 antibiotic = antibiotics.get(row.get("antibiotic_id"), {})
                 interpretation = {"POS": "+", "NEG": "-"}.get(row.get("interpretation"), row.get("interpretation", ""))
                 ast_rows.append(
-                    f"<tr><td>{e(antibiotic.get('name') or row.get('antibiotic_id'))}</td>"
-                    f"<td>{e(row.get('mic_value'))}</td><td>{e(interpretation)}</td><td>{e(row.get('method'))}</td></tr>"
+                    f"<tr><td>{e(uppercase_report_value(antibiotic.get('name') or row.get('antibiotic_id')))}</td>"
+                    f"<td>{e(report_ast_value(row.get('method'), row.get('mic_value')))}</td>"
+                    f"<td>{e(uppercase_report_value(interpretation))}</td><td>{e(report_ast_method_label(row.get('method')))}</td></tr>"
                 )
             ast_html = (
                 "<table><thead><tr><th>Antibiótico</th><th>Valor</th><th>Interpretación</th><th>Método</th></tr></thead><tbody>"
@@ -2142,20 +2354,21 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
                 else "<div class='empty'>Sin antibiograma reportable.</div>"
             )
             isolate_sections.append(
-                f"<h3>Aislado: {e(organism.get('name') or isolate.get('organism_id'))}</h3>"
-                f"<div class='grid'><div class='field'><strong>Recuento</strong>{e(colony_count.get('name') or isolate.get('colony_count_option_id'))}</div>"
-                f"<div class='field'><strong>Fenotipo</strong>{e(isolate.get('phenotype'))}</div>"
-                f"<div class='field'><strong>Comentario</strong>{e(isolate.get('comment'))}</div></div>"
+                f"<h3>Aislado: {e(uppercase_report_value(organism.get('name') or isolate.get('organism_id')))}</h3>"
+                f"<div class='grid'><div class='field'><strong>Recuento</strong>{e(uppercase_report_value(colony_count.get('name') or isolate.get('colony_count_option_id')))}</div>"
+                f"<div class='field'><strong>Fenotipo</strong>{e(uppercase_report_value(isolate.get('phenotype')))}</div>"
+                f"<div class='field'><strong>Comentario</strong>{e(uppercase_report_value(isolate.get('comment')))}</div></div>"
                 f"{ast_html}"
             )
 
         isolates_html = "".join(isolate_sections) if isolate_sections else "<div class='empty'>Sin identificación/antibiograma registrado.</div>"
+        item_status = report_status_label(result.get("status") or translated.get("orden_det_estado"), culture_result_code(result))
         return f"""
-<h2>{e(exam.get('examen_desc'))}</h2>
+<h2>{e(uppercase_report_value(exam.get('examen_desc')))}</h2>
 <div class="grid">
-  <div class="field"><strong>Muestra</strong>{e(specimen.get('muestra_desc'))}</div>
+  <div class="field"><strong>Muestra</strong>{e(uppercase_report_value(specimen.get('muestra_desc')))}</div>
   <div class="field"><strong>Código de barras</strong>{e(translated.get('orden_det_codebar'))}</div>
-  <div class="field"><strong>Estado</strong>{e(result.get('status') or translated.get('orden_det_estado'))}</div>
+  <div class="field"><strong>Estado</strong>{e(item_status)}</div>
   <div class="field"><strong>Toma</strong>{e(translated.get('fecha_muestra_toma'))}</div>
   <div class="field"><strong>Recepción</strong>{e(translated.get('fecha_muestra_recepcion'))}</div>
   <div class="field"><strong>Guardado</strong>{e(local_datetime_value(result.get('saved_at')))}</div>
@@ -2366,10 +2579,12 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
                 continue
             interpretation = interpretations[index] if index < len(interpretations) else "NA"
             interpretation = {"+": "POS", "-": "NEG"}.get(interpretation, interpretation or "NA")
+            method = editor_ast_method(methods[index] if index < len(methods) else "")
+            mic_value = mic_values[index].strip() if index < len(mic_values) else ""
             payload = {
-                "mic_value": mic_values[index] or None if index < len(mic_values) else None,
+                "mic_value": mic_value if method == "CMI" and mic_value != "-" else None,
                 "interpretation": interpretation,
-                "method": methods[index] or None if index < len(methods) else None,
+                "method": method,
                 "is_reportable": not (
                     index < len(not_reportable) and not_reportable[index].lower() == "true"
                 ),
@@ -2408,9 +2623,9 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
             return
         payload = {
             "antibiotic_id": antibiotic_id,
-            "mic_value": obj.get("mic_value", obj.get("respaneldet_anti_cmi")) or None,
+            "mic_value": None,
             "interpretation": interpretation,
-            "method": "MANUAL",
+            "method": "DISCO",
             "is_reportable": True,
         }
         status, data = api_req("POST", f"/isolates/{isolate_id}/antimicrobial-results", token, payload)
@@ -2432,15 +2647,16 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
             for row in rows:
                 antibiotic = antibiotics.get(row.get("antibiotic_id"), {})
                 interpretation = {"POS": "+", "NEG": "-"}.get(row.get("interpretation"), row.get("interpretation", "NA"))
+                method = editor_ast_method(row.get("method"))
                 translated.append(
                     {
                         "respaneldet_id": row.get("id", ""),
                         "respaneldet_anti_cod": row.get("antibiotic_id", ""),
-                        "respaneldet_anti_desc": antibiotic.get("name", row.get("antibiotic_id", "")),
-                        "respaneldet_anti_cmi": row.get("mic_value") or "",
+                        "respaneldet_anti_desc": uppercase_report_value(antibiotic.get("name", row.get("antibiotic_id", ""))),
+                        "respaneldet_anti_cmi": (row.get("mic_value") or "") if method == "CMI" else "-",
                         "respaneldet_anti_inter": interpretation,
                         "respaneldet_anti_estado": not row.get("is_reportable", True),
-                        "respaneldet_anti_metodologia": row.get("method") or "CMI",
+                        "respaneldet_anti_metodologia": method,
                         "respaneldet_anti_macanismo": 0,
                     }
                 )

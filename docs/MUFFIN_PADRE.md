@@ -49,7 +49,7 @@ El frontend conserva compatibilidad visual y funcional con pantallas heredadas d
 
 Notas de seguridad:
 
-- No usar `admin/admin` en producción.
+- No debe existir usuario rapido `admin/admin`; el seed local usa `DEV_SEED_PASSWORD` y no debe ejecutarse como inicializador productivo.
 - No versionar `.env` real.
 - `APP_ENV=production` exige `JWT_SECRET` fuerte.
 - Mantener la API detrás de HTTPS/proxy en despliegue real.

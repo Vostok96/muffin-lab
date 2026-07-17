@@ -5,6 +5,8 @@ var session_user_rol = $("#session_user_rol").val();
 var catalogo_microorganismos = [];
 var catalogo_microorganismos_busqueda = null;
 var catalogo_microorganismos_ultimo_filtro = "";
+var catalogo_microorganismos_request = null;
+var catalogo_microorganismos_limite_inicial = 120;
 var filtros_resultado_cultivo = [
     { value: "ALL", text: "TODOS LOS RESULTADOS" },
     { value: "POSITIVO", text: "POSITIVO" },
@@ -18,6 +20,47 @@ function muffinToggleCultureDetails() {
     var result = $("#CULTURE_RESULT");
     var show = result.length && result.val() === "POSITIVO";
     $(".muffin-culture-positive-only").toggle(show);
+}
+
+function muffinAstMethod(method) {
+    return String(method || "").toUpperCase() === "CMI" ? "CMI" : "DISCO";
+}
+
+function muffinTextUpper(value) {
+    return String(value || "").trim().toUpperCase();
+}
+
+function muffinSyncAstRow(row) {
+    var method = muffinAstMethod(row.find("select.clMetodol").val());
+    var valueInput = row.find("input:text").first();
+    if (method === "CMI") {
+        valueInput.prop("disabled", false);
+        if (valueInput.val() === "-") {
+            valueInput.val("");
+        }
+        valueInput.attr("placeholder", "CMI");
+    } else {
+        valueInput.val("-");
+        valueInput.prop("disabled", true);
+        valueInput.attr("placeholder", "-");
+    }
+}
+
+function muffinSyncAstTable() {
+    $("tbody#tlbtbody_atb tr").each(function () {
+        muffinSyncAstRow($(this));
+    });
+}
+
+function muffinConfirmarMicroorganismoPanel() {
+    if (!$("#FormModalTer").hasClass("show")) {
+        return;
+    }
+    if (!$("#cboOrgaLista").val()) {
+        swal("Seleccione un microorganismo", "Busque por nombre científico y seleccione una opción válida.", "warning");
+        return;
+    }
+    _RegistrarPanel();
 }
 
 function muffinHideNestedModal(selector) {
@@ -120,6 +163,10 @@ $(document).ready(function () {
         _GuardarResultadoMicrobiologia(2, false);
     });
 
+    $(document).on("change", "select.clMetodol", function () {
+        muffinSyncAstRow($(this).closest("tr"));
+    });
+
     $('#cboMicroOrganismos').change(function () {
         idSelec = $(this).val();
         cboMicroOrganismosCODEBARORGACOD($("#txtCodigoBarras").val(), idSelec);
@@ -131,6 +178,24 @@ $(document).ready(function () {
         catalogo_microorganismos_busqueda = setTimeout(function () {
             mostrarMicroorganismos(filtro);
         }, 250);
+    });
+
+    $('#txtBuscarOrgaLista').on('keydown', function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            muffinConfirmarMicroorganismoPanel();
+        }
+    });
+
+    $('#cboOrgaLista').on('dblclick', function () {
+        muffinConfirmarMicroorganismoPanel();
+    });
+
+    $('#cboOrgaLista').on('keydown', function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            muffinConfirmarMicroorganismoPanel();
+        }
     });
 
 
@@ -145,8 +210,11 @@ $(document).ready(function () {
         $("#formTer").each(function () {
             this.reset();
         });
+        catalogo_microorganismos_ultimo_filtro = "";
+        $("#txtBuscarOrgaLista").val("");
+        renderMicroorganismos([], "Escriba al menos 2 caracteres para buscar en todo el catálogo.");
         $('#FormModalTer').modal('show');
-        cboObtenerMic_orga();
+        cboObtenerMic_orga(true);
         _ObtenerMic_orga_panel(0);
     });
     $("#btnAddPanelGuardar").click(function () {
@@ -666,6 +734,8 @@ function tlb_ObtenerCodebarOrgaCod_lista_atb(codebar, organismo_cod) {
             html = '';
             if (data.data != null) {
                 $.each(data.data, function (i, item) {
+                    var metodologia = muffinAstMethod(item.respaneldet_anti_metodologia);
+                    var valorCmi = metodologia === "CMI" ? (item.respaneldet_anti_cmi || "") : "-";
                     color_table_fila = " class='table-success'";
                     mecan_table_fila = "";
                     if (item.respaneldet_anti_macanismo == 1) {
@@ -678,8 +748,8 @@ function tlb_ObtenerCodebarOrgaCod_lista_atb(codebar, organismo_cod) {
                         color_table_fila = " class='table-danger'";
                     }
                     html += "<tr" + color_table_fila + mecan_table_fila + ">" +
-                        "<td><input type='hidden' value='" + item.respaneldet_anti_cod + "'/>" + item.respaneldet_anti_desc + "</td>" +
-                        "<td><input class='form-control form-control-sm model' type='text' value='" + item.respaneldet_anti_cmi + "'></td>" +
+                        "<td><input type='hidden' value='" + item.respaneldet_anti_cod + "'/>" + muffinTextUpper(item.respaneldet_anti_desc) + "</td>" +
+                        "<td><input class='form-control form-control-sm model' type='text' value='" + valorCmi + "'></td>" +
                         "<td>" +
                         "<select class='form-control form-control-sm model clInter'>" +
                         "<option value='S' " + (item.respaneldet_anti_inter == 'S' ? 'selected' : '') + ">S</option>" +
@@ -693,14 +763,15 @@ function tlb_ObtenerCodebarOrgaCod_lista_atb(codebar, organismo_cod) {
                         "<td class='td_center'><input type='checkbox' " + (item.respaneldet_anti_estado == true ? "checked" : "") + "></td>" +
                         "<td>" +
                         "<select class='form-control form-control-sm model clMetodol'>" +
-                        "<option value='DISCO' " + (item.respaneldet_anti_metodologia == 'DISCO' ? 'selected' : '') + ">DISCO</option>" +
-                        "<option value='CMI' " + (item.respaneldet_anti_metodologia == 'CMI' ? 'selected' : '') + ">CMI</option>" +
+                        "<option value='DISCO' " + (metodologia == 'DISCO' ? 'selected' : '') + ">DISCO</option>" +
+                        "<option value='CMI' " + (metodologia == 'CMI' ? 'selected' : '') + ">CMI</option>" +
                         "</select>" +
                         "</td>" +
                         "</tr>";
 
                 })
                 $("#tlbtbody_atb").html(html);
+                muffinSyncAstTable();
             }
         },
         error: function (error) {
@@ -716,7 +787,11 @@ function _GuardarMic_orden_detalle_res(tipo, estadoModal) {
     columnas_id = "";
     columnas_val = "";
     $('#divListaParama').find('input, select, button,textarea').each(function () {
-        columnas_val += ($(this).val()) + "|";
+        var valor = $(this).val();
+        if (valor === null || typeof valor === "undefined") {
+            valor = "";
+        }
+        columnas_val += valor + "|";
         columnas_id += ($(this).attr('id')) + "|";
     });
     var request = {
@@ -920,9 +995,23 @@ function cboObtenerMic_res_comentarios_def() {
     });
 }
 
-function cboObtenerMic_orga() {
-    jQuery.ajax({
-        url: $.MisUrls.url._ObtenerMic_orga + "?page_size=100&search=" + encodeURIComponent(catalogo_microorganismos_ultimo_filtro || ""),
+function cboObtenerMic_orga(cargaInicial) {
+    var filtro = catalogo_microorganismos_ultimo_filtro || "";
+    var esBusqueda = filtro.length >= 2;
+    var pageSize = esBusqueda ? 250 : catalogo_microorganismos_limite_inicial;
+
+    if (!cargaInicial && !esBusqueda) {
+        renderMicroorganismos([], "Escriba al menos 2 caracteres para buscar en todo el catálogo.");
+        return;
+    }
+
+    if (catalogo_microorganismos_request && catalogo_microorganismos_request.readyState !== 4) {
+        catalogo_microorganismos_request.abort();
+    }
+
+    renderMicroorganismos([], "Buscando microorganismos...");
+    catalogo_microorganismos_request = jQuery.ajax({
+        url: $.MisUrls.url._ObtenerMic_orga + "?page_size=" + pageSize + "&search=" + encodeURIComponent(filtro),
         type: "GET",
         dataType: "json",
         contentType: "application/json; charset=utf-8",
@@ -933,7 +1022,9 @@ function cboObtenerMic_orga() {
             }
         },
         error: function (error) {
-            console.log(error)
+            if (error.statusText !== "abort") {
+                console.log(error)
+            }
         },
         beforeSend: function () {
         },
@@ -942,16 +1033,38 @@ function cboObtenerMic_orga() {
 
 
 function mostrarMicroorganismos(filtro) {
-    catalogo_microorganismos_ultimo_filtro = filtro || "";
-    cboObtenerMic_orga();
+    catalogo_microorganismos_ultimo_filtro = $.trim(filtro || "");
+    cboObtenerMic_orga(false);
 }
 
-function renderMicroorganismos() {
-    $("#cboOrgaLista").html("");
-    $.each(catalogo_microorganismos, function (i, item) {
-        $("<option>").attr({ "value": item.orga_id_id }).text(item.orga_desc).appendTo("#cboOrgaLista");
+function renderMicroorganismos(items, mensaje) {
+    var combo = $("#cboOrgaLista");
+    var estado = $("#txtOrgaListaEstado");
+    var esBusqueda = (catalogo_microorganismos_ultimo_filtro || "").length >= 2;
+    combo.empty();
+    combo.removeAttr("size");
+    if ($.isArray(items)) {
+        catalogo_microorganismos = items;
+    }
+    if (!catalogo_microorganismos.length) {
+        $("<option>").attr({ "value": "" }).text(mensaje || "Sin resultados").appendTo(combo);
+        combo.val("");
+        estado.text(mensaje || "Sin resultados.");
+        return;
+    }
+    catalogo_microorganismos.sort(function (a, b) {
+        return String(a.orga_desc || "").localeCompare(String(b.orga_desc || ""), "es", { sensitivity: "base" });
     });
-    $("#cboOrgaLista").val($("#cboOrgaLista option:first").val());
+    $.each(catalogo_microorganismos, function (i, item) {
+        $("<option>").attr({ "value": item.orga_id_id }).text(item.orga_desc).appendTo(combo);
+    });
+    combo.val(combo.find("option:first").val());
+    if (esBusqueda) {
+        combo.attr("size", Math.min(Math.max(catalogo_microorganismos.length, 3), 8));
+        estado.text(catalogo_microorganismos.length + " coincidencia(s). Seleccione una opción de la lista.");
+    } else {
+        estado.text("Mostrando opciones iniciales. Escriba para buscar en todo el catálogo.");
+    }
 }
 
 function cboObtenerMic_antibiotico() {
@@ -981,6 +1094,10 @@ function cboObtenerMic_antibiotico() {
 
 function _RegistrarPanel() {
     if ($("#formTer").valid()) {
+        if (!$("#cboOrgaLista").val()) {
+            swal("Seleccione un microorganismo", "Busque por nombre científico y seleccione una opción válida.", "warning");
+            return;
+        }
         var request = {
             objeto: {
                 item_id: $("#txtIdOrdenDet").val(),
@@ -1124,7 +1241,7 @@ function _EliminarMic_res_panel($respanel_id) {
         function () {
             jQuery.ajax({
                 url: $.MisUrls.url._EliminarMic_res_panel + "?respanel_id=" + $respanel_id + "&item_id=" + $("#txtIdOrdenDet").val(),
-                type: "GET",
+                type: "POST",
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
@@ -1223,7 +1340,7 @@ function _RegistrarEnviarInstrumentoMic_orden_detalle($orden_det_id) {
 function _RegistrarDeleteEventosMic_orden_detalle($orden_det_id) {
     swal({
         title: "Mensaje",
-        text: "¿Desea Eliminar los eventos de guardado y validación de la orden seleccionada?",
+        text: "¿Desea borrar el resultado y antibiograma de esta orden para corregirlo?",
         type: "warning",
         showCancelButton: true,
 
@@ -1237,14 +1354,17 @@ function _RegistrarDeleteEventosMic_orden_detalle($orden_det_id) {
         function () {
             jQuery.ajax({
                 url: $.MisUrls.url._RegistrarDeleteEventosMic_orden_detalle + "?orden_det_id=" + $orden_det_id,
-                type: "GET",
+                type: "POST",
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
                     if (data.resultado) {
                         tabladata.ajax.reload();
+                        param_ObtenerOrdenIdMic_orden_detalle_res($("#txtIdOrdenDet").val());
+                        cboMicroOrganismosCODEBAR($("#txtCodigoBarras").val());
+                        swal("Resultado", data.mensaje || "Resultado eliminado correctamente", "success");
                     } else {
-                        swal("Mensaje", "No se pudo resolver la operación", "warning")
+                        swal("Mensaje", data.mensaje || "No se pudo resolver la operación", "warning")
                     }
                 },
                 error: function (error) {

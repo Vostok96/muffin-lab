@@ -359,12 +359,37 @@ def normalize_value(
     return value_text, None, submitted.observed_at
 
 
+OPTIONAL_RESULT_PARAMETER_CODES = {"CULTURE_NITRITE"}
+
+
 def missing_required_values(result: Result) -> list[str]:
     return [
         value.parameter_snapshot["code"]
         for value in result.values
-        if value.is_required and value.value_text is None and value.value_code is None
+        if value.parameter_snapshot["code"] not in OPTIONAL_RESULT_PARAMETER_CODES
+        and value.is_required
+        and value.value_text is None
+        and value.value_code is None
     ]
+
+
+def restore_item_status_after_result_delete(item: OrderItem) -> str:
+    if item.received_at:
+        return "RECEIVED"
+    if item.collection_at:
+        return "COLLECTED"
+    return "REGISTERED"
+
+
+def delete_result_graph(db: Session, result: Result) -> None:
+    isolates = list(db.scalars(select(Isolate).where(Isolate.result_id == result.id)))
+    for isolate in isolates:
+        for row in db.scalars(select(AntimicrobialResult).where(AntimicrobialResult.isolate_id == isolate.id)):
+            db.delete(row)
+        db.delete(isolate)
+    for value in list(result.values):
+        db.delete(value)
+    db.delete(result)
 
 
 def incomplete_ast_isolates(db: Session, result: Result) -> list[str]:
@@ -524,6 +549,44 @@ def save_order_item_result(
     )
     db.commit()
     return result_response(db, get_order_item(db, item.id))
+
+
+@router.delete("/order-items/{order_item_id}/result", status_code=status.HTTP_204_NO_CONTENT)
+def delete_order_item_result(
+    order_item_id: str,
+    actor: User = Depends(result_writer),
+    db: Session = Depends(get_db),
+) -> None:
+    item = get_order_item(db, order_item_id, for_update=True)
+    result = get_result(db, item.id)
+    if not result:
+        item.status = restore_item_status_after_result_delete(item)
+        db.commit()
+        return None
+    require_exam_area(db, item, final=result.status == "FINAL_VALIDATED", actor=actor)
+    result_id = result.id
+    before = result_snapshot(result)
+    restored_status = restore_item_status_after_result_delete(item)
+    delete_result_graph(db, result)
+    item.status = restored_status
+    record_workflow_event(
+        db,
+        order_item_id=item.id,
+        event_type="RESULT_DELETED",
+        performed_by=actor.id,
+        details={"reason": "Resultado eliminado para correccion", "restored_status": restored_status},
+    )
+    record_audit(
+        db,
+        actor_user_id=actor.id,
+        entity_type="result",
+        entity_id=result_id,
+        action="DELETE",
+        before_data=before,
+        after_data={"order_item_id": item.id, "item_status": restored_status},
+    )
+    db.commit()
+    return None
 
 
 @router.post("/order-items/{order_item_id}/result/preliminary-validation", response_model=ResultResponse)

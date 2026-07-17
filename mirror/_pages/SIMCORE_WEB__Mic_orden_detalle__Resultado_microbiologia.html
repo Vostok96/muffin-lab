@@ -485,7 +485,7 @@
 											<thead>
 												<tr>
 													<th>Antibiótico</th>
-													<th title="Valor / CMI">Valor</th>
+													<th title="Valor solo para metodología CMI">Valor</th>
 													<th title="Interpretación">Inter.</th>
 													<th title="No Reportar">NR</th>
 													<th title="Metodología">ME</th>
@@ -517,7 +517,7 @@
 					<div class="">
 						<button id="btnOPEnviarVitek" type="button" class="btn btn-sm btn-secondary">Enviar al Instrumento</button>
 						<button id="btnOPAdpanel" type="button" class="btn btn-sm btn-secondary">Agregar Panel</button>
-						<button id="btnOPDeleteEventos" type="button" class="btn btn-sm btn-warning" title="Borrar Eventos de Guardado y Validación">Borrar Eventos Guardado/Validacion</button>
+						<button id="btnOPDeleteEventos" type="button" class="btn btn-sm btn-warning" title="Borrar resultado, identificación y antibiograma">Borrar resultado</button>
 						<button id="btnOPReportarEmail" type="button" class="btn btn-sm btn-warning" title="Reportar Alarma/Resultado - Vía Email"><i class='fa fa fa-mail-bulk'></i> Reportar Alarma/Resultado</button>
 					</div>
 				</div>
@@ -616,6 +616,7 @@
 					<div class="form-group">
 						<label for="cboOrgaLista" class="col-form-label">Micro Organismo:</label>
 						<input type="search" class="form-control form-control-sm mb-2" id="txtBuscarOrgaLista" placeholder="Buscar por nombre científico">
+						<small id="txtOrgaListaEstado" class="form-text text-muted mb-1">Escriba al menos 2 caracteres para buscar.</small>
 						<select class="form-control form-control-sm model" id="cboOrgaLista" name="cboOrgaLista">
 						</select>
 					</div>
@@ -1002,7 +1003,7 @@
 
 </script>
 	
-	<script src="/MUFFIN/Scripts/Views/Mic_orden_detalle_resultado_microbiologia.js?v=20260717-1" type="text/javascript"></script>
+	<script src="/MUFFIN/Scripts/Views/Mic_orden_detalle_resultado_microbiologia.js?v=20260717-5" type="text/javascript"></script>
 
 </body>
 </html>

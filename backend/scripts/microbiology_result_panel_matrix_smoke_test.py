@@ -11,6 +11,7 @@ from urllib.request import Request, urlopen
 
 BASE_URL = os.getenv("MUFFIN_API_URL", "http://127.0.0.1:8000/api/v1").rstrip("/")
 ORGANISM_LIMIT = int(os.getenv("MATRIX_ORGANISM_LIMIT", "8"))
+PASSWORD = os.getenv("DEV_SEED_PASSWORD", "")
 
 
 def request(path: str, method: str = "GET", payload: dict | None = None, token: str | None = None) -> Any:
@@ -58,7 +59,9 @@ def active_catalog_items(path: str, token: str, limit: int | None = None) -> lis
 
 
 def main() -> None:
-    admin_token = login("admin", "admin")
+    if not PASSWORD:
+        raise RuntimeError("DEV_SEED_PASSWORD must be set before running the matrix smoke test.")
+    admin_token = login("dev-admin", PASSWORD)
 
     patient = request("/patients?search=DEV-HC-0001&page_size=100", token=admin_token)["data"][0]
     origin = catalog_item("/catalogs/origins", "HOSPITALIZACION", admin_token)

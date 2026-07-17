@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
 from app.dependencies import require_role
-from app.models import AuditEvent, LaboratoryArea, User, UserAreaPermission
+from app.models import AuditEvent, LaboratoryArea, Role, User, UserAreaPermission, user_roles
 from app.routers.auth import serialize_user
 from app.schemas import AreaPermissionUpdate, AuditEventResponse, LaboratoryAreaCreate, RoleUpdate, UserCreate, UserResponse, UserUpdate
 from app.security import hash_password
@@ -128,10 +128,18 @@ def deactivate_user(user_id: str, admin: User = Depends(require_admin), db: Sess
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    if user.username == "admin":
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="The quick-login admin user cannot be deactivated.")
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User is already inactive.")
+    if any(role.code == "ADMIN" for role in user.roles):
+        active_admins = db.scalar(
+            select(func.count())
+            .select_from(User)
+            .join(user_roles, user_roles.c.user_id == User.id)
+            .join(Role, Role.id == user_roles.c.role_id)
+            .where(User.is_active.is_(True), Role.code == "ADMIN")
+        ) or 0
+        if active_admins <= 1:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="At least one active admin user is required.")
     user.is_active = False
     record_audit(db, actor_user_id=admin.id, entity_type="user", entity_id=user.id, action="DEACTIVATE", after_data={"username": user.username})
     db.commit()

@@ -676,7 +676,7 @@ function _EliminarMic_orden_detalle($orden_det_id) {
         function () {
             jQuery.ajax({
                 url: $.MisUrls.url._EliminarMic_orden_detalle + "?orden_det_id=" + $orden_det_id,
-                type: "GET",
+                type: "POST",
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {

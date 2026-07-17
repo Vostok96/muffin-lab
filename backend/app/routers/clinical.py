@@ -9,14 +9,21 @@ from sqlalchemy.orm import Session, selectinload
 from app.database import get_db
 from app.dependencies import get_current_user, require_role
 from app.models import (
+    AntimicrobialResult,
     Clinician,
     Destination,
     Exam,
     ExamSpecimenType,
+    InstrumentMessage,
+    Isolate,
     LabOrder,
+    Notification,
     OrderItem,
     Origin,
     Patient,
+    PrintJob,
+    Result,
+    ResultValue,
     Service,
     SpecimenType,
     User,
@@ -120,6 +127,32 @@ def restore_item_status(item: OrderItem) -> str:
     if item.collection_at:
         return "COLLECTED"
     return "REGISTERED"
+
+
+def delete_result_graph(db: Session, result: Result) -> None:
+    isolates = list(db.scalars(select(Isolate).where(Isolate.result_id == result.id)))
+    for isolate in isolates:
+        for row in db.scalars(select(AntimicrobialResult).where(AntimicrobialResult.isolate_id == isolate.id)):
+            db.delete(row)
+        db.delete(isolate)
+    for value in db.scalars(select(ResultValue).where(ResultValue.result_id == result.id)):
+        db.delete(value)
+    db.delete(result)
+
+
+def delete_order_item_graph(db: Session, item: OrderItem) -> None:
+    result = db.scalar(select(Result).where(Result.order_item_id == item.id))
+    if result:
+        delete_result_graph(db, result)
+    for print_job in db.scalars(select(PrintJob).where(PrintJob.order_item_id == item.id)):
+        db.delete(print_job)
+    for notification in db.scalars(select(Notification).where(Notification.order_item_id == item.id)):
+        db.delete(notification)
+    for message in db.scalars(select(InstrumentMessage).where(InstrumentMessage.order_item_id == item.id)):
+        message.order_item_id = None
+    for event in db.scalars(select(WorkflowEvent).where(WorkflowEvent.order_item_id == item.id)):
+        db.delete(event)
+    db.delete(item)
 
 
 @router.get("/patients", tags=["Patients"], response_model=PatientPage)
@@ -239,6 +272,58 @@ def update_patient(
     commit_or_conflict(db, "Patient identifiers conflict with an existing record.")
     db.refresh(patient)
     return patient
+
+
+@router.delete("/patients/{patient_id}", tags=["Patients"], status_code=status.HTTP_204_NO_CONTENT)
+def delete_patient(patient_id: str, actor: User = Depends(patient_writer), db: Session = Depends(get_db)) -> None:
+    patient = get_entity(db, Patient, patient_id, "Patient")
+    finalized_item = db.scalar(
+        select(OrderItem.id)
+        .join(LabOrder, LabOrder.id == OrderItem.lab_order_id)
+        .outerjoin(Result, Result.order_item_id == OrderItem.id)
+        .where(
+            LabOrder.patient_id == patient.id,
+            or_(OrderItem.status == "FINAL_VALIDATED", Result.status == "FINAL_VALIDATED"),
+        )
+        .limit(1)
+    )
+    if finalized_item:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Patients with final validated results cannot be deleted.",
+        )
+
+    orders = list(
+        db.scalars(
+            select(LabOrder)
+            .where(LabOrder.patient_id == patient.id)
+            .options(selectinload(LabOrder.items))
+        ).unique()
+    )
+    before = {
+        "medical_record_number": patient.medical_record_number,
+        "document_number": patient.document_number,
+        "family_name": patient.family_name,
+        "given_name": patient.given_name,
+        "orders": len(orders),
+        "items": sum(len(order.items) for order in orders),
+    }
+    for order in orders:
+        for item in list(order.items):
+            delete_order_item_graph(db, item)
+        db.delete(order)
+    db.delete(patient)
+    record_audit(
+        db,
+        actor_user_id=actor.id,
+        entity_type="patient",
+        entity_id=patient_id,
+        action="DELETE",
+        before_data=before,
+        after_data={"deleted": True},
+    )
+    commit_or_conflict(db, "Patient cannot be deleted because it is referenced by protected records.")
+    return None
 
 
 @router.get("/orders", tags=["Orders"], response_model=OrderPage)

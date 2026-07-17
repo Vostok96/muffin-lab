@@ -51,7 +51,8 @@ $(document).ready(function () {
             { "data": "persona_edad"},
             {
                 "data": "persona_id", "render": function (data, type, row, meta) {
-                    return "<button class='btn btn-primary btn-sm' type='button' onclick='abrirPopUpForm(" + JSON.stringify(row) + ")'><i class='fas fa-pen'></i></button>" 
+                    return "<button class='btn btn-primary btn-sm' type='button' onclick='abrirPopUpForm(" + JSON.stringify(row) + ")'><i class='fas fa-pen'></i></button>"
+                        + " <button class='btn btn-danger btn-sm ml-1' type='button' title='Eliminar paciente completo' onclick='_EliminarPersona(" + JSON.stringify(row.persona_id) + ")'><i class='fa fa-trash'></i></button>";
                 },
                 "orderable": false,
                 "searchable": false,
@@ -153,4 +154,43 @@ function Guardar() {
         });
     }
 
+}
+
+function _EliminarPersona(persona_id) {
+    if (!persona_id) {
+        return;
+    }
+    swal({
+        title: "Eliminar paciente",
+        text: "Se eliminará el paciente completo con sus órdenes y resultados no finalizados. ¿Desea continuar?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        confirmButtonColor: "#DD6B55",
+        cancelButtonText: "No",
+        closeOnConfirm: false
+    },
+        function () {
+            jQuery.ajax({
+                url: $.MisUrls.url._EliminarPersona + "?persona_id=" + encodeURIComponent(persona_id),
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.resultado) {
+                        tabladata.ajax.reload();
+                        swal("Paciente", data.mensaje || "Paciente eliminado correctamente", "success");
+                    } else {
+                        swal("No se pudo eliminar", data.mensaje || "El paciente tiene registros protegidos", "warning");
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    swal("No se pudo eliminar", "No fue posible comunicarse con el servidor", "error");
+                },
+                beforeSend: function () {
+
+                },
+            });
+        });
 }

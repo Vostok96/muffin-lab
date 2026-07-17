@@ -85,7 +85,7 @@ def list_catalog_page(
         term = f"%{search.strip()}%"
         filters.append(or_(model.code.ilike(term), model.name.ilike(term)))
     total = db.scalar(select(func.count()).select_from(model).where(*filters)) or 0
-    order_column = getattr(model, "display_order", model.code)
+    order_column = model.name if model is Organism else getattr(model, "display_order", model.code)
     items = list(
         db.scalars(
             select(model)
@@ -475,7 +475,7 @@ def create_isolate(
     db.add(isolate)
     db.flush()
     if payload.ast_panel_id:
-        autofill_antimicrobial_results(db, isolate_id=isolate.id, ast_panel_id=payload.ast_panel_id)
+        autofill_antimicrobial_results(db, isolate_id=isolate.id, ast_panel_id=payload.ast_panel_id, default_method="DISCO")
         db.flush()
     record_audit(
         db,
@@ -547,7 +547,7 @@ def update_isolate(
             if ast_row.antibiotic_id not in allowed_antibiotics:
                 db.delete(ast_row)
         if new_panel_id:
-            autofill_antimicrobial_results(db, isolate_id=isolate.id, ast_panel_id=new_panel_id)
+            autofill_antimicrobial_results(db, isolate_id=isolate.id, ast_panel_id=new_panel_id, default_method="DISCO")
         db.flush()
     record_audit(
         db,
