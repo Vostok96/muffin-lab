@@ -2,6 +2,8 @@
 !backend/
 !backend/**
 !server.py
+!docs/
+!docs/**
 !mirror/
 !mirror/**
 !CLIENTES/
