@@ -10,7 +10,6 @@ from sqlalchemy.orm.attributes import flag_modified
 from app.database import SessionLocal
 from app.models import (
     Antibiotic,
-    AntimicrobialResult,
     AstPanel,
     AstPanelAntibiotic,
     Clinician,
@@ -21,18 +20,13 @@ from app.models import (
     Exam,
     ExamParameter,
     ExamSpecimenType,
-    InstrumentMessage,
-    Isolate,
     LaboratoryArea,
     LabOrder,
-    Notification,
     OrderItem,
     Organism,
     Origin,
     Patient,
     ParameterDefinition,
-    PrintJob,
-    Result,
     ResultValue,
     Role,
     Service,
@@ -275,7 +269,7 @@ def seed() -> None:
             "DEV-CLINICIAN",
             family_name="MEDICO",
             given_name="DE TURNO",
-            email="clinician@example.invalid",
+            email=None,
         )
         destination = get_or_create_catalog(db, Destination, "MICROBIOLOGY_BENCH", name="MESA DE MICROBIOLOGIA")
         container = get_or_create_catalog(
@@ -501,18 +495,18 @@ def seed() -> None:
             patient.family_name = "FICTICIO"
             patient.given_name = "PACIENTE"
 
-        order = db.scalar(select(LabOrder).where(LabOrder.order_number == "DEV-ORDER-0001"))
+        order = db.scalar(select(LabOrder).where(LabOrder.order_number == "20260717-000001"))
         if not order:
-            collection_at = datetime(2026, 1, 15, 14, 0, tzinfo=timezone.utc)
-            received_at = datetime(2026, 1, 15, 14, 30, tzinfo=timezone.utc)
+            collection_at = datetime(2026, 7, 17, 14, 0, tzinfo=timezone.utc)
+            received_at = datetime(2026, 7, 17, 14, 30, tzinfo=timezone.utc)
             order = LabOrder(
-                order_number="DEV-ORDER-0001",
-                ordered_at=datetime(2026, 1, 15, 13, 45, tzinfo=timezone.utc),
+                order_number="20260717-000001",
+                ordered_at=datetime(2026, 7, 17, 13, 45, tzinfo=timezone.utc),
                 patient_id=patient.id,
                 origin_id=origin.id,
                 service_id=service.id,
                 clinician_id=clinician.id,
-                clinical_notes="ORDEN ESTRICTAMENTE FICTICIA PARA DESARROLLO LOCAL.",
+                clinical_notes="ORDEN FICTICIA DE EJEMPLO PARA PRUEBAS INICIALES.",
                 status="REGISTERED",
             )
             db.add(order)
@@ -522,12 +516,12 @@ def seed() -> None:
                 item_number=1,
                 exam_id=exam.id,
                 specimen_type_id=specimen_type.id,
-                barcode="DEV-ORDER-0001-01-UC",
+                barcode="20260717000001-01-UC",
                 collection_at=collection_at,
                 received_at=received_at,
                 destination_id=destination.id,
-                specimen_notes="MUESTRA FICTICIA PARA DESARROLLO LOCAL.",
-                location="MESA DE DESARROLLO LOCAL",
+                specimen_notes="MUESTRA FICTICIA DE EJEMPLO.",
+                location="MESA DE MICROBIOLOGIA",
                 status="RECEIVED",
             )
             db.add(item)
@@ -562,72 +556,28 @@ def seed() -> None:
                 after_data={"order_number": order.order_number, "patient_id": patient.id},
             )
         else:
+            order.order_number = "20260717-000001"
+            order.ordered_at = datetime(2026, 7, 17, 13, 45, tzinfo=timezone.utc)
+            order.patient_id = patient.id
             order.origin_id = origin.id
             order.service_id = service.id
             order.clinician_id = clinician.id
-            order.clinical_notes = "ORDEN ESTRICTAMENTE FICTICIA PARA DESARROLLO LOCAL."
+            order.clinical_notes = "ORDEN FICTICIA DE EJEMPLO PARA PRUEBAS INICIALES."
 
-        item = db.scalar(select(OrderItem).where(OrderItem.barcode == "DEV-ORDER-0001-01-UC"))
+        item = db.scalar(select(OrderItem).where(OrderItem.barcode == "20260717000001-01-UC"))
         if item:
             item.exam_id = exam.id
             item.specimen_type_id = specimen_type.id
-            item.specimen_notes = "MUESTRA FICTICIA PARA DESARROLLO LOCAL."
-            item.location = "MESA DE DESARROLLO LOCAL"
-        if item:
-            result = db.scalar(select(Result).where(Result.order_item_id == item.id))
-            created_result = False
-            if not result:
-                result = Result(order_item_id=item.id, status="RESULT_SAVED", saved_at=datetime.now(timezone.utc))
-                db.add(result)
-                db.flush()
-                created_result = True
-
-            existing_values = {value.parameter_definition_id: value for value in result.values}
-            for code, _, display_order, is_required, value_type, options_schema, methodology, seed_value in result_parameter_specs:
-                parameter = result_parameters[code]
-                value = existing_values.get(parameter.id)
-                if not value:
-                    value = ResultValue(
-                        result_id=result.id,
-                        parameter_definition_id=parameter.id,
-                        display_order=display_order,
-                        is_required=is_required,
-                        parameter_snapshot=parameter_definition_snapshot(parameter),
-                    )
-                    result.values.append(value)
-                value.display_order = display_order
-                value.is_required = is_required
-                value.parameter_snapshot = parameter_definition_snapshot(parameter)
-                if code == "CULTURE_RESULT":
-                    value.value_text = seed_value
-                    value.value_code = seed_value
-                    value.observed_at = item.received_at
-                else:
-                    value.value_text = None
-                    value.value_code = None
-                    value.observed_at = None
-
-            item.status = "RESULT_SAVED"
-            if created_result:
-                record_workflow_event(
-                    db,
-                    order_item_id=item.id,
-                    event_type="RESULT_SAVED",
-                    performed_by=None,
-                    details={"development_seed": True, "status": result.status},
-                )
-                record_audit(
-                    db,
-                    actor_user_id=None,
-                    entity_type="result",
-                    entity_id=result.id,
-                    action="DEVELOPMENT_SEED",
-                    after_data={"order_item_id": item.id, "status": result.status},
-                )
+            item.barcode = "20260717000001-01-UC"
+            item.collection_at = datetime(2026, 7, 17, 14, 0, tzinfo=timezone.utc)
+            item.received_at = datetime(2026, 7, 17, 14, 30, tzinfo=timezone.utc)
+            item.specimen_notes = "MUESTRA FICTICIA DE EJEMPLO."
+            item.location = "MESA DE MICROBIOLOGIA"
+            item.status = "RECEIVED"
 
         # --- Microbiology advanced seed (Phase 5) ---
 
-        organism = get_or_create_catalog(db, Organism, "ECOLI", name="ESCHERICHIA COLI")
+        get_or_create_catalog(db, Organism, "ECOLI", name="ESCHERICHIA COLI")
         get_or_create_catalog(db, Organism, "KPN", name="KLEBSIELLA PNEUMONIAE")
         get_or_create_catalog(db, Organism, "PAE", name="PSEUDOMONAS AERUGINOSA")
         generic_sp_organisms = [
@@ -671,10 +621,8 @@ def seed() -> None:
             ("090000", "90,000 UFC/mL"),
             ("100000", "100,000 UFC/mL"),
         ]
-        colony_count_option_entities = {
-            code: get_or_create_catalog(db, ColonyCountOption, code, name=name)
-            for code, name in colony_count_options
-        }
+        for code, name in colony_count_options:
+            get_or_create_catalog(db, ColonyCountOption, code, name=name)
         for legacy_code in ("RARE", "MODERATE", "ABUNDANT", "100001"):
             legacy_option = db.scalar(select(ColonyCountOption).where(ColonyCountOption.code == legacy_code))
             if legacy_option:
@@ -698,11 +646,11 @@ def seed() -> None:
         )
 
         antibiotics_in_panel = [
-            (amk, 1, "MICRODILUCION"),
-            (amc, 2, "MICRODILUCION"),
-            (ctx, 3, "MICRODILUCION"),
-            (cip, 4, "MICRODILUCION"),
-            (nit, 5, "MICRODILUCION"),
+            (amk, 1, "DISCO"),
+            (amc, 2, "DISCO"),
+            (ctx, 3, "DISCO"),
+            (cip, 4, "DISCO"),
+            (nit, 5, "DISCO"),
         ]
         for ant, order, method in antibiotics_in_panel:
             if not db.get(AstPanelAntibiotic, (panel.id, ant.id)):
@@ -721,132 +669,7 @@ def seed() -> None:
                     after_data={"antibiotic_id": ant.id, "display_order": order},
                 )
 
-        result = db.scalar(select(Result).where(Result.order_item_id == item.id))
-        if result and not db.scalar(select(Isolate).where(Isolate.result_id == result.id)):
-            isolate = Isolate(
-                result_id=result.id,
-                organism_id=organism.id,
-                colony_count_option_id=colony_count_option_entities["050000"].id,
-                phenotype="FERMENTADOR DE LACTOSA, COLONIAS MUCOIDES",
-                comment="AISLADO COMPATIBLE CON EL CUADRO CLINICO.",
-                ast_panel_id=panel.id,
-            )
-            db.add(isolate)
-            db.flush()
-            record_audit(
-                db,
-                actor_user_id=None,
-                entity_type="isolate",
-                entity_id=isolate.id,
-                action="DEVELOPMENT_SEED",
-                after_data={"result_id": result.id, "organism_id": organism.id},
-            )
-            ast_data = [
-                (amk, "<=2", "S", "MICRODILUCION"),
-                (amc, "8/4", "S", "MICRODILUCION"),
-                (ctx, "<=0.25", "S", "MICRODILUCION"),
-                (cip, "<=0.06", "S", "MICRODILUCION"),
-                (nit, "<=16", "S", "MICRODILUCION"),
-            ]
-            for ant, mic, interp, meth in ast_data:
-                ar = AntimicrobialResult(
-                    isolate_id=isolate.id,
-                    antibiotic_id=ant.id,
-                    mic_value=mic,
-                    interpretation=interp,
-                    method=meth,
-                    is_reportable=True,
-                )
-                db.add(ar)
-                record_audit(
-                    db,
-                    actor_user_id=None,
-                    entity_type="antimicrobial_result",
-                    entity_id=ar.id,
-                    action="DEVELOPMENT_SEED",
-                    after_data={"antibiotic_id": ant.id, "interpretation": interp},
-                )
-
         # --- End microbiology seed ---
-
-        # --- Outputs and integrations seed (Phase 6) ---
-
-        if item and not db.scalar(select(PrintJob).where(PrintJob.order_item_id == item.id)):
-            db.add(PrintJob(
-                order_item_id=item.id,
-                kind="LABEL",
-                requested_by=None,
-                status="PRINTED",
-                printed_at=datetime(2026, 1, 15, 14, 35, tzinfo=timezone.utc),
-                details="ETIQUETA DE CODIGO DE BARRAS FICTICIA PARA DESARROLLO LOCAL.",
-            ))
-            record_audit(
-                db,
-                actor_user_id=None,
-                entity_type="print_job",
-                entity_id=item.id,
-                action="DEVELOPMENT_SEED",
-                after_data={"kind": "LABEL", "status": "PRINTED"},
-            )
-
-        if item and not db.scalar(select(Notification).where(Notification.order_item_id == item.id)):
-            db.add(Notification(
-                order_item_id=item.id,
-                type="RESULT_READY",
-                recipient="clinician@example.invalid",
-                payload={"order_number": "DEV-ORDER-0001", "barcode": "DEV-ORDER-0001-01-UC"},
-                status="SENT",
-                sent_at=datetime(2026, 1, 15, 15, 0, tzinfo=timezone.utc),
-            ))
-            db.add(Notification(
-                order_item_id=item.id,
-                type="RESULT_READY",
-                recipient="clinician@example.invalid",
-                payload={"order_number": "DEV-ORDER-0001", "barcode": "DEV-ORDER-0001-01-UC"},
-                status="FAILED",
-                error_message="SERVIDOR SMTP TEMPORALMENTE NO DISPONIBLE.",
-            ))
-            record_audit(
-                db,
-                actor_user_id=None,
-                entity_type="notification",
-                entity_id=item.id,
-                action="DEVELOPMENT_SEED",
-                after_data={"types": ["RESULT_READY", "RESULT_READY"]},
-            )
-
-        if item and not db.scalar(
-            select(InstrumentMessage).where(
-                InstrumentMessage.order_item_id == item.id,
-                InstrumentMessage.direction == "OUTBOUND",
-            )
-        ):
-            db.add(InstrumentMessage(
-                order_item_id=item.id,
-                direction="OUTBOUND",
-                payload={"instrument": "VITEK2", "barcode": "DEV-ORDER-0001-01-UC", "exam": "URINE_CULTURE"},
-                status="PROCESSED",
-                processed_at=datetime(2026, 1, 15, 15, 10, tzinfo=timezone.utc),
-                result_summary="EL INSTRUMENTO CONFIRMO LA ORDEN.",
-            ))
-            db.add(InstrumentMessage(
-                order_item_id=item.id,
-                direction="INBOUND",
-                payload={"organism": "Escherichia coli", "ast": {"AMK": "S", "CIP": "S"}},
-                status="PROCESSED",
-                processed_at=datetime(2026, 1, 15, 16, 0, tzinfo=timezone.utc),
-                result_summary="RESULTADO AST DE VITEK2 RECIBIDO.",
-            ))
-            record_audit(
-                db,
-                actor_user_id=None,
-                entity_type="instrument_message",
-                entity_id=item.id,
-                action="DEVELOPMENT_SEED",
-                after_data={"directions": ["OUTBOUND", "INBOUND"]},
-            )
-
-        # --- End outputs/integrations seed ---
 
         for username, given_name, family_name, role_codes in DEVELOPMENT_USERS:
             user = db.scalar(select(User).where(User.username == username))
