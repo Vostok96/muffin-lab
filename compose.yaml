@@ -37,6 +37,8 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      args:
+        PYTHON_BASE_IMAGE: ${MUFFIN_PYTHON_BASE_IMAGE:-python:3.12-slim}
     container_name: muffin-api
     restart: unless-stopped
     depends_on:
@@ -65,6 +67,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        PYTHON_BASE_IMAGE: ${MUFFIN_PYTHON_BASE_IMAGE:-python:3.12-slim}
     container_name: muffin-frontend
     restart: unless-stopped
     depends_on:

@@ -32,6 +32,8 @@ El presupuesto inicial de MUFFIN es menor de 2.8 GB. Esto deja memoria para el s
 
 Las imagenes oficiales de Python y PostgreSQL seleccionan automaticamente la variante `linux/arm64` en el NAS RK3588C. No fijar una imagen `amd64`.
 
+Si Docker Hub no esta disponible desde el NAS, `MUFFIN_PYTHON_BASE_IMAGE` permite usar una imagen Python local compatible como base temporal sin cambiar los Dockerfiles.
+
 ## Operacion segura
 
 - El usuario administrador inicial se crea una sola vez mediante las variables `BOOTSTRAP_ADMIN_*`.
