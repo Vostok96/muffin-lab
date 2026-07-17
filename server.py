@@ -25,22 +25,81 @@ API_BASE = os.environ.get("MUFFIN_API_URL", "http://127.0.0.1:8000/api/v1")
 LOGIN_PAGE = ROOT / "docs" / "login.html"
 LOGOUT_REDIRECT = b"""<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/MUFFIN/Login/Index"><title>Cerrando sesion...</title></head><body><script>localStorage.clear();window.location.href='/MUFFIN/Login/Index';</script></body></html>"""
 
-THEME_TOGGLE_CSS = b"""<style>
-.theme-pill{position:fixed;bottom:1.15rem;right:1.15rem;z-index:9999;background:var(--muffin-surface,#fffefa);border:1.5px solid rgba(35,156,163,.24);border-radius:999px;cursor:pointer;height:2.45rem;outline:none;padding:0;transition:background .25s,border .25s,box-shadow .25s,width .2s;width:4.75rem;box-shadow:0 4px 14px rgba(23,109,120,.14)}
-.theme-pill:hover{box-shadow:0 8px 24px rgba(23,109,120,.2)}
-.theme-pill .pill-track{display:flex;align-items:center;height:100%;justify-content:space-between;padding:0 .6rem;position:relative;width:100%}
-.theme-pill .pill-thumb{background:linear-gradient(135deg,#239ca3,#176d78);border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.18);height:1.68rem;left:.33rem;position:absolute;transition:transform .3s cubic-bezier(.4,0,.2,1),background .3s;width:1.68rem}
-[data-theme=dark] .theme-pill .pill-thumb{transform:translateX(2.27rem);background:linear-gradient(135deg,#6abfd0,#264e7f)}
-.theme-pill .pill-icon{font-size:.9rem;line-height:1;transition:opacity .2s;user-select:none;z-index:1}
-.theme-pill .pill-sun{color:#f4ad83;opacity:1}
-.theme-pill .pill-moon{color:#b4d0e8;opacity:.5}
-[data-theme=dark] .theme-pill .pill-sun{opacity:.42}
-[data-theme=dark] .theme-pill .pill-moon{opacity:1}
-[data-theme=dark] .theme-pill{background:#0d1c26;border-color:rgba(106,191,208,.22);box-shadow:0 4px 14px rgba(0,0,0,.36)}
-[data-theme=dark] .theme-pill:hover{box-shadow:0 8px 24px rgba(0,0,0,.42)}
+THEME_TOGGLE_CSS = b"""<script>
+(function(){
+var h=document.documentElement,s=localStorage.getItem("muffin-theme");
+if(s==="dark")h.setAttribute("data-theme","dark");
+else if(!s&&window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches)h.setAttribute("data-theme","dark");
+})();
+</script>
+<style>
+.theme-nav-item{display:flex;margin:.35rem 0 .55rem;width:100%}
+.theme-pill{align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:.75rem;color:#fff;cursor:pointer;display:grid;gap:.55rem;grid-template-columns:2rem minmax(0,1fr) auto;min-height:3rem;outline:none;padding:.45rem .55rem;text-align:left;transition:background .18s,border .18s,box-shadow .18s,color .18s;width:100%}
+.theme-pill:hover,.theme-pill:focus{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.34);box-shadow:0 10px 22px rgba(6,48,58,.18);color:#fff}
+.theme-pill-icon{align-items:center;background:#fff;border-radius:.55rem;box-shadow:0 6px 14px rgba(6,48,58,.16);color:#176d78;display:inline-flex;font-size:.92rem;height:2rem;justify-content:center;width:2rem}
+.theme-pill-copy{display:grid;gap:.06rem;line-height:1.1;min-width:0}
+.theme-pill-title{font-size:.82rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.theme-pill-state{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.20);border-radius:999px;color:#fff;font-size:.66rem;font-weight:800;line-height:1;padding:.27rem .5rem;white-space:nowrap}
+[data-theme=dark] .theme-pill{background:rgba(6,24,31,.38);border-color:rgba(72,184,191,.28)}
+[data-theme=dark] .theme-pill:hover,[data-theme=dark] .theme-pill:focus{background:rgba(13,42,49,.62);border-color:rgba(72,184,191,.42)}
+[data-theme=dark] .theme-pill-icon{background:#dff6ed;color:#12353e}
+[data-theme=dark] .theme-pill-state{background:rgba(72,184,191,.18);border-color:rgba(72,184,191,.26);color:#d4e8e2}
+@media (min-width:992px){
+body.muffin-sidebar-collapsed .theme-nav-item{justify-content:center;margin:.25rem 0 .45rem}
+body.muffin-sidebar-collapsed .theme-pill{gap:0;grid-template-columns:1fr;height:44px;min-height:44px;padding:.35rem;width:44px}
+body.muffin-sidebar-collapsed .theme-pill-copy,body.muffin-sidebar-collapsed .theme-pill-state{display:none}
+body.muffin-sidebar-collapsed .theme-pill-icon{height:32px;width:32px}
+}
+@media (max-width:991.98px){
+.theme-nav-item{margin:.2rem 0 .45rem}
+.theme-pill{background:rgba(255,255,255,.10);grid-template-columns:2rem minmax(0,1fr) auto;max-width:22rem}
+}
 </style>"""
 
-THEME_TOGGLE_SCRIPT = b'<button class="theme-pill" title="Alternar modo oscuro / claro" aria-label="Alternar modo"><span class="pill-track"><span class="pill-thumb"></span><span class="pill-icon pill-sun" aria-hidden="true">&#x2600;</span><span class="pill-icon pill-moon" aria-hidden="true">&#x263D;</span></span></button>\n<script>(function(){var h=document.documentElement,s=localStorage.getItem("muffin-theme");if(s==="dark")h.setAttribute("data-theme","dark");else if(!s&&window.matchMedia("(prefers-color-scheme:dark)").matches)h.setAttribute("data-theme","dark");var b=document.querySelector(".theme-pill");if(b)b.addEventListener("click",function(){var c=h.getAttribute("data-theme"),n=c==="dark"?"light":"dark";h.setAttribute("data-theme",n);localStorage.setItem("muffin-theme",n)});})();</script>'
+THEME_TOGGLE_SCRIPT = b"""<script>
+(function(){
+var h=document.documentElement;
+function currentTheme(){return h.getAttribute("data-theme")==="dark"?"dark":"light";}
+function setTheme(theme){
+    h.setAttribute("data-theme",theme);
+    localStorage.setItem("muffin-theme",theme);
+    updateButton();
+}
+function updateButton(){
+    var b=document.querySelector(".theme-pill");
+    if(!b)return;
+    var dark=currentTheme()==="dark";
+    var iconBox=b.querySelector(".theme-pill-icon");
+    var title=b.querySelector(".theme-pill-title");
+    var state=b.querySelector(".theme-pill-state");
+    if(iconBox)iconBox.innerHTML=dark?'<i class="fas fa-moon" aria-hidden="true"></i>':'<i class="fas fa-sun" aria-hidden="true"></i>';
+    if(title)title.textContent="Tema";
+    if(state)state.textContent=dark?"Oscuro":"Claro";
+    b.setAttribute("aria-label",dark?"Cambiar a tema claro":"Cambiar a tema oscuro");
+    b.setAttribute("title",dark?"Tema oscuro":"Tema claro");
+}
+function buildButton(){
+    var b=document.createElement("button");
+    b.type="button";
+    b.className="theme-pill";
+    b.innerHTML='<span class="theme-pill-icon" aria-hidden="true"><i class="fas fa-sun"></i></span><span class="theme-pill-copy"><span class="theme-pill-title">Tema</span></span><span class="theme-pill-state">Claro</span>';
+    b.addEventListener("click",function(){setTheme(currentTheme()==="dark"?"light":"dark");});
+    return b;
+}
+function mountButton(){
+    if(document.querySelector(".theme-nav-item")){updateButton();return;}
+    var target=document.querySelector(".muffin-nav .navbar-nav.ml-auto");
+    var item=document.createElement("li");
+    item.className="nav-item theme-nav-item";
+    item.appendChild(buildButton());
+    if(target)target.insertBefore(item,target.firstElementChild);
+    else document.body.appendChild(item);
+    updateButton();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mountButton);
+else mountButton();
+})();
+</script>"""
 
 # -- Global auto-uppercase for visible text fields and select labels --
 UPPERCASE_SCRIPT = b"""<script>
@@ -82,6 +141,39 @@ initUpper(node);
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",start);}else{start();}
 })();
 </script>"""
+
+APP_FOOTER_MARKUP = """		<footer class="muffin-footer" role="contentinfo">
+			<div class="muffin-footer-brand">
+				<span class="muffin-footer-mark" aria-hidden="true">
+					<img src="/MUFFIN_FAVICON.png?v=muffin-20260716-v2" alt="">
+				</span>
+				<span class="muffin-footer-title">
+					<strong>MUFFIN</strong>
+					<small>Microbiolog&iacute;a Hospitalaria</small>
+				</span>
+			</div>
+			<div class="muffin-footer-legal">
+				<span>&copy; 2026 RyM SAC. Todos los derechos reservados.</span>
+				<span>Propiedad intelectual de RyM SAC.</span>
+			</div>
+			<span class="muffin-footer-version">v1.0</span>
+		</footer>""".encode("utf-8")
+
+LEGACY_FOOTERS = [
+    """		<footer>
+			<p>Todos los derechos reservados &copy; MUFFIN v0.1.0<br />2026, Microbiolog&iacute;a Hospitalaria</p>
+		</footer>""".encode("utf-8"),
+    """		<footer>
+			<p>Todos los derechos reservados &copy; MUFFIN v0.1.0<br />2026, Microbiología Hospitalaria</p>
+		</footer>""".encode("utf-8"),
+    "		<footer class=\"muffin-footer\">MUFFIN | Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales</footer>".encode("utf-8"),
+]
+
+
+def apply_corporate_footer(body: bytes) -> bytes:
+    for legacy_footer in LEGACY_FOOTERS:
+        body = body.replace(legacy_footer, APP_FOOTER_MARKUP)
+    return body
 
 # ── Session injection: reads JWT, calls /auth/me, updates navbar + menus ──
 
@@ -582,6 +674,7 @@ class Handler(BaseHTTPRequestHandler):
             if closing_head >= 0:
                 body = body[:closing_head] + FAVICON_MARKUP + body[closing_head:]
         if inject_toggle:
+            body = apply_corporate_footer(body)
             closing_head = body.lower().find(b"</head>")
             if closing_head >= 0:
                 body = body[:closing_head] + THEME_TOGGLE_CSS + body[closing_head:]

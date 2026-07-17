@@ -37,6 +37,9 @@ body {
     background: var(--muffin-cream);
     box-sizing: border-box;
     color: var(--muffin-ink);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     overflow-x: hidden;
 }
 
@@ -556,10 +559,108 @@ body {
 [data-theme="dark"] .badge-light { background: #1e3e44; color: #c4d8d2; }
 
 .muffin-footer {
+    align-items: center;
+    background:
+        linear-gradient(90deg, rgba(35, 156, 163, 0.08), rgba(118, 205, 184, 0.05)),
+        var(--muffin-surface);
+    border: 1px solid var(--muffin-line);
+    border-left: 4px solid var(--muffin-teal);
+    border-radius: 0.65rem;
+    box-shadow: 0 10px 28px rgba(41, 76, 82, 0.08);
     color: var(--muffin-muted);
+    display: grid;
     font-size: 0.82rem;
-    margin-top: 2rem;
-    text-align: center;
+    gap: 1rem;
+    grid-template-columns: minmax(13rem, 1fr) minmax(16rem, 1.6fr) auto;
+    margin-top: 1.65rem;
+    padding: 0.85rem 1rem;
+}
+
+.muffin-footer-brand {
+    align-items: center;
+    color: var(--muffin-ink);
+    display: flex;
+    gap: 0.7rem;
+    min-width: 0;
+}
+
+.muffin-footer-mark {
+    align-items: center;
+    background: #fff;
+    border: 1px solid rgba(35, 156, 163, 0.22);
+    border-radius: 0.5rem;
+    display: inline-flex;
+    flex: 0 0 2.15rem;
+    height: 2.15rem;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0.16rem;
+    width: 2.15rem;
+}
+
+.muffin-footer-mark img {
+    border-radius: 0.35rem;
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.muffin-footer-title {
+    display: grid;
+    gap: 0.12rem;
+    min-width: 0;
+}
+
+.muffin-footer-title strong {
+    color: var(--muffin-ink);
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    line-height: 1;
+}
+
+.muffin-footer-title small {
+    color: var(--muffin-muted);
+    font-size: 0.72rem;
+    line-height: 1.25;
+}
+
+.muffin-footer-legal {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.85rem;
+    line-height: 1.35;
+}
+
+.muffin-footer-version {
+    align-self: center;
+    background: rgba(35, 156, 163, 0.12);
+    border: 1px solid rgba(35, 156, 163, 0.18);
+    border-radius: 999px;
+    color: var(--muffin-teal-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.28rem 0.62rem;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .muffin-footer {
+    background:
+        linear-gradient(90deg, rgba(72, 184, 191, 0.11), rgba(74, 158, 135, 0.06)),
+        var(--muffin-surface);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="dark"] .muffin-footer-mark {
+    background: #fff;
+    border-color: rgba(72, 184, 191, 0.28);
+}
+
+[data-theme="dark"] .muffin-footer-version {
+    background: rgba(72, 184, 191, 0.14);
+    border-color: rgba(72, 184, 191, 0.22);
+    color: var(--muffin-teal);
 }
 
 @media (max-width: 991px) {
@@ -572,6 +673,13 @@ body {
     .muffin-mascot-wrap { display: none; }
     .muffin-section-heading { align-items: start; flex-direction: column; gap: 0.3rem; }
     .muffin-workbench { grid-template-columns: 1fr; }
+    .muffin-footer {
+        align-items: start;
+        grid-template-columns: 1fr;
+    }
+    .muffin-footer-version {
+        justify-self: start;
+    }
 }
 
 @media (max-width: 460px) {
@@ -583,6 +691,19 @@ body {
 /* ── MUFFIN shell over SIMCORE Bootstrap pages ── */
 .container, .container-fluid {
     background: transparent !important;
+}
+
+body > .container,
+body > .container-fluid {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+
+body > .container > .muffin-footer,
+body > .container-fluid > .muffin-footer {
+    margin-top: auto;
 }
 
 .jumbotron {
@@ -724,7 +845,7 @@ h1, h2, h3, h4, h5, h6 { color: var(--muffin-ink) !important; }
 
 @media (min-width: 576px) {
     .muffin-results-card .card-body > .row:first-of-type > [class*="col-"]:first-child {
-        min-width: 18.5rem;
+        min-width: 23rem;
     }
 }
 
@@ -734,9 +855,18 @@ h1, h2, h3, h4, h5, h6 { color: var(--muffin-ink) !important; }
 }
 
 .muffin-results-card #cboFiltro {
-    flex: 1 1 15rem;
-    min-width: 15rem;
+    flex: 1 1 20rem;
+    height: 2.35rem;
+    line-height: 1.35;
+    min-height: 2.35rem;
+    min-width: 20rem;
     padding-left: 0.85rem;
+    padding-bottom: 0.35rem;
+    padding-top: 0.35rem;
+}
+
+.muffin-results-card .input-group-sm .input-group-text[for="cboFiltro"] {
+    min-height: 2.35rem;
 }
 
 .muffin-results-card .input-group-text {
