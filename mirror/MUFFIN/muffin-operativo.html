@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUFFIN | Diseño operativo</title>
+    <link href="/MUFFIN/Content/PluginsCSS" rel="stylesheet">
+    <link href="/MUFFIN/Content/muffin-operativo.css" rel="stylesheet">
+</head>
+<body>
+    <div class="op-layout">
+        <aside class="op-sidebar">
+            <a class="op-brand" href="/MUFFIN/"><img src="/MUFFIN_ICONO.jpg" alt="MUFFIN"><div><strong>MUFFIN</strong><span>Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales</span></div></a>
+
+            <p class="op-section-label">Operación</p>
+            <nav class="op-nav" aria-label="Navegación principal">
+                <a class="op-active" href="/MUFFIN/muffin-operativo.html"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/MUFFIN/Mic_orden/"><i class="fas fa-clipboard-list"></i> Órdenes</a>
+                <a href="/MUFFIN/Mic_destinos_orden_detalle/"><i class="fas fa-barcode"></i> Verificación</a>
+                <a href="/MUFFIN/Mic_orden_detalle/Resultado_microbiologia"><i class="fas fa-microscope"></i> Resultados</a>
+            </nav>
+
+            <p class="op-section-label">Consultas e informes</p>
+            <nav class="op-nav">
+                <a href="/MUFFIN/Trans_consultas/Microbiologia_pac_orden"><i class="fas fa-search"></i> Paciente / orden</a>
+                <details><summary><i class="fas fa-file-alt"></i> Reportes</summary><div class="op-subnav">
+                    <a href="/MUFFIN/Trans_reportes/Microbiologia_rep_produccion">Producción de resultados</a>
+                    <a href="/MUFFIN/Trans_reportes/Microbiologia_rep_idt_ast">Producción IDT / AST</a>
+                    <a href="/MUFFIN/Trans_reportes/Microbiologia_rep_botellas">Producción de botellas</a>
+                    <a href="/MUFFIN/Trans_reportes/Microbiologia_rep_etiquetas_gen">Etiquetas e impresión</a>
+                    <a href="/MUFFIN/Trans_reportes/Microbiologia_rep_hoja_trabajo">Hoja de trabajo</a>
+                </div></details>
+            </nav>
+
+            <p class="op-section-label">Configuración</p>
+            <nav class="op-nav">
+                <details><summary><i class="fas fa-sliders-h"></i> Catálogos clínicos</summary><div class="op-subnav">
+                    <a href="/MUFFIN/Mic_persona/">Pacientes</a><a href="/MUFFIN/Mic_procedencia/">Procedencias</a><a href="/MUFFIN/Mic_servicio/">Servicios</a><a href="/MUFFIN/Mic_medico/">Médicos</a><a href="/MUFFIN/Mic_res_comentarios_def/">Comentarios definidos</a>
+                </div></details>
+                <details><summary><i class="fas fa-flask"></i> Exámenes y muestras</summary><div class="op-subnav">
+                    <a href="/MUFFIN/Mic_area/">Áreas</a><a href="/MUFFIN/Mic_examen/">Exámenes</a><a href="/MUFFIN/Mic_muestra/">Muestras</a><a href="/MUFFIN/Mic_muestra_contenedor/">Muestras contenedor</a><a href="/MUFFIN/Mic_parametro/">Parámetros</a><a href="/MUFFIN/Mic_seccion/">Secciones</a>
+                </div></details>
+                <details><summary><i class="fas fa-bacteria"></i> ID y sensibilidad</summary><div class="op-subnav">
+                    <a href="/MUFFIN/mic_orga_panel/">Paneles ATB</a><a href="/MUFFIN/Mic_res_panel_recuento/">Recuento de colonias</a><a href="/MUFFIN/Mic_orga/">Microorganismos</a><a href="/MUFFIN/Mic_antibiotico/">Antibióticos</a>
+                </div></details>
+                <details><summary><i class="fas fa-user-cog"></i> Administración</summary><div class="op-subnav">
+                    <a href="/MUFFIN/Mic_usuario/">Usuarios</a><a href="/MUFFIN/Mic_destinos/">Destinos</a><a href="/MUFFIN/Mic_configuracion_general/">Configuración general</a>
+                </div></details>
+            </nav>
+        </aside>
+
+        <main class="op-workspace">
+            <header class="op-topbar"><div><p>MUFFIN / Inicio</p><h1>Panel de turno</h1></div><span class="op-mode">Entorno local</span></header>
+            <div class="op-alert"><i class="fas fa-info-circle"></i><span>Sin datos clínicos cargados. Los indicadores se activarán al conectar el backend de MUFFIN.</span></div>
+            <section class="op-metrics" aria-label="Indicadores de turno">
+                <article class="op-metric"><p>Órdenes del turno</p><strong>--</strong></article>
+                <article class="op-metric"><p>Muestras por verificar</p><strong>--</strong></article>
+                <article class="op-metric"><p>Resultados en proceso</p><strong>--</strong></article>
+                <article class="op-metric"><p>Validaciones pendientes</p><strong>--</strong></article>
+            </section>
+            <section class="op-grid">
+                <article class="op-card"><div class="op-card-header"><h2>Actividad pendiente</h2><a href="/MUFFIN/Mic_orden/">Abrir órdenes</a></div><div class="op-no-data"><i class="fas fa-clipboard-check"></i><span>Esta área mostrará la cola priorizada de trabajo cuando existan órdenes y resultados registrados.</span></div></article>
+                <aside class="op-card"><div class="op-card-header"><h2>Acciones</h2></div><div class="op-actions"><a class="op-action" href="/MUFFIN/Mic_orden/"><i class="fas fa-plus"></i> Registrar orden</a><a class="op-action" href="/MUFFIN/Mic_destinos_orden_detalle/"><i class="fas fa-check"></i> Verificar muestra</a><a class="op-action" href="/MUFFIN/Mic_orden_detalle/Resultado_microbiologia"><i class="fas fa-edit"></i> Cargar resultado</a></div></aside>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUFFIN | Propuesta alternativa</title>
+    <link href="/MUFFIN/Content/css" rel="stylesheet">
+    <link href="/MUFFIN/Content/PluginsCSS" rel="stylesheet">
+    <link href="/MUFFIN/Content/muffin-alternative.css" rel="stylesheet">
+</head>
+<body>
+    <div class="lab-shell">
+        <aside class="lab-rail">
+            <a class="lab-brand" href="/MUFFIN/"><img src="/MUFFIN_ICONO.jpg" alt="MUFFIN"><span>MUFFIN</span></a>
+            <p class="lab-rail-label">Estaciones</p>
+            <nav class="lab-nav" aria-label="Navegación de MUFFIN">
+                <a class="lab-nav-active" href="/MUFFIN/muffin-alternativa.html"><i class="fas fa-th-large"></i> Mi turno</a>
+                <a href="/MUFFIN/Mic_orden/"><i class="fas fa-vial"></i> Muestras</a>
+                <a href="/MUFFIN/Mic_orden_detalle/Resultado_microbiologia"><i class="fas fa-microscope"></i> Resultados</a>
+                <a href="#catalogo"><i class="fas fa-sliders-h"></i> Configuración</a>
+                <a href="/MUFFIN/Trans_consultas/Microbiologia_pac_orden"><i class="fas fa-search"></i> Consultas</a>
+                <a href="/MUFFIN/Trans_reportes/Microbiologia_rep_produccion"><i class="fas fa-file-alt"></i> Informes</a>
+            </nav>
+            <div class="lab-rail-note">MUFFIN<br>Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales.</div>
+        </aside>
+
+        <main class="lab-main">
+            <header class="lab-topbar">
+                <div>
+                    <p class="lab-breadcrumb">MUFFIN / Mi turno</p>
+                    <h1>Hola, Administrador</h1>
+                </div>
+                <div class="lab-user"><span>Laboratorio de microbiología</span><b class="lab-user-avatar">A</b></div>
+            </header>
+
+            <section class="lab-intro" aria-labelledby="lab-title">
+                <div>
+                    <p class="lab-intro-kicker">MUFFIN</p>
+                    <h2 id="lab-title">Panel de turno</h2>
+                    <p>Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales.</p>
+                </div>
+                <img src="/MUFFIN_ICONO.jpg" alt="Mascota microbiológica MUFFIN">
+            </section>
+
+            <section class="lab-metrics" aria-label="Resumen de turno">
+                <article class="lab-metric"><p class="lab-metric-label">Por recibir</p><p class="lab-metric-value">--</p><p class="lab-metric-note">Muestras del turno</p></article>
+                <article class="lab-metric"><p class="lab-metric-label">En proceso</p><p class="lab-metric-value">--</p><p class="lab-metric-note">Resultados por completar</p></article>
+                <article class="lab-metric"><p class="lab-metric-label">Por validar</p><p class="lab-metric-value">--</p><p class="lab-metric-note">Liberación clínica</p></article>
+            </section>
+
+            <section class="lab-workspace">
+                <article class="lab-card">
+                    <div class="lab-card-header"><h3>Ruta de trabajo</h3><a href="/MUFFIN/Mic_orden/">Ver solicitudes</a></div>
+                    <div class="lab-queue-item"><b class="lab-queue-icon"><i class="fas fa-clipboard-list"></i></b><div><strong>Solicitud y toma</strong><span>Registrar paciente, examen y muestra.</span></div><b class="lab-tag lab-tag-sample">INICIO</b></div>
+                    <div class="lab-queue-item"><b class="lab-queue-icon"><i class="fas fa-barcode"></i></b><div><strong>Recepción y trazabilidad</strong><span>Confirmar destino y código de barras.</span></div><b class="lab-tag lab-tag-result">CONTROL</b></div>
+                    <div class="lab-queue-item"><b class="lab-queue-icon"><i class="fas fa-microscope"></i></b><div><strong>Resultado y liberación</strong><span>Procesar, validar e informar.</span></div><b class="lab-tag lab-tag-report">CIERRE</b></div>
+                </article>
+                <aside class="lab-card">
+                    <div class="lab-card-header"><h3>Acciones rápidas</h3></div>
+                    <div class="lab-actions">
+                        <a class="lab-action" href="/MUFFIN/Mic_orden/"><i class="fas fa-plus"></i> Registrar orden</a>
+                        <a class="lab-action" href="/MUFFIN/Mic_destinos_orden_detalle/"><i class="fas fa-check"></i> Verificar muestra</a>
+                        <a class="lab-action" href="/MUFFIN/Mic_orden_detalle/Resultado_microbiologia"><i class="fas fa-edit"></i> Cargar resultado</a>
+                        <a class="lab-action" href="/MUFFIN/Trans_consultas/Microbiologia_pac_orden"><i class="fas fa-search"></i> Consultar orden</a>
+                    </div>
+                </aside>
+            </section>
+
+            <section id="catalogo" aria-labelledby="catalog-title">
+                <h2 class="lab-catalog-title" id="catalog-title">Mapa completo de MUFFIN</h2>
+                <p class="lab-catalog-caption">Todos los apartados funcionales heredados permanecen disponibles durante la prueba visual.</p>
+                <div class="lab-catalog">
+                    <details>
+                        <summary>Solicitudes, recepción y resultados</summary>
+                        <ul>
+                            <li><a href="/MUFFIN/Mic_orden/">Órdenes</a></li>
+                            <li><a href="/MUFFIN/Mic_destinos_orden_detalle/">Verificación</a></li>
+                            <li><a href="/MUFFIN/Mic_orden_detalle/Resultado_microbiologia">Resultados de microbiología</a></li>
+                            <li><a href="/MUFFIN/Trans_consultas/Microbiologia_pac_orden">Consulta paciente / orden</a></li>
+                        </ul>
+                    </details>
+                    <details>
+                        <summary>Catálogos asistenciales</summary>
+                        <ul>
+                            <li><a href="/MUFFIN/Mic_persona/">Pacientes</a></li>
+                            <li><a href="/MUFFIN/Mic_procedencia/">Procedencias</a></li>
+                            <li><a href="/MUFFIN/Mic_servicio/">Servicios</a></li>
+                            <li><a href="/MUFFIN/Mic_medico/">Médicos</a></li>
+                            <li><a href="/MUFFIN/Mic_res_comentarios_def/">Comentarios definidos</a></li>
+                        </ul>
+                    </details>
+                    <details>
+                        <summary>Configuración técnica</summary>
+                        <ul>
+                            <li><a href="/MUFFIN/Mic_area/">Áreas</a></li>
+                            <li><a href="/MUFFIN/Mic_examen/">Exámenes</a></li>
+                            <li><a href="/MUFFIN/Mic_muestra/">Muestras</a></li>
+                            <li><a href="/MUFFIN/Mic_muestra_contenedor/">Contenedores</a></li>
+                            <li><a href="/MUFFIN/Mic_parametro/">Parámetros</a></li>
+                            <li><a href="/MUFFIN/Mic_seccion/">Secciones</a></li>
+                        </ul>
+                    </details>
+                    <details>
+                        <summary>Identificación y sensibilidad</summary>
+                        <ul>
+                            <li><a href="/MUFFIN/mic_orga_panel/">Paneles ATB</a></li>
+                            <li><a href="/MUFFIN/Mic_res_panel_recuento/">Recuento de colonias</a></li>
+                            <li><a href="/MUFFIN/Mic_orga/">Microorganismos</a></li>
+                            <li><a href="/MUFFIN/Mic_antibiotico/">Antibióticos</a></li>
+                        </ul>
+                    </details>
+                    <details>
+                        <summary>Administración</summary>
+                        <ul>
+                            <li><a href="/MUFFIN/Mic_usuario/">Usuarios y permisos</a></li>
+                            <li><a href="/MUFFIN/Mic_destinos/">Destinos</a></li>
+                            <li><a href="/MUFFIN/Mic_configuracion_general/">Configuración general</a></li>
+                        </ul>
+                    </details>
+                    <details>
+                        <summary>Informes operativos</summary>
+                        <ul>
+                            <li><a href="/MUFFIN/Trans_reportes/Microbiologia_rep_produccion">Producción de resultados</a></li>
+                            <li><a href="/MUFFIN/Trans_reportes/Microbiologia_rep_idt_ast">Producción IDT / AST</a></li>
+                            <li><a href="/MUFFIN/Trans_reportes/Microbiologia_rep_botellas">Producción de botellas</a></li>
+                            <li><a href="/MUFFIN/Trans_reportes/Microbiologia_rep_etiquetas_gen">Etiquetas e impresión</a></li>
+                            <li><a href="/MUFFIN/Trans_reportes/Microbiologia_rep_hoja_trabajo">Hoja de trabajo</a></li>
+                        </ul>
+                    </details>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

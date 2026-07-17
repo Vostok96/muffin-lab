@@ -1,0 +1,2289 @@
+from __future__ import annotations
+
+import html
+import json
+import mimetypes
+import os
+from datetime import date, datetime, timedelta, timezone
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from urllib.parse import quote, unquote, urlparse
+from urllib.request import Request as URLRequest, urlopen
+from urllib.error import URLError
+
+ROOT = Path(__file__).resolve().parent
+MIRROR = ROOT / "mirror"
+MANIFEST = ROOT / "docs" / "capture_manifest.json"
+BRAND_IMAGE = ROOT / "MUFFIN_ICONO.jpg"
+FAVICON = ROOT / "MUFFIN_FAVICON.png"
+FAVICON_MARKUP = b'\n\t<link rel="icon" type="image/png" sizes="256x256" href="/MUFFIN_FAVICON.png?v=muffin-20260716-v2">\n'
+HOST = os.environ.get("SIMCORE_CLONE_HOST", "127.0.0.1")
+PORT = int(os.environ.get("SIMCORE_CLONE_PORT", "8877"))
+API_BASE = os.environ.get("MUFFIN_API_URL", "http://127.0.0.1:8000/api/v1")
+
+LOGIN_PAGE = ROOT / "docs" / "login.html"
+LOGOUT_REDIRECT = b"""<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/MUFFIN/Login/Index"><title>Cerrando sesion...</title></head><body><script>localStorage.clear();window.location.href='/MUFFIN/Login/Index';</script></body></html>"""
+
+THEME_TOGGLE_CSS = b"""<style>
+.theme-pill{position:fixed;bottom:1.15rem;right:1.15rem;z-index:9999;background:var(--muffin-surface,#fffefa);border:1.5px solid rgba(35,156,163,.24);border-radius:999px;cursor:pointer;height:2.45rem;outline:none;padding:0;transition:background .25s,border .25s,box-shadow .25s,width .2s;width:4.75rem;box-shadow:0 4px 14px rgba(23,109,120,.14)}
+.theme-pill:hover{box-shadow:0 8px 24px rgba(23,109,120,.2)}
+.theme-pill .pill-track{display:flex;align-items:center;height:100%;justify-content:space-between;padding:0 .6rem;position:relative;width:100%}
+.theme-pill .pill-thumb{background:linear-gradient(135deg,#239ca3,#176d78);border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.18);height:1.68rem;left:.33rem;position:absolute;transition:transform .3s cubic-bezier(.4,0,.2,1),background .3s;width:1.68rem}
+[data-theme=dark] .theme-pill .pill-thumb{transform:translateX(2.27rem);background:linear-gradient(135deg,#6abfd0,#264e7f)}
+.theme-pill .pill-icon{font-size:.9rem;line-height:1;transition:opacity .2s;user-select:none;z-index:1}
+.theme-pill .pill-sun{color:#f4ad83;opacity:1}
+.theme-pill .pill-moon{color:#b4d0e8;opacity:.5}
+[data-theme=dark] .theme-pill .pill-sun{opacity:.42}
+[data-theme=dark] .theme-pill .pill-moon{opacity:1}
+[data-theme=dark] .theme-pill{background:#0d1c26;border-color:rgba(106,191,208,.22);box-shadow:0 4px 14px rgba(0,0,0,.36)}
+[data-theme=dark] .theme-pill:hover{box-shadow:0 8px 24px rgba(0,0,0,.42)}
+</style>"""
+
+THEME_TOGGLE_SCRIPT = b'<button class="theme-pill" title="Alternar modo oscuro / claro" aria-label="Alternar modo"><span class="pill-track"><span class="pill-thumb"></span><span class="pill-icon pill-sun" aria-hidden="true">&#x2600;</span><span class="pill-icon pill-moon" aria-hidden="true">&#x263D;</span></span></button>\n<script>(function(){var h=document.documentElement,s=localStorage.getItem("muffin-theme");if(s==="dark")h.setAttribute("data-theme","dark");else if(!s&&window.matchMedia("(prefers-color-scheme:dark)").matches)h.setAttribute("data-theme","dark");var b=document.querySelector(".theme-pill");if(b)b.addEventListener("click",function(){var c=h.getAttribute("data-theme"),n=c==="dark"?"light":"dark";h.setAttribute("data-theme",n);localStorage.setItem("muffin-theme",n)});})();</script>'
+
+# -- Global auto-uppercase for visible text fields and select labels --
+UPPERCASE_SCRIPT = b"""<script>
+(function(){
+function uppercaseValue(event){
+var el=event.currentTarget,start=el.selectionStart,end=el.selectionEnd;
+var value=el.value.toLocaleUpperCase("es");
+if(value===el.value)return;
+el.value=value;
+if(start!==null&&end!==null)el.setSelectionRange(start,end);
+}
+function uppercaseOptions(select){
+Array.from(select.options).forEach(function(option){option.text=option.text.toLocaleUpperCase("es");});
+}
+function initUpper(root){
+var scope=root&&root.querySelectorAll?root:document;
+scope.querySelectorAll("form input[type=text].form-control,form textarea.form-control").forEach(function(el){
+if(el.id==="txtEdad"||el.id==="txtNumeroOrden"||el.dataset.muffinUppercase)return;
+el.dataset.muffinUppercase="true";
+el.addEventListener("input",uppercaseValue);
+});
+scope.querySelectorAll("form select.form-control").forEach(uppercaseOptions);
+var age=document.getElementById("txtEdad");
+if(age){age.readOnly=true;age.setAttribute("aria-readonly","true");}
+}
+function start(){
+initUpper(document);
+new MutationObserver(function(mutations){
+mutations.forEach(function(mutation){
+mutation.addedNodes.forEach(function(node){
+if(node.nodeType!==1)return;
+if(node.tagName==="OPTION"&&node.parentElement)uppercaseOptions(node.parentElement);
+else if(node.tagName==="SELECT")uppercaseOptions(node);
+initUpper(node);
+});
+});
+}).observe(document.body,{childList:true,subtree:true});
+}
+if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",start);}else{start();}
+})();
+</script>"""
+
+# ── Session injection: reads JWT, calls /auth/me, updates navbar + menus ──
+
+SESSION_SCRIPT = b"""<script>
+(function(){
+var API='http://127.0.0.1:8000/api/v1';
+var token=localStorage.getItem('muffin_token');
+if(!token){window.location.href='/MUFFIN/Login/Index';return;}
+if(window.jQuery){jQuery.ajaxPrefilter(function(options,originalOptions,jqXHR){if(options.url&&options.url.indexOf('/MUFFIN/')===0)jqXHR.setRequestHeader('Authorization','Bearer '+token);});}
+
+function cleanName(value){
+    var namePrefixes=['DR','DRA','LIC','MG','MGR','MBA','BLGA','BLGO','MBLGA','MBLGO','ING','ABG','ABGA','MED'];
+    var text=(value||'').toString().replace(/[.,]/g,' ').replace(/\\s+/g,' ').trim();
+    var parts=text.split(' ').filter(Boolean);
+    while(parts.length && namePrefixes.indexOf(parts[0].toUpperCase())!==-1){parts.shift();}
+    return parts.join(' ').trim();
+}
+
+function syncDesktopSidebar(){
+    var collapse=document.getElementById('navbarSupportedContent');
+    var toggler=document.querySelector('.muffin-nav .navbar-toggler');
+    if(!collapse||!toggler)return;
+    if(window.matchMedia('(min-width: 992px)').matches){
+        collapse.classList.add('show');
+        var collapsed=localStorage.getItem('muffin-sidebar')==='collapsed';
+        document.body.classList.toggle('muffin-sidebar-collapsed',collapsed);
+        toggler.setAttribute('aria-expanded',collapsed?'false':'true');
+    }else{
+        document.body.classList.remove('muffin-sidebar-collapsed');
+        collapse.classList.remove('show');
+        toggler.setAttribute('aria-expanded','false');
+    }
+}
+
+syncDesktopSidebar();
+window.addEventListener('resize', syncDesktopSidebar);
+var sidebarToggler=document.querySelector('.muffin-nav .navbar-toggler');
+if(sidebarToggler){
+    sidebarToggler.addEventListener('click',function(event){
+        if(!window.matchMedia('(min-width: 992px)').matches)return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        var collapsed=!document.body.classList.contains('muffin-sidebar-collapsed');
+        localStorage.setItem('muffin-sidebar',collapsed?'collapsed':'expanded');
+        syncDesktopSidebar();
+    },true);
+}
+
+fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+token}})
+.then(function(r){
+    if(!r.ok){localStorage.removeItem('muffin_token');window.location.href='/MUFFIN/Login/Index';return null;}
+    return r.json();
+})
+.then(function(u){
+    if(!u)return;
+    var RM={ADMIN:1,PROCESS_ADMIN:2,PROCESSOR:3,ENTRY:4,CONSULTANT:5,COLLECTOR:6,CLINICIAN:7};
+    var RN={1:'Administrador',2:'Admin Procesos',3:'Procesador',4:'Ingreso/Consultas',5:'Consultas',6:'Toma Muestras',7:'Medico'};
+    var roleNum=RM[u.roles&&u.roles[0]]||7;
+
+    var navLink=document.querySelector('.navbar-nav.ml-auto .nav-link.dropdown-toggle');
+    if(navLink){
+        var givenName=cleanName(u.given_name||'');
+        var familyName=cleanName(u.family_name||'');
+        var displayName=familyName&&givenName ? (familyName+', '+givenName) : (familyName||givenName);
+        navLink.textContent='';
+        var sessionSpan=document.createElement('span');
+        sessionSpan.className='muffin-session-name';
+        var sessionIcon=document.createElement('i');
+        sessionIcon.className='fas fa-user-circle';
+        sessionSpan.appendChild(sessionIcon);
+        sessionSpan.appendChild(document.createTextNode(' '+displayName+' '));
+        navLink.appendChild(sessionSpan);
+        function hidden(id, value){
+            var input=document.createElement('input');
+            input.type='hidden';
+            input.id=id;
+            input.value=value;
+            navLink.appendChild(input);
+        }
+        hidden('session_user_id', u.username);
+        hidden('session_user_rol', roleNum);
+        hidden('session_user_rol_validacion_preliminar', roleNum<=3?'True':'False');
+        hidden('session_user_rol_validacion_final', roleNum<=2?'True':'False');
+        navLink.title=displayName;
+    }
+    var jb=document.querySelector('.jumbotron .lead');
+    if(jb){
+        var headerGiven=cleanName(u.given_name||'');
+        var headerFamily=cleanName(u.family_name||'');
+        var headerName=headerFamily&&headerGiven ? (headerFamily+', '+headerGiven) : (headerFamily||headerGiven);
+        jb.textContent=headerName;
+    }
+
+    document.querySelectorAll('.cl_permiso_proceso_configuracion,.cl_permiso_proceso_ordenes,.cl_permiso_proceso_verificacion,.cl_permiso_proceso_resultados,.cl_permiso_consultas,.cl_permiso_proceso_reportes').forEach(function(s){s.style.display='none';});
+
+    /*  ROLES MUFFIN - Menu permissions by role
+        1 ADMIN           : Config, Ordenes, Verificacion, Resultados, Consultas, Reportes
+        2 PROCESS_ADMIN   : Ordenes, Verificacion, Resultados, Consultas, Reportes
+        3 PROCESSOR       : Ordenes, Verificacion, Resultados, Consultas, Reportes
+        4 ENTRY           : Ordenes, Verificacion, Consultas
+        5 CONSULTANT      : Ordenes, Verificacion, Consultas
+        6 COLLECTOR       : Verificacion, Consultas
+        7 CLINICIAN       : Consultas
+    */
+    var RM2={
+        1:['configuracion','ordenes','verificacion','resultados','consultas','reportes'],
+        2:['ordenes','verificacion','resultados','consultas','reportes'],
+        3:['ordenes','verificacion','resultados','consultas','reportes'],
+        4:['ordenes','verificacion','consultas'],
+        5:['ordenes','verificacion','consultas'],
+        6:['verificacion','consultas'],
+        7:['consultas']
+    };
+    var SM={configuracion:'.cl_permiso_proceso_configuracion',ordenes:'.cl_permiso_proceso_ordenes',verificacion:'.cl_permiso_proceso_verificacion',resultados:'.cl_permiso_proceso_resultados',consultas:'.cl_permiso_consultas',reportes:'.cl_permiso_proceso_reportes'};
+
+    var menus=RM2[roleNum]||[];
+    menus.forEach(function(m){var el=document.querySelector(SM[m]);if(el)el.style.display='';});
+})
+.catch(function(){localStorage.removeItem('muffin_token');window.location.href='/MUFFIN/Login/Index';});
+})();
+</script>"""
+
+# ── SIMCORE → MUFFIN proxy mappings ──
+
+ROLE_MAP = {1: "ADMIN", 2: "PROCESS_ADMIN", 3: "PROCESSOR", 4: "ENTRY", 5: "CONSULTANT", 6: "COLLECTOR", 7: "CLINICIAN"}
+ROLE_REV = {"ADMIN": 1, "PROCESS_ADMIN": 2, "PROCESSOR": 3, "ENTRY": 4, "CONSULTANT": 5, "COLLECTOR": 6, "CLINICIAN": 7}
+CARE_SETTING_LABELS = {
+    "AMBULATORIO": "AMBULATORIO",
+    "INTERNADO_NO_UCI": "HOSPITALIZACION GENERAL",
+    "CUIDADOS_INTERMEDIOS": "CUIDADOS INTERMEDIOS",
+    "UCI": "CUIDADOS INTENSIVOS (UCI)",
+    "URGENCIA": "URGENCIA",
+    "DESCONOCIDO": "DESCONOCIDO",
+}
+LOCAL_TIMEZONE = timezone(timedelta(hours=-5))
+NAME_PREFIXES = {
+    "DR",
+    "DRA",
+    "LIC",
+    "LIC.",
+    "MG",
+    "MGR",
+    "MBA",
+    "BLGA",
+    "BLGO",
+    "MBLGA",
+    "MBLGO",
+    "ING",
+    "ING.",
+    "ABG",
+    "ABGA",
+    "MED",
+    "MED.",
+}
+
+
+def _strip_name_prefixes(value: object) -> str:
+    text = str(value or "").replace(".", " ").upper()
+    tokens = [token for token in text.split() if token]
+    while tokens and tokens[0] in NAME_PREFIXES:
+        tokens.pop(0)
+    return " ".join(tokens).strip()
+
+
+def clean_display_name(given_name: object, family_name: object) -> str:
+    cleaned_given = _strip_name_prefixes(given_name)
+    parts = [cleaned_given, str(family_name or "").strip()]
+    return " ".join(part for part in parts if part).strip()
+
+
+def local_datetime_value(value: object) -> str:
+    if not value:
+        return ""
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=LOCAL_TIMEZONE)
+        return parsed.astimezone(LOCAL_TIMEZONE).strftime("%Y-%m-%dT%H:%M")
+    except ValueError:
+        return str(value)[:16]
+
+
+def select_options_from_schema(options_schema: object) -> list[tuple[str, str]]:
+    options: list[tuple[str, str]] = []
+    if isinstance(options_schema, list):
+        raw_options = options_schema
+    elif isinstance(options_schema, dict):
+        raw_options = options_schema.get("options", options_schema)
+    else:
+        raw_options = []
+    if isinstance(raw_options, list):
+        for option in raw_options:
+            if isinstance(option, dict):
+                code = option.get("code", option.get("value", option.get("id")))
+                if code is None:
+                    continue
+                label = option.get("label", option.get("name", code))
+                options.append((str(code), str(label)))
+            else:
+                text = str(option)
+                options.append((text, text))
+    elif isinstance(raw_options, dict):
+        for code, value in raw_options.items():
+            label = value.get("label", value.get("name", code)) if isinstance(value, dict) else value
+            options.append((str(code), str(label)))
+    return options
+
+CATALOG_FIELD_MAP = {
+    "/catalogs/areas": {"id": "area_id", "code": "area_id", "name": "area_desc", "section": "area_seccion", "is_active": "area_estado"},
+    "/catalogs/origins": {"id": "procedencia_uuid", "code": "procedencia_id", "name": "procedencia_desc", "is_active": "procedencia_estado"},
+    "/catalogs/services": {"id": "servicio_uuid", "code": "servicio_id", "name": "servicio_desc", "is_active": "servicio_estado"},
+    "/catalogs/clinicians": {"id": "medico_id", "code": "medico_colegiatura", "given_name": "medico_nombres", "family_name": "medico_apellidos", "is_active": "medico_estado"},
+    "/catalogs/exams": {"id": "examen_id", "name": "examen_desc", "external_code": "examen_cod_homo", "barcode_suffix": "examen_codebar_sufijo", "sends_to_analyzer": "examen_analizador_send", "requires_colony_count": "examen_recuento", "is_active": "examen_estado"},
+    "/catalogs/organisms": {"id": "orga_id_id", "code": "orga_id", "name": "orga_desc", "homo_code": "orga_homo", "is_active": "orga_estado"},
+    "/catalogs/antibiotics": {"id": "atb_id_id", "code": "atb_id", "name": "atb_desc", "homo_code": "atb_homo", "is_active": "atb_estado"},
+    "/catalogs/parameters": {"id": "parametro_id", "code": "parametro_cod", "name": "parametro_desc", "section": "parametro_seccion", "is_active": "parametro_estado"},
+    "/catalogs/destinations": {"id": "destinos_id", "name": "destinos_desc", "type": "destinos_tipo", "color": "destinos_color", "is_active": "destinos_estado"},
+    "/catalogs/containers": {"id": "muestracon_cod", "code": "muestracon_cod", "name": "muestracon_desc", "is_active": "muestracon_estado"},
+    "/catalogs/specimen-types": {"id": "muestra_id", "code": "muestra_cod_alfa", "name": "muestra_desc", "container_id": "muestra_contenedor_id", "parent_id": "muestra_padre_id", "is_selectable": "muestra_seleccionable", "is_active": "muestra_estado"},
+    "/catalogs/defined-comments": {"id": "rescomen_id", "code": "rescomen_cod", "text": "rescomen_desc", "is_active": "rescomen_estado"},
+    "/catalogs/colony-count-options": {"id": "panel_res_recuento_id", "code": "panel_res_recuento_cod", "name": "panel_res_recuento_desc", "is_active": "panel_res_recuento_estado"},
+    "/catalogs/ast-panels": {"id": "orga_panel_id", "code": "orga_panel_codigo", "name": "orga_panel_desc", "display_order": "orga_panel_orden", "is_active": "orga_panel_estado"},
+}
+
+# SIMCORE frontend field names → MUFFIN API field names for catalog CREATE/UPDATE
+CATALOG_CREATE_MAP = {
+    "Mic_area/Guardar": ("/catalogs/areas", lambda o: {"code": o.get("area_id", ""), "name": o.get("area_desc", ""), "section": o.get("area_seccion", "MICROBIOLOGY")}),
+    "Mic_procedencia/Guardar": ("/catalogs/origins", lambda o: {"code": o.get("procedencia_id", ""), "name": o.get("procedencia_desc", "")}),
+    "Mic_servicio/Guardar": ("/catalogs/services", lambda o: {"code": o.get("servicio_id", ""), "name": o.get("servicio_desc", "")}),
+    "Mic_medico/Guardar": ("/catalogs/clinicians", lambda o: {"code": o.get("medico_colegiatura", ""), "given_name": o.get("medico_nombres", ""), "family_name": o.get("medico_apellidos", "")}),
+    "Mic_examen/Guardar": ("/catalogs/exams", lambda o: {"code": o.get("examen_id", ""), "name": o.get("examen_desc", ""), "external_code": o.get("examen_cod_homo", ""), "barcode_suffix": o.get("examen_codebar_sufijo", ""), "sends_to_analyzer": o.get("examen_analizador_send", False), "requires_colony_count": o.get("examen_recuento", False)}),
+    "Mic_muestra/Guardar": ("/catalogs/specimen-types", lambda o: {"code": o.get("muestra_cod_alfa", ""), "name": o.get("muestra_desc", ""), "container_id": o.get("muestra_contenedor_id", "")}),
+    "Mic_muestra_contenedor/Guardar": ("/catalogs/containers", lambda o: {"code": o.get("muestracon_cod", ""), "name": o.get("muestracon_desc", "")}),
+    "Mic_orga/Guardar": ("/catalogs/organisms", lambda o: {"code": o.get("orga_id", ""), "name": o.get("orga_desc", ""), "homo_code": o.get("orga_homo", "")}),
+    "Mic_antibiotico/Guardar": ("/catalogs/antibiotics", lambda o: {"code": o.get("atb_id", ""), "name": o.get("atb_desc", ""), "homo_code": o.get("atb_homo", "")}),
+    "Mic_parametro/Guardar": ("/catalogs/parameters", lambda o: {"code": o.get("parametro_cod", ""), "name": o.get("parametro_desc", ""), "section": o.get("parametro_seccion", "MICROBIOLOGY")}),
+    "Mic_destinos/Guardar": ("/catalogs/destinations", lambda o: {"name": o.get("destinos_desc", ""), "type": o.get("destinos_tipo", ""), "color": o.get("destinos_color", "")}),
+    "Mic_res_comentarios_def/Guardar": ("/catalogs/defined-comments", lambda o: {"code": o.get("rescomen_cod", o.get("coment_id", "")), "text": o.get("rescomen_desc", o.get("coment_desc", ""))}),
+    "Mic_res_panel_recuento/Guardar": ("/catalogs/colony-count-options", lambda o: {"code": o.get("panel_res_recuento_cod", o.get("recuento_id", "")), "name": o.get("panel_res_recuento_desc", o.get("recuento_desc", ""))}),
+}
+
+API_PROXIES = {
+    # ── Users ──
+    "Mic_usuario/Obtener": ("GET", "/admin/users", "user_list"),
+    "Mic_usuario/Guardar": ("POST", "/admin/users", "user_create"),
+    "Mic_usuario/Eliminar": ("POST", "/admin/users", "user_delete"),
+    "Mic_usuario/Reactivar": ("POST", "/admin/users", "user_reactivate"),
+    "Mic_usuario/Guardar_update_pass": ("POST", "/admin/users", "user_password_update"),
+    # ── Catalogs GET ──
+    "Mic_area/Obtener": ("GET", "/catalogs/areas", "catalog_list"),
+    "Mic_area/Guardar": ("POST", "/catalogs/areas", "catalog_mapped_create"),
+    "Mic_procedencia/Obtener": ("GET", "/catalogs/origins", "catalog_list"),
+    "Mic_procedencia/Guardar": ("POST", "/catalogs/origins", "catalog_mapped_create"),
+    "Mic_servicio/Obtener": ("GET", "/catalogs/services", "catalog_list"),
+    "Mic_servicio/Guardar": ("POST", "/catalogs/services", "catalog_mapped_create"),
+    "Mic_medico/Obtener": ("GET", "/catalogs/clinicians", "catalog_list"),
+    "Mic_medico/Guardar": ("POST", "/catalogs/clinicians", "catalog_mapped_create"),
+    "Mic_examen/Obtener": ("GET", "/catalogs/exams", "catalog_list"),
+    "Mic_examen/Guardar": ("POST", "/catalogs/exams", "catalog_mapped_create"),
+    "Mic_muestra/Obtener": ("GET", "/catalogs/specimen-types", "catalog_list"),
+    "Mic_muestra/Guardar": ("POST", "/catalogs/specimen-types", "catalog_mapped_create"),
+    "Mic_muestra_contenedor/Obtener": ("GET", "/catalogs/containers", "catalog_list"),
+    "Mic_muestra_contenedor/Guardar": ("POST", "/catalogs/containers", "catalog_mapped_create"),
+    "Mic_orga/Obtener": ("GET", "/catalogs/organisms", "catalog_list"),
+    "Mic_orga/Guardar": ("POST", "/catalogs/organisms", "catalog_mapped_create"),
+    "Mic_antibiotico/Obtener": ("GET", "/catalogs/antibiotics", "catalog_list"),
+    "Mic_antibiotico/Guardar": ("POST", "/catalogs/antibiotics", "catalog_mapped_create"),
+    "Mic_parametro/Obtener": ("GET", "/catalogs/parameters", "catalog_list"),
+    "Mic_parametro/Guardar": ("POST", "/catalogs/parameters", "catalog_mapped_create"),
+    "Mic_destinos/Obtener": ("GET", "/catalogs/destinations", "catalog_list"),
+    "Mic_destinos/Guardar": ("POST", "/catalogs/destinations", "catalog_mapped_create"),
+    "Mic_res_comentarios_def/Obtener": ("GET", "/catalogs/defined-comments", "catalog_list"),
+    "Mic_res_comentarios_def/Guardar": ("POST", "/catalogs/defined-comments", "catalog_mapped_create"),
+    "Mic_res_panel_recuento/Obtener": ("GET", "/catalogs/colony-count-options", "catalog_list"),
+    "Mic_res_panel_recuento/Guardar": ("POST", "/catalogs/colony-count-options", "catalog_mapped_create"),
+    # ── Exam relationships ──
+    "Mic_muestra_examen/ObtenerEXA": ("GET", "/catalogs/exams", "exam_specimen_list"),
+    "Mic_muestra_examen/Guardar": ("POST", "/catalogs/exams", "exam_specimen_add"),
+    "Mic_muestra_examen/Eliminar": ("POST", "/catalogs/exams", "exam_specimen_remove"),
+    "Mic_examen_parametro/Obtener": ("GET", "/catalogs/exams", "exam_param_list"),
+    "Mic_examen_parametro/Guardar": ("POST", "/catalogs/exams", "exam_param_add"),
+    "Mic_examen_parametro/Eliminar": ("POST", "/catalogs/exams", "exam_param_remove"),
+    # ── Patients ──
+    "Mic_Persona/Obtener": ("GET", "/patients", "patient_list"),
+    "Mic_persona/ObtenerHC": ("GET", "/patients", "patient_list"),
+    "Mic_Persona/Guardar": ("POST", "/patients", "patient_save"),
+    # ── Orders ──
+    "Mic_orden/Obtener": ("GET", "/orders", "order_list"),
+    "Mic_orden/Guardar": ("POST", "/orders", "order_save"),
+    # ── Order items ──
+    "Mic_orden_detalle/Obtener_Mic_orden_detalle_examen": ("GET", "/orders", "order_detail_exams"),
+    "Mic_orden_detalle/RegistrarExaMuestraMic_orden_detalle": ("POST", "/orders", "order_item_add"),
+    "Mic_orden_detalle/EliminarMic_orden_detalle": ("POST", "/orders", "order_item_delete"),
+    "Mic_orden_detalle/Obtener_res": ("GET", "/result-worklist", "result_worklist"),
+    "Mic_orden_detalle/ObtenerMic_orden_detalle_examen_muestra": ("GET", "/result-worklist", "result_item_sample"),
+    "Mic_orden_detalle/GuardarMoMuestra": ("POST", "/orders", "order_item_sample_save"),
+    # ── Clinical events ──
+    "Mic_orden_detalle/RegistrarEnviarInstrumentoMic_orden_detalle": ("POST", "/orders", "order_item_instrument"),
+    "Mic_orden_detalle/RegistrarDeleteEventosMic_orden_detalle": ("POST", "/orders", "order_item_delete_events"),
+    "Mic_orden_detalle/RegistrarEnviarAlarmaEmailMic_orden_detalle": ("POST", "/orders", "order_item_email_alarm"),
+    # ── Results ──
+    "Mic_orden_detalle_res/Guardar": ("POST", "/orders", "result_save"),
+    "Mic_orden_detalle_res/ObtenerOrdenId": ("GET", "/orders", "result_get_by_order"),
+    "Trans_pdf/Download_res_es": ("GET", "/orders", "result_report"),
+    "Mic_temp/DocumentoPDF": ("GET", "/orders", "result_report"),
+    # ── AST Panels (microbiology) ──
+    "Mic_res_panel/Registrar": ("POST", "/orders", "ast_panel_register"),
+    "Mic_res_panel/Eliminar": ("GET", "/orders", "ast_panel_delete"),
+    "Mic_res_panel/ObtenerCodebar": ("GET", "/orders", "ast_panel_by_codebar"),
+    "Mic_res_panel/ObtenerCodebarOrgacod": ("GET", "/orders", "ast_panel_by_org"),
+    "Mic_res_panel_detalle/Guardar": ("POST", "/orders", "ast_detail_save"),
+    "Mic_res_panel_detalle/GuardarManual": ("POST", "/orders", "ast_detail_manual"),
+    "Mic_res_panel_detalle/ObtenerCodebarOrgaCod": ("GET", "/orders", "ast_detail_by_org"),
+    # ── Organism panels ──
+    "Mic_orga_panel/Obtener": ("GET", "/catalogs/ast-panels", "catalog_list"),
+    "Mic_orga_panel/Guardar": ("POST", "/catalogs/ast-panels", "ast_panel_create"),
+    "Mic_orga_panel/Eliminar": ("POST", "/catalogs/ast-panels", "ast_panel_delete"),
+    "Mic_orga_panel_detalle/Obtener": ("GET", "/catalogs/ast-panels", "ast_panel_antibiotics"),
+    "Mic_orga_panel_detalle/Guardar": ("POST", "/catalogs/ast-panels", "ast_panel_antibiotic_add"),
+    "Mic_orga_panel_detalle/Eliminar": ("POST", "/catalogs/ast-panels", "ast_panel_antibiotic_remove"),
+    # ── Area permissions (stub — no backend endpoint yet) ──
+    "Mic_area_permiso/Obtener": ("GET", "/admin/users", "area_permission_list"),
+    "Mic_area_permiso/Obtener_user_seccion": ("GET", "/auth/me/areas", "area_permission_list"),
+    "Mic_area_permiso/Guardar": ("POST", "/admin/users", "area_permission_save"),
+    "Mic_area_permiso/Eliminar": ("GET", "/admin/users", "area_permission_delete"),
+}
+
+
+def api_req(method: str, path: str, token: str = "", body: dict | None = None) -> tuple[int, dict | list | None]:
+    try:
+        data = json.dumps(body).encode("utf-8") if body else None
+        headers = {"Content-Type": "application/json"}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        req = URLRequest(f"{API_BASE}{path}", data=data, headers=headers, method=method)
+        with urlopen(req, timeout=10) as resp:
+            content = resp.read()
+            return resp.status, json.loads(content.decode("utf-8")) if content else None
+    except URLError as e:
+        code = e.code if hasattr(e, "code") else 502
+        try:
+            body_text = e.read().decode("utf-8") if hasattr(e, "read") else ""
+            detail = json.loads(body_text).get("detail", "") if body_text else ""
+        except Exception:
+            detail = ""
+        return code, {"detail": detail} if detail else None
+    except Exception:
+        return 502, None
+
+
+def get_admin_token() -> tuple[str, str]:
+    status, data = api_req("POST", "/auth/login", body={"username": "admin", "password": "admin"})
+    if status == 200 and isinstance(data, dict):
+        return data.get("access_token", ""), ""
+    return "", "No se pudo autenticar con la API MUFFIN"
+
+
+def load_manifest() -> dict:
+    if MANIFEST.exists():
+        return json.loads(MANIFEST.read_text(encoding="utf-8"))
+    return {"pages": {}}
+
+
+def content_type(path: Path, request_path: str) -> str:
+    guessed = mimetypes.guess_type(str(path))[0]
+    if guessed:
+        return guessed
+    lowered = request_path.lower()
+    if "/content/" in lowered:
+        return "text/css; charset=utf-8"
+    if "/bundles/" in lowered or "/scripts/" in lowered:
+        return "application/javascript; charset=utf-8"
+    if path.suffix.lower() in {".html", ".htm"}:
+        return "text/html; charset=utf-8"
+    return "application/octet-stream"
+
+
+def safe_mirror_path(request_path: str) -> Path | None:
+    rel = request_path.lstrip("/")
+    candidate = (MIRROR / rel).resolve()
+    try:
+        candidate.relative_to(MIRROR.resolve())
+    except ValueError:
+        return None
+    return candidate
+
+
+class Handler(BaseHTTPRequestHandler):
+    manifest: dict = {}
+
+    def log_message(self, fmt: str, *args) -> None:
+        print(f"{self.address_string()} - {fmt % args}")
+
+    def send_bytes(self, body: bytes, status: int, ctype: str) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def send_json(self, payload: object, status: int = 200) -> None:
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_bytes(body, status, "application/json; charset=utf-8")
+
+    def do_POST(self) -> None:
+        parsed = urlparse(self.path)
+        path = parsed.path.rstrip("/")
+        if path == "/MUFFIN/Login/Index":
+            self.serve_page("/MUFFIN/Home/Index")
+            return
+        proxy = self._find_proxy(path, "POST")
+        if proxy:
+            self._handle_proxy(proxy, path)
+            return
+        self.stub_response(parsed.path)
+
+    def do_PUT(self) -> None:
+        parsed = urlparse(self.path)
+        proxy = self._find_proxy(parsed.path.rstrip("/"), "PUT")
+        if proxy:
+            self._handle_proxy(proxy, parsed.path)
+            return
+        self.stub_response(parsed.path)
+
+    def do_DELETE(self) -> None:
+        parsed = urlparse(self.path)
+        proxy = self._find_proxy(parsed.path.rstrip("/"), "DELETE")
+        if proxy:
+            self._handle_proxy(proxy, parsed.path)
+            return
+        self.stub_response(parsed.path)
+
+    def do_GET(self) -> None:
+        parsed = urlparse(self.path)
+        request_path = unquote(parsed.path)
+        if request_path in {"/", "/MUFFIN", "/MUFFIN/"}:
+            self.serve_page("/MUFFIN/Home/Index")
+            return
+        if request_path.startswith("/SIMCORE_WEB"):
+            redirect_path = request_path.replace("/SIMCORE_WEB", "/MUFFIN", 1)
+            self.send_response(301)
+            self.send_header("Location", redirect_path)
+            self.end_headers()
+            return
+        if request_path.startswith("/MUFFIN/~/"):
+            request_path = request_path.replace("/MUFFIN/~/", "/MUFFIN/", 1)
+        if request_path in {"/favicon.ico", "/MUFFIN_FAVICON.png"}:
+            self.serve_file(FAVICON, request_path)
+            return
+        if request_path == "/MUFFIN_ICONO.jpg":
+            self.serve_file(BRAND_IMAGE, request_path)
+            return
+        if request_path.rstrip("/") == "/MUFFIN/Home/Salir":
+            self.send_bytes(LOGOUT_REDIRECT, 200, "text/html; charset=utf-8")
+            return
+        if request_path.rstrip("/") in {"/MUFFIN/Login", "/MUFFIN/Login/Index"}:
+            self.serve_file(LOGIN_PAGE, request_path, inject_favicon=True)
+            return
+        proxy = self._find_proxy(request_path.rstrip("/"), "GET")
+        if proxy:
+            self._handle_proxy(proxy, request_path)
+            return
+        if request_path in self.manifest.get("pages", {}):
+            self.serve_page(request_path)
+            return
+        mirror_file = safe_mirror_path(request_path)
+        if mirror_file and mirror_file.exists() and mirror_file.is_file():
+            self.serve_file(mirror_file, request_path)
+            return
+        if request_path.startswith("/MUFFIN/"):
+            self.stub_response(request_path)
+            return
+        self.send_error(HTTPStatus.NOT_FOUND, "Recurso no encontrado")
+
+    def serve_page(self, request_path: str) -> None:
+        page_rel = self.manifest.get("pages", {}).get(request_path)
+        if not page_rel:
+            page_rel = self.manifest.get("pages", {}).get("/MUFFIN/Home/Index")
+        if not page_rel:
+            self.send_error(HTTPStatus.NOT_FOUND, "Pagina no capturada")
+            return
+        page_file = (ROOT / page_rel).resolve()
+        self.serve_file(page_file, request_path, inject_favicon=True, inject_toggle=True)
+
+    def serve_file(self, path: Path, request_path: str, inject_favicon: bool = False, inject_toggle: bool = False) -> None:
+        try:
+            path.relative_to(ROOT.resolve())
+        except ValueError:
+            self.send_error(HTTPStatus.FORBIDDEN, "Ruta fuera del proyecto")
+            return
+        if not path.exists():
+            self.send_error(HTTPStatus.NOT_FOUND, "Archivo no encontrado")
+            return
+        body = path.read_bytes()
+        if inject_favicon:
+            closing_head = body.lower().find(b"</head>")
+            if closing_head >= 0:
+                body = body[:closing_head] + FAVICON_MARKUP + body[closing_head:]
+        if inject_toggle:
+            closing_head = body.lower().find(b"</head>")
+            if closing_head >= 0:
+                body = body[:closing_head] + THEME_TOGGLE_CSS + body[closing_head:]
+            closing_body = body.lower().rfind(b"</body>")
+            if closing_body >= 0:
+                body = body[:closing_body] + THEME_TOGGLE_SCRIPT + body[closing_body:]
+        if inject_toggle:
+            closing_body = body.lower().rfind(b"</body>")
+            if closing_body >= 0:
+                body = body[:closing_body] + SESSION_SCRIPT + body[closing_body:]
+        if inject_toggle:
+            closing_body = body.lower().rfind(b"</body>")
+            if closing_body >= 0:
+                body = body[:closing_body] + UPPERCASE_SCRIPT + body[closing_body:]
+        self.send_bytes(body, 200, content_type(path, request_path))
+
+    def stub_response(self, request_path: str) -> None:
+        lowered = request_path.lower()
+        if "download" in lowered or "documentopdf" in lowered or lowered.endswith(".pdf"):
+            self.send_bytes(b"PDF no disponible en modo frontend local.", 200, "text/plain; charset=utf-8")
+            return
+        if any(word in lowered for word in ["guardar", "registrar", "eliminar", "actualizar"]):
+            self.send_json({"resultado": False, "mensaje": "Esta funcionalidad no esta conectada al backend MUFFIN."})
+            return
+        self.send_json({"data": [], "recordsTotal": 0, "recordsFiltered": 0, "resultado": True, "mensaje": "Modo local: endpoint sin datos."})
+
+    # ── API proxy ──
+
+    def _find_proxy(self, path: str, method: str) -> tuple | None:
+        if not path.startswith("/MUFFIN/"):
+            return None
+        simcore_endpoint = path[len("/MUFFIN/"):]
+        for api_path, (api_method, api_url, handler) in API_PROXIES.items():
+            if simcore_endpoint == api_path and api_method == method:
+                return (api_method, api_url, handler)
+        return None
+
+    def _handle_proxy(self, proxy: tuple, path: str) -> None:
+        api_method, api_url, handler = proxy
+        authorization = self.headers.get("Authorization", "")
+        token = authorization[7:].strip() if authorization.startswith("Bearer ") else ""
+        if not token:
+            token, err = get_admin_token()
+            if err:
+                self.send_json({"resultado": False, "mensaje": err}, 502)
+                return
+
+        dispatch = {
+            "user_list": lambda: self._proxy_user_list(token),
+            "user_create": lambda: self._proxy_user_create(token),
+            "user_delete": lambda: self._proxy_user_delete(token),
+            "user_reactivate": lambda: self._proxy_user_reactivate(token),
+            "user_password_update": lambda: self._proxy_user_password_update(token),
+            "catalog_list": lambda: self._proxy_catalog_list(token, api_url),
+            "catalog_mapped_create": lambda: self._proxy_catalog_mapped_create(token, api_url),
+            "area_permission_list": lambda: self._proxy_area_permission_list(token),
+            "area_permission_save": lambda: self._proxy_area_permission_save(token),
+            "area_permission_delete": lambda: self._proxy_area_permission_delete(token),
+            "exam_specimen_list": lambda: self._proxy_exam_specimen_list(token, path),
+            "exam_specimen_add": lambda: self._proxy_exam_specimen_add(token, path),
+            "exam_specimen_remove": lambda: self._proxy_exam_specimen_remove(token, path),
+            "exam_param_list": lambda: self._proxy_exam_param_list(token, path),
+            "exam_param_add": lambda: self._proxy_exam_param_add(token, path),
+            "exam_param_remove": lambda: self._proxy_exam_param_remove(token, path),
+            "patient_list": lambda: self._proxy_patient_list(token),
+            "patient_save": lambda: self._proxy_patient_save(token),
+            "order_list": lambda: self._proxy_order_list(token),
+            "order_save": lambda: self._proxy_order_save(token),
+            "order_detail_exams": lambda: self._proxy_order_detail_exams(token, path),
+            "order_item_add": lambda: self._proxy_order_item_add(token),
+            "order_item_delete": lambda: self._proxy_order_item_delete(token),
+            "order_item_results": lambda: self._proxy_order_item_results(token, path),
+            "result_worklist": lambda: self._proxy_result_worklist(token),
+            "result_item_sample": lambda: self._proxy_result_item_sample(token),
+            "order_item_sample_save": lambda: self._proxy_order_item_sample_save(token),
+            "order_item_instrument": lambda: self._proxy_stub_ok("Instrumento enviado"),
+            "order_item_delete_events": lambda: self._proxy_stub_ok("Eventos eliminados"),
+            "order_item_email_alarm": lambda: self._proxy_stub_ok("Alarma de email enviada"),
+            "result_save": lambda: self._proxy_result_save(token),
+            "result_get_by_order": lambda: self._proxy_result_get_by_order(token, path),
+            "result_report": lambda: self._proxy_result_report(token, path),
+            "ast_panel_register": lambda: self._proxy_ast_panel_register(token),
+            "ast_panel_delete": lambda: self._proxy_ast_panel_delete(token),
+            "ast_panel_by_codebar": lambda: self._proxy_ast_panel_by_codebar(token, path),
+            "ast_panel_by_org": lambda: self._proxy_ast_panel_by_org(token, path),
+            "ast_detail_save": lambda: self._proxy_ast_detail_save(token),
+            "ast_detail_manual": lambda: self._proxy_ast_detail_manual(token),
+            "ast_detail_by_org": lambda: self._proxy_ast_detail_by_org(token, path),
+            "ast_panel_create": lambda: self._proxy_ast_panel_create(token),
+            "ast_panel_delete_api": lambda: self._proxy_ast_panel_delete_api(token, path),
+            "ast_panel_antibiotics": lambda: self._proxy_ast_panel_antibiotics(token, path),
+            "ast_panel_antibiotic_add": lambda: self._proxy_ast_panel_antibiotic_add(token),
+            "ast_panel_antibiotic_remove": lambda: self._proxy_ast_panel_antibiotic_remove(token, path),
+        }
+
+        fn = dispatch.get(handler)
+        if fn:
+            fn()
+        else:
+            self.stub_response(path)
+
+    def _read_body(self) -> dict | None:
+        length = int(self.headers.get("Content-Length", 0))
+        if length > 0:
+            try:
+                raw = self.rfile.read(length)
+                return json.loads(raw.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError, Exception):
+                return None
+        return None
+
+    def _api_error(self, status: int, data) -> str:
+        if isinstance(data, dict):
+            return data.get("detail", "")
+        return ""
+
+    def _proxy_stub_ok(self, msg: str) -> None:
+        self.send_json({"resultado": True, "mensaje": msg})
+
+    # ── USER HANDLERS ──
+
+    def _proxy_user_list(self, token: str) -> None:
+        status, data = api_req("GET", "/admin/users", token)
+        if status == 200 and isinstance(data, list):
+            translated = [{"usuario_id": u.get("username", ""), "usuario_apellidos": u.get("family_name", ""), "usuario_nombres": u.get("given_name", ""), "usuario_estado": u.get("is_active", True), "usuario_rol": ROLE_REV.get((u.get("roles") or [None])[0], 4), "usuario_cod_homo": ""} for u in data]
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_user_delete(self, token: str) -> None:
+        body = self._read_body()
+        username = (body or {}).get("usuario_id", "") or (body or {}).get("username", "")
+        if not username:
+            self.send_json({"resultado": False, "mensaje": "usuario_id requerido"})
+            return
+        status, data = api_req("GET", "/admin/users", token)
+        user = next((u for u in (data or []) if u.get("username") == username), None) if status == 200 and isinstance(data, list) else None
+        if not user:
+            self.send_json({"resultado": False, "mensaje": "Usuario no encontrado"})
+            return
+        if not user.get("is_active", True):
+            self.send_json({"resultado": False, "mensaje": "El usuario ya esta inactivo"})
+            return
+        del_status, del_data = api_req("DELETE", f"/admin/users/{user['id']}", token)
+        if del_status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": f"Usuario {username} desactivado correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(del_status, del_data) or f"No se pudo desactivar (HTTP {del_status})"})
+
+    def _proxy_user_reactivate(self, token: str) -> None:
+        body = self._read_body()
+        username = (body or {}).get("usuario_id", "") or (body or {}).get("username", "")
+        if not username:
+            self.send_json({"resultado": False, "mensaje": "usuario_id requerido"})
+            return
+        status, data = api_req("GET", "/admin/users", token)
+        user = next((u for u in (data or []) if u.get("username") == username), None) if status == 200 and isinstance(data, list) else None
+        if not user:
+            self.send_json({"resultado": False, "mensaje": "Usuario no encontrado"})
+            return
+        if user.get("is_active", True):
+            self.send_json({"resultado": False, "mensaje": "El usuario ya esta activo"})
+            return
+        re_status, re_data = api_req("POST", f"/admin/users/{user['id']}/reactivate", token)
+        if re_status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": f"Usuario {username} reactivado correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(re_status, re_data) or f"No se pudo reactivar (HTTP {re_status})"})
+
+    def _proxy_user_create(self, token: str) -> None:
+        body = self._read_body()
+        if not body or "objeto" not in body:
+            self.send_json({"resultado": False, "mensaje": "Datos invalidos"})
+            return
+        obj = body["objeto"]
+        rid = obj.get("usuario_rol", 4)
+        if isinstance(rid, str):
+            rid = int(rid) if rid.isdigit() else 4
+        role_code = ROLE_MAP.get(rid, "ENTRY")
+        username = obj.get("usuario_id", "")
+        password = obj.get("usuario_pass", "")
+        status, existing_list = api_req("GET", "/admin/users", token)
+        existing = next((u for u in (existing_list or []) if u.get("username") == username), None) if status == 200 and isinstance(existing_list, list) else None
+        if existing:
+            update_payload = {"given_name": obj.get("usuario_nombres", existing.get("given_name", "")), "family_name": obj.get("usuario_apellidos", existing.get("family_name", "")), "role_codes": [role_code]}
+            if password:
+                update_payload["password"] = password
+            if "usuario_estado" in obj:
+                update_payload["is_active"] = obj["usuario_estado"]
+            put_status, put_data = api_req("PUT", f"/admin/users/{existing['id']}", token, update_payload)
+            if put_status == 200:
+                self.send_json({"resultado": True, "mensaje": "Usuario actualizado correctamente"})
+            else:
+                self.send_json({"resultado": False, "mensaje": self._api_error(put_status, put_data) or f"Error al actualizar (HTTP {put_status})"})
+            return
+        payload = {"username": username, "given_name": obj.get("usuario_nombres", ""), "family_name": obj.get("usuario_apellidos", ""), "password": password or "cambiar123456", "role_codes": [role_code], "area_permissions": []}
+        create_status, create_data = api_req("POST", "/admin/users", token, payload)
+        if create_status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Usuario creado correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(create_status, create_data) or f"Error al crear usuario (HTTP {create_status})"})
+
+    def _proxy_user_password_update(self, token: str) -> None:
+        body = self._read_body()
+        username = ""
+        new_password = ""
+        if body:
+            username = body.get("usuario_id", "") or body.get("username", "")
+            if "objeto" in body:
+                obj = body["objeto"]
+                username = username or obj.get("usuario_id", "")
+                new_password = obj.get("usuario_pass", "")
+        if not username:
+            self.send_json({"resultado": False, "mensaje": "usuario_id requerido"})
+            return
+        if not new_password:
+            self.send_json({"resultado": False, "mensaje": "Nueva contrasena requerida"})
+            return
+        status, data = api_req("GET", "/admin/users", token)
+        user = next((u for u in (data or []) if u.get("username") == username), None) if status == 200 and isinstance(data, list) else None
+        if not user:
+            self.send_json({"resultado": False, "mensaje": "Usuario no encontrado"})
+            return
+        put_status, put_data = api_req("PUT", f"/admin/users/{user['id']}", token, {"password": new_password})
+        if put_status == 200:
+            self.send_json({"resultado": True, "mensaje": "Contrasena actualizada correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(put_status, put_data) or f"Error (HTTP {put_status})"})
+
+    # ── CATALOG HANDLERS ──
+
+    def _proxy_catalog_list(self, token: str, api_url: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        search = self._extract_query_param(request_path, "search")
+        page_size = self._extract_query_param(request_path, "page_size")
+        if not page_size:
+            page_size = "3000" if api_url == "/catalogs/organisms" else "100"
+        query = [f"page_size={page_size}"]
+        active_only = self._extract_query_param(request_path, "active_only")
+        if active_only:
+            query.append(f"active_only={quote(active_only, safe='')}")
+        if search:
+            query.append(f"search={quote(search, safe='')}")
+        status, data = api_req("GET", f"{api_url}?{'&'.join(query)}", token)
+        items = []
+        if status == 200 and isinstance(data, dict) and "data" in data:
+            items = data["data"]
+        elif status == 200 and isinstance(data, list):
+            items = data
+        mapping = CATALOG_FIELD_MAP.get(api_url)
+        if mapping and items:
+            translated = [{dst: i.get(src, "") for src, dst in mapping.items()} for i in items]
+            self.send_json({"data": translated, "resultado": True})
+        elif items:
+            self.send_json({"data": items, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_catalog_mapped_create(self, token: str, api_url: str) -> None:
+        body = self._read_body()
+        if not body:
+            self.send_json({"resultado": False, "mensaje": "Datos invalidos"})
+            return
+        obj = body.get("objeto", body)
+        # Find matching create map entry
+        path_suffix = api_url.lstrip("/")
+        for key, (url, mapper) in CATALOG_CREATE_MAP.items():
+            if url.lstrip("/") == path_suffix:
+                payload = mapper(obj)
+                if not payload.get("code") and not payload.get("name"):
+                    self.send_json({"resultado": False, "mensaje": "Codigo y nombre requeridos"})
+                    return
+                status, data = api_req("POST", url, token, payload)
+                if status in (200, 201):
+                    self.send_json({"resultado": True, "mensaje": "Guardado correctamente"})
+                else:
+                    self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+                return
+        # Fallback: generic create
+        payload = {"code": obj.get("code", obj.get("id", "")), "name": obj.get("name", obj.get("desc", ""))}
+        if not payload.get("code"):
+            self.send_json({"resultado": False, "mensaje": "Codigo requerido"})
+            return
+        status, data = api_req("POST", api_url, token, payload)
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Guardado correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    # ── AREA PERMISSIONS (stubs) ──
+
+    def _proxy_area_permission_list(self, token: str) -> None:
+        status, data = api_req("GET", "/auth/me/areas", token)
+        if status == 200 and isinstance(data, list):
+            translated = [
+                {
+                    "oMic_area": {
+                        "area_id": area.get("id", ""),
+                        "area_codigo": area.get("code", ""),
+                        "area_desc": area.get("name", ""),
+                        "area_seccion": area.get("section", ""),
+                    },
+                    "permiso_validacion_preliminar": area.get("can_preliminary_validate", False),
+                    "permiso_validacion_final": area.get("can_final_validate", False),
+                }
+                for area in data
+            ]
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudieron cargar las areas autorizadas"})
+
+    def _proxy_area_permission_save(self, token: str) -> None:
+        self.send_json({"resultado": False, "mensaje": "Permisos de area: funcionalidad pendiente de implementar en la API MUFFIN"})
+
+    def _proxy_area_permission_delete(self, token: str) -> None:
+        self.send_json({"resultado": False, "mensaje": "Permisos de area: funcionalidad pendiente de implementar en la API MUFFIN"})
+
+    # ── EXAM RELATIONSHIPS ──
+
+    def _proxy_exam_specimen_list(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        exam_id = (
+            self._extract_query_param(request_path, "EXA")
+            or self._extract_query_param(request_path, "examen_id")
+            or self._extract_query_param(request_path, "exam_id")
+        )
+        if not exam_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/catalogs/exams/{exam_id}/specimen-types", token)
+        if status == 200 and isinstance(data, list):
+            specimen_status, specimen_page = api_req("GET", "/catalogs/specimen-types?page_size=100", token)
+            if specimen_status != 200 or not isinstance(specimen_page, dict):
+                self.send_json({"data": [], "resultado": False, "mensaje": "No se pudo cargar la jerarquia de muestras"})
+                return
+            linked_ids = {relation.get("specimen_type_id") for relation in data}
+            translated = [
+                {
+                    "oMic_muestra": {
+                        "muestra_id": specimen.get("id", ""),
+                        "muestra_cod_alfa": specimen.get("code", ""),
+                        "muestra_desc": specimen.get("name", ""),
+                        "muestra_padre_id": specimen.get("parent_id"),
+                        "muestra_seleccionable": specimen.get("is_selectable", True),
+                    }
+                }
+                for specimen in specimen_page.get("data", [])
+                if specimen.get("id") in linked_ids
+            ]
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_exam_specimen_add(self, token: str, path: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        exam_id = obj.get("examen_id", "")
+        specimen_id = obj.get("muestra_id", "")
+        if not exam_id or not specimen_id:
+            self.send_json({"resultado": False, "mensaje": "examen_id y muestra_id requeridos"})
+            return
+        status, data = api_req("PUT", f"/catalogs/exams/{exam_id}/specimen-types/{specimen_id}", token, {})
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Relacion examen-muestra guardada"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_exam_specimen_remove(self, token: str, path: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        exam_id = obj.get("examen_id", "")
+        specimen_id = obj.get("muestra_id", "")
+        if not exam_id or not specimen_id:
+            self.send_json({"resultado": False, "mensaje": "examen_id y muestra_id requeridos"})
+            return
+        status, data = api_req("DELETE", f"/catalogs/exams/{exam_id}/specimen-types/{specimen_id}", token)
+        if status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": "Relacion eliminada"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_exam_param_list(self, token: str, path: str) -> None:
+        exam_id = self._extract_query_param(path, "examen_id") or self._extract_query_param(path, "exam_id")
+        if not exam_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/catalogs/exams/{exam_id}/parameters", token)
+        if status == 200 and isinstance(data, list):
+            translated = [{"exaparam_id": p.get("id", ""), "parametro_cod": p.get("code", ""), "parametro_desc": p.get("name", ""), "exaparam_orden": p.get("sort_order", 0)} for p in data]
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_exam_param_add(self, token: str, path: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        exam_id = obj.get("examen_id", "")
+        param_id = obj.get("parametro_id", "")
+        if not exam_id or not param_id:
+            self.send_json({"resultado": False, "mensaje": "examen_id y parametro_id requeridos"})
+            return
+        status, data = api_req("PUT", f"/catalogs/exams/{exam_id}/parameters/{param_id}", token, {"sort_order": obj.get("exaparam_orden", 0)})
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Relacion examen-parametro guardada"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_exam_param_remove(self, token: str, path: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        exam_id = obj.get("examen_id", "")
+        param_id = obj.get("parametro_id", "")
+        if not exam_id or not param_id:
+            self.send_json({"resultado": False, "mensaje": "examen_id y parametro_id requeridos"})
+            return
+        status, data = api_req("DELETE", f"/catalogs/exams/{exam_id}/parameters/{param_id}", token)
+        if status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": "Relacion eliminada"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    # ── PATIENT HANDLERS ──
+
+    def _proxy_patient_list(self, token: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        hc = (
+            self._extract_query_param(request_path, "HC")
+            or self._extract_query_param(request_path, "hc")
+            or self._extract_query_param(request_path, "historia_clinica")
+        )
+        if hc:
+            status, data = api_req("GET", f"/patients?search={quote(hc, safe='')}&page_size=100", token)
+        else:
+            status, data = api_req("GET", "/patients?page_size=100", token)
+        items = []
+        if status == 200 and isinstance(data, dict) and "data" in data:
+            items = data["data"]
+        elif status == 200 and isinstance(data, list):
+            items = data
+        translated = []
+        for patient in items:
+            birth_date = patient.get("birth_date", "")
+            age = ""
+            if birth_date:
+                try:
+                    born = date.fromisoformat(birth_date)
+                    today = date.today()
+                    age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+                except ValueError:
+                    pass
+            translated.append(
+                {
+                    "persona_id": patient.get("id", ""),
+                    "persona_hc": patient.get("medical_record_number", ""),
+                    "persona_apellidos": patient.get("family_name", ""),
+                    "persona_nombres": patient.get("given_name", ""),
+                    "persona_genero": patient.get("sex", ""),
+                    "persona_fecha_nac": birth_date,
+                    "persona_edad": age,
+                }
+            )
+        self.send_json({"data": translated, "resultado": True})
+
+    def _proxy_patient_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        hc = str(obj.get("persona_hc", "")).strip().upper()
+        if not hc:
+            self.send_json({"resultado": False, "mensaje": "Historia clinica requerida"})
+            return
+        payload = {
+            "medical_record_number": hc,
+            "family_name": str(obj.get("persona_apellidos", "")).strip().upper(),
+            "given_name": str(obj.get("persona_nombres", "")).strip().upper(),
+            "birth_date": obj.get("persona_fecha_nac") or None,
+            "sex": str(obj.get("persona_genero", "")).strip().upper(),
+        }
+        patient_id = str(obj.get("persona_id", "")).strip()
+        if patient_id and patient_id != "0":
+            status, data = api_req("PATCH", f"/patients/{patient_id}", token, payload)
+        else:
+            status, data = api_req("POST", "/patients", token, payload)
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Paciente guardado correctamente"})
+        elif status == 409:
+            self.send_json({"resultado": False, "mensaje": "El numero de HC ya esta registrado"})
+        elif status == 422:
+            self.send_json({"resultado": False, "mensaje": "Revise HC, apellidos, nombres, fecha de nacimiento y genero"})
+        elif status == 403:
+            self.send_json({"resultado": False, "mensaje": "Su usuario no tiene permiso para guardar pacientes"})
+        else:
+            self.send_json({"resultado": False, "mensaje": f"No se pudo guardar el paciente (HTTP {status})"})
+
+    # ── ORDER HANDLERS ──
+
+    def _proxy_order_list(self, token: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        date_from = self._extract_query_param(request_path, "orden_fecha_ini")
+        date_to = self._extract_query_param(request_path, "orden_fecha_fin")
+        search = self._extract_query_param(request_path, "orden_buscar")
+        query = ["page_size=100"]
+        if date_from:
+            query.append(f"from={quote(date_from, safe='')}")
+        if date_to:
+            query.append(f"to={quote(date_to, safe='')}")
+        if search:
+            query.append(f"search={quote(search, safe='')}")
+        status, data = api_req("GET", f"/orders?{'&'.join(query)}", token)
+        items = []
+        if status == 200 and isinstance(data, dict) and "data" in data:
+            items = data["data"]
+        elif status == 200 and isinstance(data, list):
+            items = data
+        _, patient_page = api_req("GET", "/patients?page_size=100", token)
+        _, origin_page = api_req("GET", "/catalogs/origins?page_size=100", token)
+        _, service_page = api_req("GET", "/catalogs/services?page_size=100", token)
+        _, clinician_page = api_req("GET", "/catalogs/clinicians?page_size=100", token)
+        patients = {item["id"]: item for item in (patient_page or {}).get("data", [])}
+        origins = {item["id"]: item for item in (origin_page or {}).get("data", [])}
+        services = {item["id"]: item for item in (service_page or {}).get("data", [])}
+        clinicians = {item["id"]: item for item in (clinician_page or {}).get("data", [])}
+        translated = []
+        for order in items:
+            patient = patients.get(order.get("patient_id"), {})
+            origin = origins.get(order.get("origin_id"), {})
+            service = services.get(order.get("service_id"), {})
+            clinician = clinicians.get(order.get("clinician_id"), {})
+            birth_date = patient.get("birth_date", "")
+            age = ""
+            if birth_date:
+                try:
+                    born = date.fromisoformat(birth_date)
+                    today = date.today()
+                    age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+                except ValueError:
+                    pass
+            translated.append(
+                {
+                    "orden_id": order.get("id", ""),
+                    "orden_numero": order.get("order_number", ""),
+                    "orden_estado": order.get("status") != "CANCELLED",
+                    "orden_fecha": str(order.get("ordered_at", ""))[:10],
+                    "orden_comentarios": order.get("clinical_notes") or "",
+                    "oMic_persona": {
+                        "persona_id": patient.get("id", ""),
+                        "persona_hc": patient.get("medical_record_number", ""),
+                        "persona_apellidos": patient.get("family_name", ""),
+                        "persona_nombres": patient.get("given_name", ""),
+                        "persona_fecha_nac": birth_date,
+                        "persona_genero": patient.get("sex", ""),
+                        "persona_edad": age,
+                    },
+                    "oMic_procedencia": {
+                        "procedencia_id": origin.get("id", ""),
+                        "procedencia_desc": origin.get("name", ""),
+                    },
+                    "oMic_servicio": {
+                        "servicio_id": service.get("id", ""),
+                        "servicio_desc": service.get("name", ""),
+                    },
+                    "oMic_medico": {
+                        "medico_id": clinician.get("id", ""),
+                        "medico_apellidos": clinician.get("family_name", ""),
+                        "medico_nombres": clinician.get("given_name", ""),
+                    },
+                    "concat_temp_numero_examenes": len(order.get("items", [])),
+                    "concat_temp_res_resultado": 0,
+                    "concat_temp_res_priliminar": 0,
+                    "concat_temp_res_final": 0,
+                }
+            )
+        self.send_json({"data": translated, "resultado": True})
+
+    def _proxy_order_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        patient_data = obj.get("oMic_persona") or {}
+        hc = str(patient_data.get("persona_hc", "")).strip().upper()
+        family_name = str(patient_data.get("persona_apellidos", "")).strip().upper()
+        given_name = str(patient_data.get("persona_nombres", "")).strip().upper()
+        birth_date = patient_data.get("persona_fecha_nac") or None
+        sex = str(patient_data.get("persona_genero", "")).strip().upper()
+        origin_id = str((obj.get("oMic_procedencia") or {}).get("procedencia_id", "")).strip()
+        service_id = str((obj.get("oMic_servicio") or {}).get("servicio_id", "")).strip()
+        clinician_id = str((obj.get("oMic_medico") or {}).get("medico_id", "")).strip()
+        ordered_date = str(obj.get("orden_fecha", "")).strip()
+
+        if not all((hc, family_name, given_name, birth_date, sex)):
+            self.send_json({"resultado": False, "mensaje": "Complete todos los datos del paciente"})
+            return
+        if not origin_id or not service_id or not ordered_date:
+            self.send_json({"resultado": False, "mensaje": "Complete fecha, procedencia y servicio"})
+            return
+
+        def resolve_catalog_id(api_path: str, value: str) -> str:
+            catalog_status, catalog_page = api_req("GET", f"{api_path}?page_size=100", token)
+            if catalog_status != 200 or not isinstance(catalog_page, dict):
+                return ""
+            normalized = value.lower()
+            for item in catalog_page.get("data", []):
+                if str(item.get("id", "")).lower() == normalized or str(item.get("code", "")).lower() == normalized:
+                    return str(item.get("id", ""))
+            return ""
+
+        origin_id = resolve_catalog_id("/catalogs/origins", origin_id)
+        service_id = resolve_catalog_id("/catalogs/services", service_id)
+        clinician_id = resolve_catalog_id("/catalogs/clinicians", clinician_id) if clinician_id else ""
+        if not origin_id:
+            self.send_json({"resultado": False, "mensaje": "La procedencia seleccionada no existe o esta inactiva"})
+            return
+        if not service_id:
+            self.send_json({"resultado": False, "mensaje": "El servicio seleccionado no existe o esta inactivo"})
+            return
+        if (obj.get("oMic_medico") or {}).get("medico_id") and not clinician_id:
+            self.send_json({"resultado": False, "mensaje": "El medico seleccionado no existe o esta inactivo"})
+            return
+
+        patient_payload = {
+            "medical_record_number": hc,
+            "family_name": family_name,
+            "given_name": given_name,
+            "birth_date": birth_date,
+            "sex": sex,
+        }
+        patient_status, patient_page = api_req(
+            "GET", f"/patients?search={quote(hc, safe='')}&page_size=100", token
+        )
+        if patient_status != 200 or not isinstance(patient_page, dict):
+            self.send_json({"resultado": False, "mensaje": "No se pudo consultar el paciente"})
+            return
+        patient = next(
+            (
+                item
+                for item in patient_page.get("data", [])
+                if str(item.get("medical_record_number", "")).upper() == hc
+            ),
+            None,
+        )
+        if patient:
+            patient_id = patient["id"]
+            patient_status, _ = api_req("PATCH", f"/patients/{patient_id}", token, patient_payload)
+        else:
+            patient_status, patient = api_req("POST", "/patients", token, patient_payload)
+            patient_id = patient.get("id", "") if isinstance(patient, dict) else ""
+        if patient_status not in (200, 201) or not patient_id:
+            message = "El numero de HC ya esta registrado" if patient_status == 409 else "No se pudo guardar el paciente"
+            self.send_json({"resultado": False, "mensaje": message})
+            return
+
+        payload = {
+            "patient_id": patient_id,
+            "ordered_at": f"{ordered_date}T00:00:00-05:00",
+            "origin_id": origin_id,
+            "service_id": service_id,
+            "clinician_id": clinician_id or None,
+            "clinical_notes": str(obj.get("orden_comentarios", "")).strip().upper() or None,
+        }
+        order_id = str(obj.get("orden_id", obj.get("order_id", ""))).strip()
+        if order_id:
+            update_payload = {key: value for key, value in payload.items() if key != "patient_id"}
+            status, data = api_req("PATCH", f"/orders/{order_id}", token, update_payload)
+        else:
+            status, data = api_req("POST", "/orders", token, payload)
+        if status in (200, 201):
+            self.send_json(
+                {
+                    "resultado": True,
+                    "mensaje": "Paciente y orden guardados correctamente",
+                    "orden_id": data.get("id", "") if isinstance(data, dict) else "",
+                    "orden_numero": data.get("order_number", "") if isinstance(data, dict) else "",
+                }
+            )
+        elif status == 403:
+            self.send_json({"resultado": False, "mensaje": "Su usuario no tiene permiso para guardar ordenes"})
+        elif status == 422:
+            self.send_json({"resultado": False, "mensaje": "Revise la fecha, procedencia, servicio y medico"})
+        elif status == 404:
+            detail = self._api_error(status, data)
+            self.send_json({"resultado": False, "mensaje": detail if isinstance(detail, str) and detail else "No se encontro un dato requerido para la orden"})
+        else:
+            self.send_json({"resultado": False, "mensaje": f"No se pudo guardar la orden (HTTP {status})"})
+
+    # ── ORDER DETAIL HANDLERS ──
+
+    def _proxy_order_detail_exams(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        order_id = self._extract_query_param(request_path, "orden_id") or self._extract_query_param(request_path, "order_id")
+        if not order_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/orders/{order_id}", token)
+        if status == 200 and isinstance(data, dict):
+            items = data.get("items", [])
+            _, exam_page = api_req("GET", "/catalogs/exams?page_size=100", token)
+            _, specimen_page = api_req("GET", "/catalogs/specimen-types?active_only=false&page_size=100", token)
+            exams = {item["id"]: item for item in (exam_page or {}).get("data", [])}
+            specimens = {item["id"]: item for item in (specimen_page or {}).get("data", [])}
+            translated = []
+            for item in items:
+                exam = exams.get(item.get("exam_id"), {})
+                specimen = specimens.get(item.get("specimen_type_id"), {})
+                translated.append(
+                    {
+                        "orden_det_id": item.get("id", ""),
+                        "orden_det_codebar": item.get("barcode", ""),
+                        "orden_det_muestra_comentarios": item.get("specimen_notes") or "",
+                        "fecha_muestra_toma": local_datetime_value(item.get("collection_at")),
+                        "fecha_muestra_recepcion": local_datetime_value(item.get("received_at")),
+                        "orden_det_estado": item.get("status", ""),
+                        "oMic_examen": {
+                            "examen_id": exam.get("id", ""),
+                            "examen_codigo": exam.get("code", ""),
+                            "examen_desc": exam.get("name", ""),
+                        },
+                        "oMic_muestra": {
+                            "muestra_id": specimen.get("id", ""),
+                            "muestra_cod_alfa": specimen.get("code", ""),
+                            "muestra_desc": specimen.get("name", ""),
+                        },
+                    }
+                )
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_order_item_add(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        order_id = str((obj.get("oMic_orden") or {}).get("orden_id", obj.get("orden_id", ""))).strip()
+        exam_id = str((obj.get("oMic_examen") or {}).get("examen_id", obj.get("examen_id", ""))).strip()
+        specimen_data = obj.get("oMic_muestra") or {}
+        specimen_id = str(specimen_data.get("muestra_id", specimen_data.get("muestra_cod_alfa", ""))).strip()
+        if not order_id or not exam_id or not specimen_id:
+            self.send_json({"resultado": False, "mensaje": "Seleccione orden, examen y muestra terminal"})
+            return
+
+        def resolve_id(api_path: str, value: str) -> str:
+            catalog_status, catalog_page = api_req("GET", f"{api_path}?page_size=100", token)
+            if catalog_status != 200 or not isinstance(catalog_page, dict):
+                return ""
+            normalized = value.lower()
+            for item in catalog_page.get("data", []):
+                if str(item.get("id", "")).lower() == normalized or str(item.get("code", "")).lower() == normalized:
+                    return str(item.get("id", ""))
+            return ""
+
+        exam_id = resolve_id("/catalogs/exams", exam_id)
+        specimen_id = resolve_id("/catalogs/specimen-types", specimen_id)
+        if not exam_id or not specimen_id:
+            self.send_json({"resultado": False, "mensaje": "El examen o la muestra seleccionada no existe"})
+            return
+        payload = {
+            "exam_id": exam_id,
+            "specimen_type_id": specimen_id,
+            "specimen_notes": str(obj.get("orden_det_muestra_comentarios", "")).strip().upper() or None,
+        }
+        collection_at = str(obj.get("fecha_muestra_toma", "")).strip()
+        reception_at = str(obj.get("fecha_muestra_recepcion", "")).strip()
+        if collection_at:
+            payload["collection_at"] = f"{collection_at}:00-05:00" if len(collection_at) == 16 else f"{collection_at}-05:00"
+        destination_id = resolve_id("/catalogs/destinations", "MICROBIOLOGY_BENCH") if reception_at else ""
+        if reception_at and not destination_id:
+            self.send_json({"resultado": False, "mensaje": "No se encontro el destino de microbiologia para recibir la muestra"})
+            return
+        status, data = api_req("POST", f"/orders/{order_id}/items", token, payload)
+        if status in (200, 201):
+            if reception_at and isinstance(data, dict):
+                received_payload = {
+                    "received_at": f"{reception_at}:00-05:00" if len(reception_at) == 16 else f"{reception_at}-05:00",
+                    "destination_id": destination_id,
+                    "specimen_notes": payload["specimen_notes"],
+                }
+                receive_status, receive_data = api_req(
+                    "POST", f"/order-items/{data.get('id', '')}/receive", token, received_payload
+                )
+                if receive_status not in (200, 201):
+                    self.send_json(
+                        {
+                            "resultado": True,
+                            "mensaje": "Examen agregado; la muestra quedo pendiente de recepcion",
+                            "advertencia": self._api_error(receive_status, receive_data) or f"HTTP {receive_status}",
+                        }
+                    )
+                    return
+            self.send_json({"resultado": True, "mensaje": "Examen y muestra agregados a la orden"})
+        elif status == 422:
+            self.send_json({"resultado": False, "mensaje": "Seleccione una muestra terminal permitida para el examen"})
+        else:
+            self.send_json({"resultado": False, "mensaje": f"No se pudo agregar el examen (HTTP {status})"})
+
+    def _proxy_order_item_delete(self, token: str) -> None:
+        body = self._read_body()
+        item_id = (body or {}).get("item_id", "") or (body or {}).get("detalle_id", "")
+        if not item_id:
+            self.send_json({"resultado": False, "mensaje": "item_id requerido"})
+            return
+        status, data = api_req("POST", f"/order-items/{item_id}/cancel", token, {"reason": "Eliminado desde frontend"})
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Item cancelado"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _translate_result_worklist_item(self, row: dict) -> dict:
+        item = row.get("item") or {}
+        order = row.get("order") or {}
+        patient = row.get("patient") or {}
+        exam = row.get("exam") or {}
+        specimen = row.get("specimen") or {}
+        origin = row.get("origin") or {}
+        service = row.get("service") or {}
+        clinician = row.get("clinician") or {}
+        result = row.get("result") or {}
+        birth_date = patient.get("birth_date", "")
+        age = ""
+        if birth_date:
+            try:
+                born = date.fromisoformat(birth_date)
+                today = date.today()
+                age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+            except ValueError:
+                pass
+        return {
+            "orden_det_id": item.get("id", ""),
+            "orden_det_codebar": item.get("barcode", ""),
+            "orden_det_estado": item.get("status", ""),
+            "orden_det_muestra_comentarios": item.get("specimen_notes") or "",
+            "orden_det_muestra_recepcion_estado": item.get("status") not in {"REGISTERED", "COLLECTED"},
+            "fecha_muestra_toma": local_datetime_value(item.get("collection_at")),
+            "fecha_muestra_recepcion": local_datetime_value(item.get("received_at")),
+            "fecha_proc_resultado": str(result.get("saved_at") or "")[:16],
+            "fecha_proc_preliminar": str(result.get("preliminary_at") or "")[:16],
+            "fecha_proc_final": str(result.get("final_at") or "")[:16],
+            "oMic_examen": {
+                "examen_id": exam.get("id", ""),
+                "examen_codigo": exam.get("code", ""),
+                "examen_desc": exam.get("name", ""),
+                "area_id": exam.get("laboratory_area_id", ""),
+                "examen_analizador_send": exam.get("sends_to_analyzer", False),
+                "examen_recuento": exam.get("requires_colony_count", False),
+            },
+            "oMic_muestra": {
+                "muestra_id": specimen.get("id", ""),
+                "muestra_cod_alfa": specimen.get("code", ""),
+                "muestra_desc": specimen.get("name", ""),
+            },
+            "oMic_orden": {
+                "orden_id": order.get("id", ""),
+                "orden_numero": order.get("order_number", ""),
+                "orden_fecha": str(order.get("ordered_at", ""))[:10],
+                "orden_comentarios": order.get("clinical_notes") or "",
+                "orden_tipo_loc": CARE_SETTING_LABELS.get(order.get("care_setting"), "DESCONOCIDO"),
+                "oMic_persona": {
+                    "persona_id": patient.get("id", ""),
+                    "persona_hc": patient.get("medical_record_number", ""),
+                    "persona_apellidos": patient.get("family_name", ""),
+                    "persona_nombres": patient.get("given_name", ""),
+                    "persona_fecha_nac": birth_date,
+                    "persona_genero": patient.get("sex", ""),
+                    "persona_edad": age,
+                },
+                "oMic_procedencia": {
+                    "procedencia_id": origin.get("id", ""),
+                    "procedencia_desc": origin.get("name", ""),
+                },
+                "oMic_servicio": {
+                    "servicio_id": service.get("id", ""),
+                    "servicio_desc": service.get("name", ""),
+                },
+                "oMic_medico": {
+                    "medico_id": clinician.get("id", ""),
+                    "medico_apellidos": clinician.get("family_name", ""),
+                    "medico_nombres": clinician.get("given_name", ""),
+                },
+            },
+        }
+
+    def _proxy_result_worklist(self, token: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        date_from = self._extract_query_param(request_path, "orden_fecha_ini")
+        date_to = self._extract_query_param(request_path, "orden_fecha_fin")
+        search = self._extract_query_param(request_path, "orden_buscar")
+        selected_area = self._extract_query_param(request_path, "orden_area")
+        selected_filter = self._extract_query_param(request_path, "orden_filtro") or "ALL"
+        selected_culture_result = selected_area.upper()
+        culture_result_filters = {"POSITIVO", "NEGATIVO", "NO_TRAJO_MUESTRA", "MUESTRA_INADECUADA", "SIN_RESULTADO"}
+        query = []
+        if date_from:
+            query.append(f"from={quote(date_from, safe='')}")
+        if date_to:
+            query.append(f"to={quote(date_to, safe='')}")
+        if search:
+            query.append(f"search={quote(search, safe='')}")
+        status, data = api_req("GET", f"/result-worklist?{'&'.join(query)}", token)
+        if status != 200 or not isinstance(data, list):
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudo cargar la bandeja de resultados"})
+            return
+        translated = [self._translate_result_worklist_item(row) for row in data]
+        if selected_culture_result in culture_result_filters:
+            translated = [
+                row
+                for row in translated
+                if self._matches_culture_result_filter(token, row["orden_det_id"], selected_culture_result)
+            ]
+        elif selected_area and selected_area not in {"ALL", "0"}:
+            translated = [row for row in translated if row["oMic_examen"]["area_id"] == selected_area]
+        if selected_filter == "Nuevos":
+            translated = [row for row in translated if not row["fecha_proc_resultado"]]
+        elif selected_filter == "Recepcionado":
+            translated = [row for row in translated if row["orden_det_estado"] == "RECEIVED"]
+        elif selected_filter == "Guardados":
+            translated = [row for row in translated if row["orden_det_estado"] in {"IN_PROCESS", "RESULT_SAVED"}]
+        elif selected_filter == "Preliminar":
+            translated = [row for row in translated if row["orden_det_estado"] == "PRELIMINARY_VALIDATED"]
+        elif selected_filter == "Final":
+            translated = [row for row in translated if row["orden_det_estado"] == "FINAL_VALIDATED"]
+        elif selected_filter == "Instrumento":
+            translated = [row for row in translated if row["oMic_examen"]["examen_analizador_send"]]
+        self.send_json({"data": translated, "resultado": True})
+
+    def _matches_culture_result_filter(self, token: str, item_id: str, selected_filter: str) -> bool:
+        value = self._culture_result_code(token, item_id)
+        if selected_filter == "SIN_RESULTADO":
+            return not value
+        return value == selected_filter
+
+    def _culture_result_code(self, token: str, item_id: str) -> str:
+        status, data = api_req("GET", f"/order-items/{quote(item_id, safe='')}/result", token)
+        if status != 200 or not isinstance(data, dict):
+            return ""
+        for parameter in data.get("values", []):
+            if parameter.get("code") != "CULTURE_RESULT":
+                continue
+            value = str(parameter.get("value_code") or "").strip().upper()
+            if value:
+                return value
+            text_value = str(parameter.get("value_text") or "").strip().upper().replace(" ", "_")
+            return {
+                "NO_TRAJO_MUESTRA": "NO_TRAJO_MUESTRA",
+                "MUESTRA_INADECUADA": "MUESTRA_INADECUADA",
+                "POSITIVO": "POSITIVO",
+                "NEGATIVO": "NEGATIVO",
+            }.get(text_value, text_value)
+        return ""
+
+    def _proxy_result_item_sample(self, token: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        item_id = self._extract_query_param(request_path, "orden_det_id") or self._extract_query_param(request_path, "item_id")
+        if not item_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/result-worklist?item_id={quote(item_id, safe='')}", token)
+        if status == 200 and isinstance(data, list):
+            self.send_json({"data": [self._translate_result_worklist_item(row) for row in data], "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudo cargar la muestra"})
+
+    def _proxy_order_item_results(self, token: str, path: str) -> None:
+        item_id = self._extract_query_param(path, "item_id") or self._extract_query_param(path, "detalle_id")
+        if not item_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/order-items/{item_id}/result", token)
+        if status == 200 and isinstance(data, dict):
+            self.send_json({"data": [data], "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_order_item_sample_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        item_id = obj.get("orden_det_id", obj.get("item_id", obj.get("detalle_id", "")))
+        if not item_id:
+            self.send_json({"resultado": False, "mensaje": "item_id requerido"})
+            return
+        payload = {
+            "specimen_notes": str(obj.get("orden_det_muestra_comentarios", "")).strip().upper() or None,
+        }
+        collection_at = str(obj.get("fecha_muestra_toma", "")).strip()
+        received_at = str(obj.get("fecha_muestra_recepcion", "")).strip()
+        if collection_at:
+            payload["collection_at"] = f"{collection_at}:00-05:00" if len(collection_at) == 16 else f"{collection_at}-05:00"
+        if received_at:
+            payload["received_at"] = f"{received_at}:00-05:00" if len(received_at) == 16 else f"{received_at}-05:00"
+        status, data = api_req("PATCH", f"/order-items/{item_id}/specimen-details", token, payload)
+        if status == 200:
+            self.send_json({"resultado": True, "mensaje": "Datos de la muestra actualizados"})
+        else:
+            message = self._api_error(status, data) or f"Error HTTP {status}"
+            self.send_json({"resultado": False, "mensaje": message})
+
+    # ── RESULTS HANDLERS ──
+
+    def _proxy_result_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        item_id = obj.get("orden_det_id", obj.get("item_id", obj.get("detalle_id", "")))
+        if not item_id:
+            self.send_json({"resultado": False, "mensaje": "item_id requerido"})
+            return
+        form_status, form = api_req("GET", f"/order-items/{item_id}/result", token)
+        if form_status != 200 or not isinstance(form, dict):
+            self.send_json({"resultado": False, "mensaje": "No se pudo cargar la configuracion del resultado"})
+            return
+        control_ids = str(obj.get("temporal1", "")).split("|")
+        control_values = str(obj.get("temporal2", "")).split("|")
+        submitted = {control_id: value for control_id, value in zip(control_ids, control_values) if control_id}
+        translated_values = []
+        for parameter in form.get("values", []):
+            parameter_id = parameter.get("parameter_definition_id", "")
+            value = submitted.get(parameter_id, "")
+            translated = {"parameter_definition_id": parameter_id}
+            if parameter.get("value_type") == "SELECT":
+                translated["value_code"] = value or None
+            else:
+                translated["value_text"] = value or None
+            translated_values.append(translated)
+        validation_type = int(obj.get("other1", 0) or 0)
+        payload = {"values": translated_values, "ready_for_validation": validation_type in {1, 2}}
+        status, data = api_req("PUT", f"/order-items/{item_id}/result", token, payload)
+        if status not in (200, 201):
+            message = "La muestra debe estar recibida antes de registrar resultados" if status == 409 else "Revise los valores requeridos del resultado"
+            self.send_json({"resultado": False, "mensaje": message})
+            return
+        if validation_type in {1, 2}:
+            status, data = api_req("POST", f"/order-items/{item_id}/result/preliminary-validation", token)
+        if status in (200, 201) and validation_type == 2:
+            status, data = api_req("POST", f"/order-items/{item_id}/result/final-validation", token)
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Resultado guardado correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": "El resultado se guardo, pero no pudo validarse"})
+
+    def _proxy_result_get_by_order(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        item_id = (
+            self._extract_query_param(request_path, "orden_det_id")
+            or self._extract_query_param(request_path, "item_id")
+            or self._extract_query_param(request_path, "detalle_id")
+        )
+        if not item_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/order-items/{item_id}/result", token)
+        if status == 200 and isinstance(data, dict):
+            parameters = []
+            for parameter in data.get("values", []):
+                parameter_id = parameter.get("parameter_definition_id", "")
+                parameter_name = html.escape(str(parameter.get("name", "")))
+                required = " required" if parameter.get("is_required") else ""
+                value_type = parameter.get("value_type")
+                parameter_code = parameter.get("code", "")
+                if value_type == "SELECT":
+                    options = select_options_from_schema(parameter.get("options_schema"))
+                    options_html = "".join(
+                        f'<option value="{html.escape(code)}">{html.escape(label)}</option>'
+                        for code, label in options
+                    )
+                    control_html = f'<select id="{parameter_id}" class="form-control form-control-sm"{required}>{options_html}</select>'
+                    parameter_type = "COMBO_BOX"
+                    current_value = parameter.get("value_code") or ""
+                elif value_type == "LONG_TEXT":
+                    control_html = f'<textarea id="{parameter_id}" class="form-control form-control-sm"{required}></textarea>'
+                    parameter_type = "TEXT_AREA"
+                    current_value = parameter.get("value_text") or ""
+                else:
+                    input_type = "date" if value_type == "DATE" else "text"
+                    control_html = f'<input type="{input_type}" id="{parameter_id}" class="form-control form-control-sm"{required}>'
+                    parameter_type = "TEXT"
+                    current_value = parameter.get("value_text") or ""
+                wrapper_classes = ["form-group"]
+                wrapper_style = ""
+                if parameter_code in {
+                    "CULTURE_GRAM",
+                    "CULTURE_NITRITE",
+                    "CULTURE_COLONY_COUNT",
+                    "CULTURE_ANTIMICROBIAL_ACTIVITY",
+                }:
+                    wrapper_classes.append("muffin-culture-positive-only")
+                    wrapper_style = ' style="display:none"'
+                parameters.append(
+                    {
+                        "param_cod": parameter_id,
+                        "param_tipo": parameter_type,
+                        "param_value1": current_value,
+                        "param_html": f'<div class="{" ".join(wrapper_classes)}"{wrapper_style}><label for="{parameter_id}">{parameter_name}</label>{control_html}</div>',
+                    }
+                )
+            self.send_json({"data": parameters, "resultado": True, "estado": data.get("status", "NOT_STARTED")})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_result_report(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        order_id = (
+            self._extract_query_param(request_path, "orden_id")
+            or self._extract_query_param(request_path, "order_id")
+            or self._extract_query_param(request_path, "id")
+        )
+        item_id = (
+            self._extract_query_param(request_path, "IdMic_orden_detalle")
+            or self._extract_query_param(request_path, "orden_det_id")
+            or self._extract_query_param(request_path, "item_id")
+        )
+
+        order: dict = {}
+        if order_id:
+            status, data = api_req("GET", f"/orders/{quote(order_id, safe='')}", token)
+            if status != 200 or not isinstance(data, dict):
+                self._send_report_error("No se pudo cargar la orden solicitada.")
+                return
+            order = data
+        elif item_id:
+            context = self._result_context(token, item_id=item_id)
+            order_id = ((context or {}).get("order") or {}).get("id", "")
+            if order_id:
+                status, data = api_req("GET", f"/orders/{quote(order_id, safe='')}", token)
+                order = data if status == 200 and isinstance(data, dict) else {}
+        else:
+            self._send_report_error("orden_id requerido.")
+            return
+
+        raw_items = order.get("items", []) if isinstance(order, dict) else []
+        if item_id:
+            raw_items = [item for item in raw_items if item.get("id") == item_id]
+        report_items = [self._build_report_item(token, item) for item in raw_items]
+        report_items = [item for item in report_items if item]
+        if not report_items:
+            self._send_report_error("La orden no tiene resultados disponibles para reportar.")
+            return
+
+        first = report_items[0]["translated"]
+        order_info = first.get("oMic_orden", {})
+        patient = order_info.get("oMic_persona", {})
+        clinician = order_info.get("oMic_medico", {})
+        status_values = {item["result"].get("status", item["translated"].get("orden_det_estado", "")) for item in report_items}
+        status_label = " / ".join(sorted(value for value in status_values if value)) or "SIN RESULTADO"
+        final_notice = "" if status_values == {"FINAL"} or "FINAL_VALIDATED" in status_values else "<div class='notice'>Reporte generado para revisión local. El resultado puede no estar validado final.</div>"
+
+        def e(value: object) -> str:
+            return html.escape(str(value or ""))
+
+        item_sections = "".join(self._render_report_item(item) for item in report_items)
+        generated_at = datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M")
+        body = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporte de resultados - {e(order_info.get('orden_numero', order.get('order_number', '')))}</title>
+<style>
+:root {{ color-scheme: light; --ink:#1f3438; --muted:#607477; --line:#b9cdca; --teal:#167d86; --soft:#eef6f3; }}
+* {{ box-sizing: border-box; }}
+body {{ color: var(--ink); font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.35; margin: 0; padding: 22px; }}
+.sheet {{ border: 1px solid var(--line); margin: 0 auto; max-width: 940px; padding: 22px; }}
+.topbar {{ align-items: center; border-bottom: 3px solid var(--teal); display: flex; gap: 14px; padding-bottom: 12px; }}
+.topbar img {{ border-radius: 50%; height: 54px; object-fit: cover; width: 54px; }}
+.brand h1 {{ font-size: 20px; letter-spacing: .04em; margin: 0; }}
+.brand p {{ color: var(--muted); margin: 2px 0 0; }}
+.actions {{ margin-left: auto; }}
+button {{ background: var(--teal); border: 0; border-radius: 5px; color: white; cursor: pointer; font-weight: 700; padding: 8px 12px; }}
+.notice {{ background: #fff5d6; border: 1px solid #e4c36c; border-radius: 5px; color: #6f5315; font-weight: 700; margin: 12px 0; padding: 8px 10px; }}
+.grid {{ display: grid; gap: 7px 18px; grid-template-columns: repeat(3, 1fr); margin: 14px 0; }}
+.field strong {{ color: var(--muted); display: block; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }}
+h2 {{ background: var(--soft); border-left: 5px solid var(--teal); font-size: 14px; margin: 18px 0 8px; padding: 7px 9px; }}
+h3 {{ color: var(--teal); font-size: 12px; margin: 12px 0 6px; }}
+table {{ border-collapse: collapse; margin: 6px 0 12px; width: 100%; }}
+th, td {{ border: 1px solid var(--line); padding: 6px 7px; text-align: left; vertical-align: top; }}
+th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }}
+.empty {{ color: var(--muted); font-style: italic; padding: 6px 0 12px; }}
+.footer {{ border-top: 1px solid var(--line); color: var(--muted); margin-top: 18px; padding-top: 10px; }}
+@media print {{ body {{ padding: 0; }} .sheet {{ border: 0; max-width: none; }} .no-print {{ display: none !important; }} }}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="topbar">
+    <img src="/MUFFIN_ICONO.jpg" alt="MUFFIN">
+    <div class="brand">
+      <h1>MUFFIN</h1>
+      <p>Reporte de resultados microbiológicos</p>
+    </div>
+    <div class="actions no-print"><button onclick="window.print()">Imprimir / guardar PDF</button></div>
+  </div>
+  {final_notice}
+  <div class="grid">
+    <div class="field"><strong>Orden</strong>{e(order_info.get('orden_numero') or order.get('order_number'))}</div>
+    <div class="field"><strong>Fecha de orden</strong>{e(order_info.get('orden_fecha') or local_datetime_value(order.get('ordered_at'))[:10])}</div>
+    <div class="field"><strong>Estado</strong>{e(status_label)}</div>
+    <div class="field"><strong>HC</strong>{e(patient.get('persona_hc'))}</div>
+    <div class="field"><strong>Paciente</strong>{e((patient.get('persona_apellidos') or '') + ', ' + (patient.get('persona_nombres') or ''))}</div>
+    <div class="field"><strong>Edad / género</strong>{e(patient.get('persona_edad'))} / {e(patient.get('persona_genero'))}</div>
+    <div class="field"><strong>Procedencia</strong>{e((order_info.get('oMic_procedencia') or {}).get('procedencia_desc'))}</div>
+    <div class="field"><strong>Servicio</strong>{e((order_info.get('oMic_servicio') or {}).get('servicio_desc'))}</div>
+    <div class="field"><strong>Médico</strong>{e((clinician.get('medico_apellidos') or '') + ' ' + (clinician.get('medico_nombres') or ''))}</div>
+  </div>
+  {item_sections}
+  <div class="footer">Generado localmente: {e(generated_at)}. Este reporte debe revisarse contra el estado de validación del resultado.</div>
+</div>
+</body>
+</html>"""
+        self.send_bytes(body.encode("utf-8"), 200, "text/html; charset=utf-8")
+
+    def _send_report_error(self, message: str) -> None:
+        body = f"""<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Reporte no disponible</title>
+<style>body{{font-family:Arial,sans-serif;margin:32px;color:#294c52}}.box{{border:1px solid #d8ebe5;border-radius:8px;padding:18px;max-width:680px}}</style>
+</head><body><div class="box"><h1>Reporte no disponible</h1><p>{html.escape(message)}</p></div></body></html>"""
+        self.send_bytes(body.encode("utf-8"), 404, "text/html; charset=utf-8")
+
+    def _build_report_item(self, token: str, raw_item: dict) -> dict | None:
+        item_id = raw_item.get("id", "")
+        if not item_id:
+            return None
+        context = self._result_context(token, item_id=item_id)
+        translated = self._translate_result_worklist_item(context) if context else {}
+        if not translated:
+            translated = {
+                "orden_det_id": item_id,
+                "orden_det_codebar": raw_item.get("barcode", ""),
+                "orden_det_estado": raw_item.get("status", ""),
+                "fecha_muestra_toma": local_datetime_value(raw_item.get("collection_at")),
+                "fecha_muestra_recepcion": local_datetime_value(raw_item.get("received_at")),
+                "oMic_examen": {"examen_desc": raw_item.get("exam_id", "")},
+                "oMic_muestra": {"muestra_desc": raw_item.get("specimen_type_id", "")},
+                "oMic_orden": {},
+            }
+        status, result = api_req("GET", f"/order-items/{quote(item_id, safe='')}/result", token)
+        if status != 200 or not isinstance(result, dict):
+            result = {"values": [], "status": translated.get("orden_det_estado", "")}
+
+        organisms = {item.get("id"): item for item in self._catalog_items(token, "/catalogs/organisms")}
+        antibiotics = {item.get("id"): item for item in self._catalog_items(token, "/catalogs/antibiotics")}
+        colony_counts = {item.get("id"): item for item in self._catalog_items(token, "/catalogs/colony-count-options")}
+        isolates = []
+        result_id = result.get("id")
+        if result_id:
+            isolate_status, isolate_rows = api_req("GET", f"/results/{quote(result_id, safe='')}/isolates", token)
+            if isolate_status == 200 and isinstance(isolate_rows, list):
+                for isolate in isolate_rows:
+                    ast_status, ast_rows = api_req("GET", f"/isolates/{quote(isolate.get('id', ''), safe='')}/antimicrobial-results", token)
+                    isolates.append(
+                        {
+                            "isolate": isolate,
+                            "organism": organisms.get(isolate.get("organism_id"), {}),
+                            "colony_count": colony_counts.get(isolate.get("colony_count_option_id"), {}),
+                            "ast_rows": ast_rows if ast_status == 200 and isinstance(ast_rows, list) else [],
+                            "antibiotics": antibiotics,
+                        }
+                    )
+        return {"translated": translated, "result": result, "isolates": isolates}
+
+    def _render_report_item(self, report_item: dict) -> str:
+        translated = report_item["translated"]
+        result = report_item["result"]
+        exam = translated.get("oMic_examen", {})
+        specimen = translated.get("oMic_muestra", {})
+
+        def e(value: object) -> str:
+            return html.escape(str(value or ""))
+
+        def display_value(parameter: dict) -> str:
+            value_code = parameter.get("value_code")
+            if value_code:
+                options = dict(select_options_from_schema(parameter.get("options_schema")))
+                return str(options.get(str(value_code), value_code))
+            return str(parameter.get("value_text") or "")
+
+        parameter_rows = []
+        for parameter in sorted(result.get("values", []), key=lambda row: row.get("display_order") or 0):
+            value = display_value(parameter)
+            if not value:
+                continue
+            parameter_rows.append(
+                f"<tr><td>{e(parameter.get('name'))}</td><td>{e(value)}</td><td>{e(parameter.get('methodology'))}</td></tr>"
+            )
+        parameters_html = (
+            "<table><thead><tr><th>Parámetro</th><th>Resultado</th><th>Método</th></tr></thead><tbody>"
+            + "".join(parameter_rows)
+            + "</tbody></table>"
+            if parameter_rows
+            else "<div class='empty'>Sin parámetros informados.</div>"
+        )
+
+        isolate_sections = []
+        for isolate_data in report_item["isolates"]:
+            isolate = isolate_data["isolate"]
+            organism = isolate_data["organism"]
+            colony_count = isolate_data["colony_count"]
+            ast_rows = []
+            antibiotics = isolate_data["antibiotics"]
+            for row in isolate_data["ast_rows"]:
+                if not row.get("is_reportable", True):
+                    continue
+                antibiotic = antibiotics.get(row.get("antibiotic_id"), {})
+                interpretation = {"POS": "+", "NEG": "-"}.get(row.get("interpretation"), row.get("interpretation", ""))
+                ast_rows.append(
+                    f"<tr><td>{e(antibiotic.get('name') or row.get('antibiotic_id'))}</td>"
+                    f"<td>{e(row.get('mic_value'))}</td><td>{e(interpretation)}</td><td>{e(row.get('method'))}</td></tr>"
+                )
+            ast_html = (
+                "<table><thead><tr><th>Antibiótico</th><th>Valor</th><th>Interpretación</th><th>Método</th></tr></thead><tbody>"
+                + "".join(ast_rows)
+                + "</tbody></table>"
+                if ast_rows
+                else "<div class='empty'>Sin antibiograma reportable.</div>"
+            )
+            isolate_sections.append(
+                f"<h3>Aislado: {e(organism.get('name') or isolate.get('organism_id'))}</h3>"
+                f"<div class='grid'><div class='field'><strong>Recuento</strong>{e(colony_count.get('name') or isolate.get('colony_count_option_id'))}</div>"
+                f"<div class='field'><strong>Fenotipo</strong>{e(isolate.get('phenotype'))}</div>"
+                f"<div class='field'><strong>Comentario</strong>{e(isolate.get('comment'))}</div></div>"
+                f"{ast_html}"
+            )
+
+        isolates_html = "".join(isolate_sections) if isolate_sections else "<div class='empty'>Sin identificación/antibiograma registrado.</div>"
+        return f"""
+<h2>{e(exam.get('examen_desc'))}</h2>
+<div class="grid">
+  <div class="field"><strong>Muestra</strong>{e(specimen.get('muestra_desc'))}</div>
+  <div class="field"><strong>Código de barras</strong>{e(translated.get('orden_det_codebar'))}</div>
+  <div class="field"><strong>Estado</strong>{e(result.get('status') or translated.get('orden_det_estado'))}</div>
+  <div class="field"><strong>Toma</strong>{e(translated.get('fecha_muestra_toma'))}</div>
+  <div class="field"><strong>Recepción</strong>{e(translated.get('fecha_muestra_recepcion'))}</div>
+  <div class="field"><strong>Guardado</strong>{e(local_datetime_value(result.get('saved_at')))}</div>
+</div>
+{parameters_html}
+{isolates_html}
+"""
+
+    # ── AST PANEL HANDLERS (microbiology) ──
+
+    def _catalog_items(self, token: str, api_path: str) -> list[dict]:
+        page_size = 3000 if api_path == "/catalogs/organisms" else 100
+        status, page = api_req("GET", f"{api_path}?page_size={page_size}", token)
+        if status == 200 and isinstance(page, dict):
+            return page.get("data", [])
+        return page if status == 200 and isinstance(page, list) else []
+
+    def _resolve_catalog_id(self, token: str, api_path: str, value: str) -> str:
+        normalized = str(value or "").strip().casefold()
+        if not normalized:
+            return ""
+        for item in self._catalog_items(token, api_path):
+            candidates = (item.get("id"), item.get("code"), item.get("name"))
+            if any(str(candidate or "").casefold() == normalized for candidate in candidates):
+                return str(item.get("id", ""))
+        return ""
+
+    def _result_context(self, token: str, *, item_id: str = "", barcode: str = "") -> dict | None:
+        if item_id:
+            status, rows = api_req("GET", f"/result-worklist?item_id={quote(item_id, safe='')}", token)
+        elif barcode:
+            status, rows = api_req("GET", f"/result-worklist?search={quote(barcode, safe='')}", token)
+        else:
+            return None
+        if status != 200 or not isinstance(rows, list):
+            return None
+        if item_id:
+            return next((row for row in rows if (row.get("item") or {}).get("id") == item_id), None)
+        return next((row for row in rows if (row.get("item") or {}).get("barcode") == barcode), None)
+
+    def _ensure_result(self, token: str, item_id: str) -> dict | None:
+        status, result = api_req("GET", f"/order-items/{item_id}/result", token)
+        if status != 200 or not isinstance(result, dict):
+            return None
+        if result.get("id"):
+            return result
+        values = []
+        for parameter in result.get("values", []):
+            value = {"parameter_definition_id": parameter.get("parameter_definition_id", "")}
+            if parameter.get("value_code") is not None:
+                value["value_code"] = parameter["value_code"]
+            elif parameter.get("value_text") is not None:
+                value["value_text"] = parameter["value_text"]
+            if parameter.get("observed_at") is not None:
+                value["observed_at"] = parameter["observed_at"]
+            values.append(value)
+        status, result = api_req(
+            "PUT",
+            f"/order-items/{item_id}/result",
+            token,
+            {"values": values, "ready_for_validation": False},
+        )
+        return result if status == 200 and isinstance(result, dict) else None
+
+    def _proxy_ast_panel_register(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        item_id = obj.get("item_id", obj.get("detalle_id", ""))
+        barcode = obj.get("respanel_codebar", "")
+        if not item_id:
+            context = self._result_context(token, barcode=barcode)
+            item_id = ((context or {}).get("item") or {}).get("id", "")
+        organism_id = obj.get("organismo_id", obj.get("organism_id", obj.get("respanel_organismo_cod", "")))
+        panel_id = obj.get("panel_id", obj.get("temporal1", ""))
+        organism_id = self._resolve_catalog_id(token, "/catalogs/organisms", organism_id)
+        panel_id = self._resolve_catalog_id(token, "/catalogs/ast-panels", panel_id) if panel_id else ""
+        if not item_id or not organism_id:
+            self.send_json({"resultado": False, "mensaje": "item_id y organismo_id requeridos"})
+            return
+        result = self._ensure_result(token, item_id)
+        if not result or not result.get("id"):
+            self.send_json({"resultado": False, "mensaje": "No se pudo iniciar el resultado de microbiologia"})
+            return
+        payload = {"organism_id": organism_id}
+        if panel_id:
+            payload["ast_panel_id"] = panel_id
+        status, data = api_req("POST", f"/results/{result['id']}/isolates", token, payload)
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Panel AST registrado"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_ast_panel_delete(self, token: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        item_id = self._extract_query_param(request_path, "item_id") or self._extract_query_param(request_path, "orden_det_id")
+        isolate_id = self._extract_query_param(request_path, "respanel_id") or self._extract_query_param(request_path, "isolate_id")
+        if not item_id or not isolate_id:
+            self.send_json({"resultado": False, "mensaje": "item_id y aislado_id requeridos"})
+            return
+        result = self._ensure_result(token, item_id)
+        if not result or not result.get("id"):
+            self.send_json({"resultado": False, "mensaje": "resultado_id requerido"})
+            return
+        status, data = api_req("DELETE", f"/results/{result['id']}/isolates/{isolate_id}", token)
+        if status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": "Aislado eliminado"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_ast_panel_by_codebar(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        barcode = self._extract_query_param(request_path, "codebar")
+        context = self._result_context(token, barcode=barcode)
+        result = (context or {}).get("result") or {}
+        if not result.get("id"):
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, isolates = api_req("GET", f"/results/{result['id']}/isolates", token)
+        organisms = {item.get("id"): item for item in self._catalog_items(token, "/catalogs/organisms")}
+        if status == 200 and isinstance(isolates, list):
+            translated = []
+            for isolate in isolates:
+                organism = organisms.get(isolate.get("organism_id"), {})
+                translated.append(
+                    {
+                        "respanel_id": isolate.get("id", ""),
+                        "respanel_organismo_cod": isolate.get("id", ""),
+                        "respanel_organismo_desc": organism.get("name", isolate.get("organism_id", "")),
+                    }
+                )
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudieron cargar los aislados"})
+
+    def _proxy_ast_panel_by_org(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        barcode = self._extract_query_param(request_path, "codebar")
+        isolate_id = self._extract_query_param(request_path, "organismo_cod")
+        context = self._result_context(token, barcode=barcode)
+        result = (context or {}).get("result") or {}
+        if not result.get("id") or not isolate_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, isolate = api_req("GET", f"/results/{result['id']}/isolates/{isolate_id}", token)
+        if status != 200 or not isinstance(isolate, dict):
+            self.send_json({"data": [], "resultado": True})
+            return
+        organisms = {item.get("id"): item for item in self._catalog_items(token, "/catalogs/organisms")}
+        organism = organisms.get(isolate.get("organism_id"), {})
+        self.send_json(
+            {
+                "data": [
+                    {
+                        "respanel_id": isolate.get("id", ""),
+                        "respanel_organismo_cod": isolate.get("id", ""),
+                        "respanel_organismo_desc": organism.get("name", isolate.get("organism_id", "")),
+                        "respanel_recuento": isolate.get("colony_count_option_id") or "",
+                        "respanel_organismo_fenotipo": isolate.get("phenotype") or "",
+                        "respanel_organismo_comentario": isolate.get("comment") or "",
+                    }
+                ],
+                "resultado": True,
+            }
+        )
+
+    def _proxy_ast_detail_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        panel = obj.get("oMic_res_panel") or {}
+        item_id = ((panel.get("oMic_orden_detalle") or {}).get("orden_det_id", ""))
+        isolate_id = panel.get("respanel_id", obj.get("aislado_id", obj.get("isolate_id", "")))
+        result = self._ensure_result(token, item_id) if item_id else None
+        if not isolate_id or not result or not result.get("id"):
+            self.send_json({"resultado": False, "mensaje": "aislado_id y resultado_id requeridos"})
+            return
+
+        isolate_payload = {
+            "colony_count_option_id": panel.get("respanel_recuento") or None,
+            "phenotype": panel.get("respanel_organismo_fenotipo") or None,
+            "comment": panel.get("respanel_organismo_comentario") or None,
+        }
+        status, data = api_req(
+            "PATCH",
+            f"/results/{result['id']}/isolates/{isolate_id}",
+            token,
+            isolate_payload,
+        )
+        if status != 200:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or "No se pudo actualizar el aislado"})
+            return
+
+        def values(key: str) -> list[str]:
+            parts = str(obj.get(key, "")).split("|")
+            return parts[:-1] if parts and parts[-1] == "" else parts
+
+        antibiotic_ids = values("respaneldet_anti_cod_all")
+        mic_values = values("respaneldet_anti_cmi_all")
+        interpretations = values("respaneldet_anti_inter_all")
+        not_reportable = values("respaneldet_anti_estado_all")
+        methods = values("respaneldet_anti_metodologia_all")
+        existing_status, existing_rows = api_req("GET", f"/isolates/{isolate_id}/antimicrobial-results", token)
+        if existing_status != 200 or not isinstance(existing_rows, list):
+            self.send_json({"resultado": False, "mensaje": "No se pudo cargar el antibiograma"})
+            return
+        existing = {row.get("antibiotic_id"): row for row in existing_rows}
+        for index, antibiotic_id in enumerate(antibiotic_ids):
+            if not antibiotic_id:
+                continue
+            interpretation = interpretations[index] if index < len(interpretations) else "NA"
+            interpretation = {"+": "POS", "-": "NEG"}.get(interpretation, interpretation or "NA")
+            payload = {
+                "mic_value": mic_values[index] or None if index < len(mic_values) else None,
+                "interpretation": interpretation,
+                "method": methods[index] or None if index < len(methods) else None,
+                "is_reportable": not (
+                    index < len(not_reportable) and not_reportable[index].lower() == "true"
+                ),
+            }
+            current = existing.get(antibiotic_id)
+            if current:
+                status, data = api_req(
+                    "PATCH",
+                    f"/isolates/{isolate_id}/antimicrobial-results/{current['id']}",
+                    token,
+                    payload,
+                )
+            else:
+                status, data = api_req(
+                    "POST",
+                    f"/isolates/{isolate_id}/antimicrobial-results",
+                    token,
+                    {"antibiotic_id": antibiotic_id} | payload,
+                )
+            if status not in (200, 201):
+                self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or "No se pudo guardar el antibiograma"})
+                return
+        self.send_json({"resultado": True, "mensaje": "Identificacion y antibiograma guardados"})
+
+    def _proxy_ast_detail_manual(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        panel = obj.get("oMic_res_panel") or {}
+        isolate_id = obj.get("isolate_id", panel.get("respanel_id", ""))
+        antibiotic_id = obj.get("antibiotic_id", obj.get("respaneldet_anti_cod", ""))
+        antibiotic_id = self._resolve_catalog_id(token, "/catalogs/antibiotics", antibiotic_id)
+        interpretation = obj.get("interpretation", obj.get("respaneldet_anti_inter", "NA"))
+        interpretation = {"+": "POS", "-": "NEG"}.get(interpretation, interpretation)
+        if not isolate_id or not antibiotic_id:
+            self.send_json({"resultado": False, "mensaje": "Aislado y antibiotico requeridos"})
+            return
+        payload = {
+            "antibiotic_id": antibiotic_id,
+            "mic_value": obj.get("mic_value", obj.get("respaneldet_anti_cmi")) or None,
+            "interpretation": interpretation,
+            "method": "MANUAL",
+            "is_reportable": True,
+        }
+        status, data = api_req("POST", f"/isolates/{isolate_id}/antimicrobial-results", token, payload)
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Antibiotico agregado"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_ast_detail_by_org(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        isolate_id = self._extract_query_param(request_path, "organismo_cod")
+        if not isolate_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, rows = api_req("GET", f"/isolates/{isolate_id}/antimicrobial-results", token)
+        antibiotics = {item.get("id"): item for item in self._catalog_items(token, "/catalogs/antibiotics")}
+        if status == 200 and isinstance(rows, list):
+            translated = []
+            for row in rows:
+                antibiotic = antibiotics.get(row.get("antibiotic_id"), {})
+                interpretation = {"POS": "+", "NEG": "-"}.get(row.get("interpretation"), row.get("interpretation", "NA"))
+                translated.append(
+                    {
+                        "respaneldet_id": row.get("id", ""),
+                        "respaneldet_anti_cod": row.get("antibiotic_id", ""),
+                        "respaneldet_anti_desc": antibiotic.get("name", row.get("antibiotic_id", "")),
+                        "respaneldet_anti_cmi": row.get("mic_value") or "",
+                        "respaneldet_anti_inter": interpretation,
+                        "respaneldet_anti_estado": not row.get("is_reportable", True),
+                        "respaneldet_anti_metodologia": row.get("method") or "CMI",
+                        "respaneldet_anti_macanismo": 0,
+                    }
+                )
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudo cargar el antibiograma"})
+
+    # ── AST PANEL CATALOG HANDLERS ──
+
+    def _proxy_ast_panel_create(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        code = obj.get("code", obj.get("orga_panel_id", ""))
+        name = obj.get("name", obj.get("orga_panel_desc", ""))
+        if not code or not name:
+            self.send_json({"resultado": False, "mensaje": "code y name requeridos"})
+            return
+        status, data = api_req("POST", "/catalogs/ast-panels", token, {"code": code, "name": name})
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Panel AST creado"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_ast_panel_delete_api(self, token: str, path: str) -> None:
+        body = self._read_body()
+        panel_id = (body or {}).get("panel_id", "") or (body or {}).get("orga_panel_id", "")
+        if not panel_id:
+            self.send_json({"resultado": False, "mensaje": "panel_id requerido"})
+            return
+        status, data = api_req("DELETE", f"/catalogs/ast-panels/{panel_id}", token)
+        if status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": "Panel AST eliminado"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_ast_panel_antibiotics(self, token: str, path: str) -> None:
+        panel_id = self._extract_query_param(path, "panel_id") or self._extract_query_param(path, "orga_panel_id")
+        if not panel_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/catalogs/ast-panels/{panel_id}/antibiotics", token)
+        if status == 200 and isinstance(data, list):
+            translated = [{"atb_id": a.get("antibiotic_id", ""), "atb_desc": a.get("name", ""), "atb_orden": a.get("sort_order", 0)} for a in data]
+            self.send_json({"data": translated, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": True})
+
+    def _proxy_ast_panel_antibiotic_add(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        panel_id = obj.get("panel_id", obj.get("orga_panel_id", ""))
+        atb_id = obj.get("atb_id", obj.get("antibiotic_id", ""))
+        if not panel_id or not atb_id:
+            self.send_json({"resultado": False, "mensaje": "panel_id y atb_id requeridos"})
+            return
+        status, data = api_req("PUT", f"/catalogs/ast-panels/{panel_id}/antibiotics/{atb_id}", token, {"sort_order": obj.get("atb_orden", 0)})
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Antibiotico agregado al panel"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    def _proxy_ast_panel_antibiotic_remove(self, token: str, path: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        panel_id = obj.get("panel_id", obj.get("orga_panel_id", ""))
+        atb_id = obj.get("atb_id", obj.get("antibiotic_id", ""))
+        if not panel_id or not atb_id:
+            self.send_json({"resultado": False, "mensaje": "panel_id y atb_id requeridos"})
+            return
+        status, data = api_req("DELETE", f"/catalogs/ast-panels/{panel_id}/antibiotics/{atb_id}", token)
+        if status in (200, 204):
+            self.send_json({"resultado": True, "mensaje": "Antibiotico eliminado del panel"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
+
+    # ── HELPERS ──
+
+    def _extract_query_param(self, path: str, param: str) -> str:
+        if "?" in path:
+            for pair in path.split("?", 1)[1].split("&"):
+                if pair.startswith(param + "="):
+                    return unquote(pair.split("=", 1)[1])
+        return ""
+
+
+def main() -> None:
+    Handler.manifest = load_manifest()
+    server = ThreadingHTTPServer((HOST, PORT), Handler)
+    print(f"MUFFIN frontend corriendo en http://{HOST}:{PORT}/MUFFIN/")
+    print(f"Mirror: {MIRROR}")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("Servidor detenido")
+    finally:
+        server.server_close()
+
+
+if __name__ == "__main__":
+    main()

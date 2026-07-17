@@ -1,0 +1,68 @@
+
+
+
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta name="viewport" content="width=device-width" />
+	<title>Login - SIMCORE WEB - Sistema de Información de Microbiología - ASP.NET</title>
+	<link href="/SIMCORE_WEB/Content/css?v=ivzLv745bmnThkrYOWP2Oyh3EQaw__rxaWvN5bNa0zg1" rel="stylesheet"/>
+
+</head>
+<body class="bg-info">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<div class="d-flex align-items-center min-vh-100">
+					<div class="w-100 d-block my-5">
+						<div class="row justify-content-center">
+							<div class="col-md-8 col-lg-5">
+								<div class="card">
+									<div class="card-body">
+										<div class="text-center mb-4 mt-3">
+											<a href="#">
+												<span><img src="/SIMCORE_WEB/Imagenes/simcore.png" alt="" height="100"></span>
+											</a>
+										</div>
+										<form action="/SIMCORE_WEB/Login/Index" method="post" class="p-2">
+											
+											<div class="form-group">
+												<label for="emailaddress">Usuario</label>
+												<input class="form-control" type="text" name="user" required="">
+											</div>
+											<div class="form-group">
+												<label for="password">Contraseña</label>
+												<input class="form-control" type="password" required="" name="pass">
+											</div>
+
+											<div class="mb-3 text-center">
+												<button class="btn btn-primary btn-block" type="submit">Ingresar</button>
+											</div>
+											<div class="text-left" style="color: red;">
+												
+											</div>
+										</form>
+									</div>
+								</div>
+								<div class="row mt-4">
+									<div class="col-sm-12 text-center">
+										<p>Copyright &copy; SIMCORE V3.1.15<br />2015 - 2026, Todos los derechos reservados</p>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="/SIMCORE_WEB/bundles/jquery?v=8Oos0avDZyPg-cbyVzvkIfERIE1DGSe3sRQdCSYrgEQ1"></script>
+
+	<script src="/SIMCORE_WEB/bundles/bootstrap?v=Rc0g6GDBha0U2Ue5txisObdTUK1i4R1sOhOsbTe7GyM1"></script>
+
+</body>
+</html>

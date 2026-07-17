@@ -1,0 +1,25 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: muffin_local
+      POSTGRES_USER: muffin_local
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - muffin_local_postgres_data:/var/lib/postgresql/data
+    mem_limit: 1024m
+    cpus: 1.5
+
+  api:
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+psycopg://muffin_local:${POSTGRES_PASSWORD}@postgres:5432/muffin_local
+      JWT_SECRET: ${JWT_SECRET}
+      DEV_SEED_PASSWORD: ${DEV_SEED_PASSWORD}
+      BOOTSTRAP_ADMIN_USERNAME: ""
+      BOOTSTRAP_ADMIN_PASSWORD: ""
+    mem_limit: 512m
+    cpus: 1.0
+
+volumes:
+  muffin_local_postgres_data:
+    name: muffin_local_postgres_data

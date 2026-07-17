@@ -1,0 +1,477 @@
+[
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/PluginsCSS?v=LotVGen8pIxTKQj7GXfbE9JAs-QwmYADT5A-bRC0LkQ1",
+    "path": "/SIMCORE_WEB/Content/PluginsCSS",
+    "status": 200,
+    "content_type": "text/css; charset=utf-8",
+    "bytes": 118940,
+    "local_file": "mirror/SIMCORE_WEB/Content/PluginsCSS"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/PluginsJS?v=sQB6J2EBUgtBNkJ6uHK2oNSgdLTnVwcEwKIRWaMhYlM1",
+    "path": "/SIMCORE_WEB/Content/PluginsJS",
+    "status": 200,
+    "content_type": "text/css; charset=utf-8",
+    "bytes": 1794169,
+    "local_file": "mirror/SIMCORE_WEB/Content/PluginsJS"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/css?v=ivzLv745bmnThkrYOWP2Oyh3EQaw__rxaWvN5bNa0zg1",
+    "path": "/SIMCORE_WEB/Content/css",
+    "status": 200,
+    "content_type": "text/css; charset=utf-8",
+    "bytes": 164977,
+    "local_file": "mirror/SIMCORE_WEB/Content/css"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Imagenes/simcore.png",
+    "path": "/SIMCORE_WEB/Imagenes/simcore.png",
+    "status": 200,
+    "content_type": "image/png",
+    "bytes": 93152,
+    "local_file": "mirror/SIMCORE_WEB/Imagenes/simcore.png"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Imagenes/simcorelogo.png",
+    "path": "/SIMCORE_WEB/Imagenes/simcorelogo.png",
+    "status": 200,
+    "content_type": "image/png",
+    "bytes": 93295,
+    "local_file": "mirror/SIMCORE_WEB/Imagenes/simcorelogo.png"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_antibiotico_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_antibiotico_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 3560,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_antibiotico_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_area_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_area_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 3350,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_area_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_configuracion_general_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_configuracion_general_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 4047,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_configuracion_general_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_destinos_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_destinos_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 4358,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_destinos_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_destinos_orden_detalle_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_destinos_orden_detalle_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 13676,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_destinos_orden_detalle_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_examen_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_examen_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 17781,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_examen_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_medico_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_medico_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 3442,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_medico_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_muestra_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_muestra_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 2833,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_muestra_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_muestra_contenedor_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_muestra_contenedor_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 3227,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_muestra_contenedor_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orden_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_orden_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 27013,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_orden_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orden_detalle_resultado_microbiologia.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_orden_detalle_resultado_microbiologia.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 44640,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_orden_detalle_resultado_microbiologia.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orga_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_orga_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 3017,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_orga_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orga_panel_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_orga_panel_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 9923,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_orga_panel_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_parametro_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_parametro_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 6879,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_parametro_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_persona_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_persona_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 4060,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_persona_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_procedencia_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_procedencia_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 3187,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_procedencia_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_res_comentarios_def_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_res_comentarios_def_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 2889,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_res_comentarios_def_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_res_panel_recuento_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_res_panel_recuento_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 2931,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_res_panel_recuento_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_seccion_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_seccion_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 8561,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_seccion_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_servicio_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_servicio_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 3129,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_servicio_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_usuario_Index.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Mic_usuario_Index.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 10618,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Mic_usuario_Index.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_consultas_Microbiologia_pac_orden.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Trans_consultas_Microbiologia_pac_orden.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 18335,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Trans_consultas_Microbiologia_pac_orden.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_hoja_trabajo.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_hoja_trabajo.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 1777,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_hoja_trabajo.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_idt_ast.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_idt_ast.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 8355,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_idt_ast.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_produccion_export.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_produccion_export.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 4912,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_produccion_export.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/jquery.quicksearch.js",
+    "path": "/SIMCORE_WEB/Scripts/Views/jquery.quicksearch.js",
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 4715,
+    "local_file": "mirror/SIMCORE_WEB/Scripts/Views/jquery.quicksearch.js"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/bundles/bootstrap?v=Rc0g6GDBha0U2Ue5txisObdTUK1i4R1sOhOsbTe7GyM1",
+    "path": "/SIMCORE_WEB/bundles/bootstrap",
+    "status": 200,
+    "content_type": "text/javascript; charset=utf-8",
+    "bytes": 62795,
+    "local_file": "mirror/SIMCORE_WEB/bundles/bootstrap"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/bundles/jquery?v=8Oos0avDZyPg-cbyVzvkIfERIE1DGSe3sRQdCSYrgEQ1",
+    "path": "/SIMCORE_WEB/bundles/jquery",
+    "status": 200,
+    "content_type": "text/javascript; charset=utf-8",
+    "bytes": 88173,
+    "local_file": "mirror/SIMCORE_WEB/bundles/jquery"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/bundles/modernizr?v=inCVuEFe6J4Q07A0AcRsbJic_UE5MwpRMNGcOtk94TE1",
+    "path": "/SIMCORE_WEB/bundles/modernizr",
+    "status": 200,
+    "content_type": "text/javascript; charset=utf-8",
+    "bytes": 11095,
+    "local_file": "mirror/SIMCORE_WEB/bundles/modernizr"
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-brands-400.woff2",
+    "path": "/SIMCORE_WEB/webfonts/fa-brands-400.woff2",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-brands-400.eot",
+    "path": "/SIMCORE_WEB/webfonts/fa-brands-400.eot",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-brands-400.woff",
+    "path": "/SIMCORE_WEB/webfonts/fa-brands-400.woff",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/images/ui-icons_777620_256x240.png",
+    "path": "/SIMCORE_WEB/Content/images/ui-icons_777620_256x240.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-regular-400.woff2",
+    "path": "/SIMCORE_WEB/webfonts/fa-regular-400.woff2",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-brands-400.ttf",
+    "path": "/SIMCORE_WEB/webfonts/fa-brands-400.ttf",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-solid-900.eot",
+    "path": "/SIMCORE_WEB/webfonts/fa-solid-900.eot",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-solid-900.woff",
+    "path": "/SIMCORE_WEB/webfonts/fa-solid-900.woff",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-regular-400.eot",
+    "path": "/SIMCORE_WEB/webfonts/fa-regular-400.eot",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/images/ui-icons_444444_256x240.png",
+    "path": "/SIMCORE_WEB/Content/images/ui-icons_444444_256x240.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-regular-400.woff",
+    "path": "/SIMCORE_WEB/webfonts/fa-regular-400.woff",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/images/ui-icons_ffffff_256x240.png",
+    "path": "/SIMCORE_WEB/Content/images/ui-icons_ffffff_256x240.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-solid-900.ttf",
+    "path": "/SIMCORE_WEB/webfonts/fa-solid-900.ttf",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-regular-400.ttf",
+    "path": "/SIMCORE_WEB/webfonts/fa-regular-400.ttf",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/images/sort_desc_disabled.png",
+    "path": "/SIMCORE_WEB/images/sort_desc_disabled.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/images/sort_both.png",
+    "path": "/SIMCORE_WEB/images/sort_both.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/images/sort_desc.png",
+    "path": "/SIMCORE_WEB/images/sort_desc.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/images/ui-icons_777777_256x240.png",
+    "path": "/SIMCORE_WEB/Content/images/ui-icons_777777_256x240.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/images/sort_asc.png",
+    "path": "/SIMCORE_WEB/images/sort_asc.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-brands-400.svg",
+    "path": "/SIMCORE_WEB/webfonts/fa-brands-400.svg",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-regular-400.svg",
+    "path": "/SIMCORE_WEB/webfonts/fa-regular-400.svg",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/images/ui-icons_555555_256x240.png",
+    "path": "/SIMCORE_WEB/Content/images/ui-icons_555555_256x240.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/images/ui-icons_cc0000_256x240.png",
+    "path": "/SIMCORE_WEB/Content/images/ui-icons_cc0000_256x240.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-solid-900.svg",
+    "path": "/SIMCORE_WEB/webfonts/fa-solid-900.svg",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/images/sort_asc_disabled.png",
+    "path": "/SIMCORE_WEB/images/sort_asc_disabled.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/img/switch.png",
+    "path": "/SIMCORE_WEB/img/switch.png",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/webfonts/fa-solid-900.woff2",
+    "path": "/SIMCORE_WEB/webfonts/fa-solid-900.woff2",
+    "status": 404,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/+ s.image +",
+    "path": "/SIMCORE_WEB/Content/+ s.image +",
+    "status": 404,
+    "content_type": "text/html",
+    "bytes": 0
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/+ params.imageUrl +",
+    "path": "/SIMCORE_WEB/Content/+ params.imageUrl +",
+    "status": 404,
+    "content_type": "text/html",
+    "bytes": 0
+  }
+]

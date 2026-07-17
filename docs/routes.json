@@ -1,0 +1,147 @@
+[
+  {
+    "route": "/SIMCORE_WEB/Login/Index",
+    "status": 200,
+    "bytes": 26939
+  },
+  {
+    "route": "/SIMCORE_WEB/Home/Index",
+    "status": 200,
+    "bytes": 26939
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_persona/",
+    "status": 200,
+    "bytes": 30352
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_procedencia/",
+    "status": 200,
+    "bytes": 29915
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_servicio/",
+    "status": 200,
+    "bytes": 29906
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_medico/",
+    "status": 200,
+    "bytes": 29880
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_res_comentarios_def/",
+    "status": 200,
+    "bytes": 29575
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_area/",
+    "status": 200,
+    "bytes": 29940
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_examen/",
+    "status": 200,
+    "bytes": 37604
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_muestra/",
+    "status": 200,
+    "bytes": 29572
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_muestra_contenedor/",
+    "status": 200,
+    "bytes": 29606
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_parametro/",
+    "status": 200,
+    "bytes": 32163
+  },
+  {
+    "route": "/SIMCORE_WEB/mic_orga_panel/",
+    "status": 200,
+    "bytes": 32905
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_res_panel_recuento/",
+    "status": 200,
+    "bytes": 29528
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_orga/",
+    "status": 200,
+    "bytes": 30286
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_antibiotico/",
+    "status": 200,
+    "bytes": 30263
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_usuario/",
+    "status": 200,
+    "bytes": 34539
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_destinos/",
+    "status": 200,
+    "bytes": 31218
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_seccion/",
+    "status": 200,
+    "bytes": 35007
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_configuracion_general/",
+    "status": 200,
+    "bytes": 31472
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_orden/",
+    "status": 200,
+    "bytes": 43748
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_destinos_orden_detalle/",
+    "status": 200,
+    "bytes": 33714
+  },
+  {
+    "route": "/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia",
+    "status": 200,
+    "bytes": 49401
+  },
+  {
+    "route": "/SIMCORE_WEB/Trans_consultas/Microbiologia_pac_orden",
+    "status": 200,
+    "bytes": 36865
+  },
+  {
+    "route": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_produccion",
+    "status": 200,
+    "bytes": 30396
+  },
+  {
+    "route": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_idt_ast",
+    "status": 200,
+    "bytes": 29831
+  },
+  {
+    "route": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_botellas",
+    "status": 200,
+    "bytes": 28164
+  },
+  {
+    "route": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_etiquetas_gen",
+    "status": 200,
+    "bytes": 28172
+  },
+  {
+    "route": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_hoja_trabajo",
+    "status": 200,
+    "bytes": 29485
+  }
+]

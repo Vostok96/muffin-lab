@@ -1,0 +1,1422 @@
+openapi: 3.0.3
+info:
+  title: MUFFIN API
+  version: 0.1.0
+  description: >-
+    Contrato inicial para Microbiologia: Unidad de Fuentes, Flujos e Informes
+    Nosocomiales. Reemplaza gradualmente los endpoints heredados de SIMCORE.
+servers:
+  - url: /api/v1
+tags:
+  - name: Authentication
+  - name: Administration
+  - name: Patients
+  - name: Orders
+  - name: Results
+  - name: Organisms
+  - name: ColonyCountOptions
+  - name: DefinedComments
+  - name: Antibiotics
+  - name: AstPanels
+  - name: Microbiology
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Authenticate a user and return an access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated session token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get the authenticated user
+      responses:
+        '200':
+          description: Authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /admin/users:
+    get:
+      tags: [Administration]
+      summary: List users
+      responses:
+        '200':
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Administration]
+      summary: Create a user with roles and area permissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /admin/areas:
+    post:
+      tags: [Administration]
+      summary: Create a laboratory area
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LaboratoryAreaInput'
+      responses:
+        '201':
+          description: Area created
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /admin/audit-events:
+    get:
+      tags: [Administration]
+      summary: List the latest audit events
+      responses:
+        '200':
+          description: Recent audit events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditEvent'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /patients:
+    get:
+      tags: [Patients]
+      summary: List or search patients
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/CatalogPageSize'
+      responses:
+        '200':
+          description: Patient page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientPage'
+    post:
+      tags: [Patients]
+      summary: Create a patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientInput'
+      responses:
+        '201':
+          description: Patient created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /patients/{patient_id}:
+    parameters:
+      - $ref: '#/components/parameters/PatientId'
+    get:
+      tags: [Patients]
+      summary: Get a patient
+      responses:
+        '200':
+          description: Patient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Patients]
+      summary: Update patient demographics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientPatch'
+      responses:
+        '200':
+          description: Patient updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+  /orders:
+    get:
+      tags: [Orders]
+      summary: List orders
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/CatalogPageSize'
+      responses:
+        '200':
+          description: Order page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPage'
+    post:
+      tags: [Orders]
+      summary: Create an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /orders/{order_id}:
+    parameters:
+      - $ref: '#/components/parameters/OrderId'
+    get:
+      tags: [Orders]
+      summary: Get order and its items
+      responses:
+        '200':
+          description: Order detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Orders]
+      summary: Update a draft or registered order
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/OrderPatch' } } }
+      responses:
+        '200': { description: Order updated, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+        '409': { $ref: '#/components/responses/InvalidTransition' }
+  /orders/{order_id}/items:
+    parameters:
+      - $ref: '#/components/parameters/OrderId'
+    post:
+      tags: [Orders]
+      summary: Add a requested exam and specimen to an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderItemInput'
+      responses:
+        '201':
+          description: Order item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+  /orders/{order_id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/OrderId'
+    post:
+      tags: [Orders]
+      summary: Cancel an order and its active items
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ReasonInput' } } }
+      responses:
+        '200': { description: Order cancelled, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+        '409': { $ref: '#/components/responses/InvalidTransition' }
+  /orders/{order_id}/reopen:
+    parameters:
+      - $ref: '#/components/parameters/OrderId'
+    post:
+      tags: [Orders]
+      summary: Reopen a cancelled order
+      description: Requires ADMIN or PROCESS_ADMIN and a reason.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ReasonInput' } } }
+      responses:
+        '200': { description: Order reopened, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+        '409': { $ref: '#/components/responses/InvalidTransition' }
+  /order-items/{order_item_id}/collect:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Orders]
+      summary: Record specimen collection
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CollectSpecimenInput' } } }
+      responses:
+        '200': { description: Specimen collected, content: { application/json: { schema: { $ref: '#/components/schemas/OrderItem' } } } }
+        '409': { $ref: '#/components/responses/InvalidTransition' }
+  /order-items/{order_item_id}/receive:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Orders]
+      summary: Record specimen reception
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiveSpecimenInput'
+      responses:
+        '200':
+          description: Item received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+        '409':
+          $ref: '#/components/responses/InvalidTransition'
+  /order-items/{order_item_id}/reject:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Orders]
+      summary: Reject a specimen with an explicit reason
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ReasonInput' } } }
+      responses:
+        '200': { description: Specimen rejected, content: { application/json: { schema: { $ref: '#/components/schemas/OrderItem' } } } }
+        '409': { $ref: '#/components/responses/InvalidTransition' }
+  /order-items/{order_item_id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Orders]
+      summary: Cancel an order item with an explicit reason
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ReasonInput' } } }
+      responses:
+        '200': { description: Order item cancelled, content: { application/json: { schema: { $ref: '#/components/schemas/OrderItem' } } } }
+        '409': { $ref: '#/components/responses/InvalidTransition' }
+  /order-items/{order_item_id}/reopen:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Orders]
+      summary: Reopen a cancelled or rejected item
+      description: Requires ADMIN or PROCESS_ADMIN and a reason.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ReasonInput' } } }
+      responses:
+        '200': { description: Order item reopened, content: { application/json: { schema: { $ref: '#/components/schemas/OrderItem' } } } }
+        '409': { $ref: '#/components/responses/InvalidTransition' }
+  /order-items/{order_item_id}/events:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    get:
+      tags: [Orders]
+      summary: List immutable specimen workflow events
+      responses:
+        '200':
+          description: Workflow events
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/WorkflowEvent' } }
+  /order-items/{order_item_id}/result:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    get:
+      tags: [Results]
+      summary: Get result form and current values
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+    put:
+      tags: [Results]
+      summary: Save or replace dynamic result values
+      description: >-
+        Saves a draft as IN_PROCESS. When ready_for_validation is true, all
+        required parameters must contain a valid value and the result becomes
+        RESULT_SAVED. A final validated result must be reopened before editing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResultSaveInput'
+      responses:
+        '200':
+          description: Result saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          $ref: '#/components/responses/InvalidTransition'
+  /order-items/{order_item_id}/result/preliminary-validation:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Results]
+      summary: Validate a result preliminarily
+      responses:
+        '200':
+          description: Result preliminarily validated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/InvalidTransition'
+  /order-items/{order_item_id}/result/final-validation:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Results]
+      summary: Validate a result finally
+      responses:
+        '200':
+          description: Result finally validated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/InvalidTransition'
+  /order-items/{order_item_id}/result/reopen:
+    parameters:
+      - $ref: '#/components/parameters/OrderItemId'
+    post:
+      tags: [Results]
+      summary: Reopen a preliminary or final validated result
+      description: >-
+        Requires the corresponding preliminary or final area permission and a
+        reason. Both validation marks are cleared and the result returns to
+        RESULT_SAVED.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonInput'
+      responses:
+        '200':
+          description: Result reopened
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/InvalidTransition'
+  /catalogs/areas:
+    get:
+      tags: [Catalogs]
+      summary: List laboratory areas
+      parameters: &catalogListParameters
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/CatalogPageSize'
+        - $ref: '#/components/parameters/ActiveOnly'
+      responses:
+        '200': { description: Paginated laboratory areas }
+    post:
+      tags: [Catalogs]
+      summary: Create a laboratory area
+      description: Requires ADMIN or PROCESS_ADMIN.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/LaboratoryAreaInput' } } }
+      responses:
+        '201': { description: Laboratory area created, content: { application/json: { schema: { $ref: '#/components/schemas/LaboratoryArea' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /catalogs/areas/{area_id}:
+    patch:
+      tags: [Catalogs]
+      summary: Update or deactivate a laboratory area
+      description: Requires ADMIN or PROCESS_ADMIN. Catalog records are deactivated instead of deleted.
+      parameters:
+        - $ref: '#/components/parameters/AreaCatalogId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/LaboratoryAreaPatch' } } }
+      responses:
+        '200': { description: Laboratory area updated, content: { application/json: { schema: { $ref: '#/components/schemas/LaboratoryArea' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /catalogs/origins:
+    get:
+      tags: [Catalogs]
+      summary: List origins
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated origins } }
+    post: &simpleCatalogCreate
+      tags: [Catalogs]
+      summary: Create a catalog entry
+      description: Requires ADMIN or PROCESS_ADMIN.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CatalogInput' } } }
+      responses:
+        '201': { description: Catalog entry created, content: { application/json: { schema: { $ref: '#/components/schemas/CatalogItem' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /catalogs/origins/{origin_id}:
+    patch: &simpleCatalogPatch
+      tags: [Catalogs]
+      summary: Update or deactivate a catalog entry
+      description: Requires ADMIN or PROCESS_ADMIN. Catalog records are deactivated instead of deleted.
+      parameters:
+        - $ref: '#/components/parameters/OriginCatalogId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CatalogPatch' } } }
+      responses:
+        '200': { description: Catalog entry updated, content: { application/json: { schema: { $ref: '#/components/schemas/CatalogItem' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /catalogs/services:
+    get:
+      tags: [Catalogs]
+      summary: List requesting services
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated services } }
+    post: *simpleCatalogCreate
+  /catalogs/services/{service_id}:
+    patch:
+      <<: *simpleCatalogPatch
+      parameters:
+        - $ref: '#/components/parameters/ServiceCatalogId'
+  /catalogs/containers:
+    get:
+      tags: [Catalogs]
+      summary: List specimen containers
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated containers } }
+    post: *simpleCatalogCreate
+  /catalogs/containers/{container_id}:
+    patch:
+      <<: *simpleCatalogPatch
+      parameters:
+        - $ref: '#/components/parameters/ContainerCatalogId'
+  /catalogs/destinations:
+    get:
+      tags: [Catalogs]
+      summary: List specimen workflow destinations
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated destinations } }
+    post: *simpleCatalogCreate
+  /catalogs/destinations/{destination_id}:
+    patch:
+      <<: *simpleCatalogPatch
+      parameters:
+        - $ref: '#/components/parameters/DestinationCatalogId'
+  /catalogs/clinicians:
+    get:
+      tags: [Catalogs]
+      summary: List requesting clinicians
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated clinicians } }
+    post:
+      tags: [Catalogs]
+      summary: Create a requesting clinician
+      description: Requires ADMIN or PROCESS_ADMIN.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ClinicianInput' } } }
+      responses:
+        '201': { description: Clinician created, content: { application/json: { schema: { $ref: '#/components/schemas/Clinician' } } } }
+  /catalogs/clinicians/{clinician_id}:
+    patch:
+      tags: [Catalogs]
+      summary: Update or deactivate a requesting clinician
+      parameters:
+        - $ref: '#/components/parameters/ClinicianCatalogId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ClinicianPatch' } } }
+      responses:
+        '200': { description: Clinician updated, content: { application/json: { schema: { $ref: '#/components/schemas/Clinician' } } } }
+  /catalogs/specimen-types:
+    get:
+      tags: [Catalogs]
+      summary: List specimen types
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated specimen types } }
+    post:
+      tags: [Catalogs]
+      summary: Create a specimen type
+      description: Requires ADMIN or PROCESS_ADMIN and an active container.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/SpecimenTypeInput' } } }
+      responses:
+        '201': { description: Specimen type created, content: { application/json: { schema: { $ref: '#/components/schemas/SpecimenType' } } } }
+  /catalogs/specimen-types/{specimen_type_id}:
+    patch:
+      tags: [Catalogs]
+      summary: Update or deactivate a specimen type
+      parameters:
+        - $ref: '#/components/parameters/SpecimenCatalogId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/SpecimenTypePatch' } } }
+      responses:
+        '200': { description: Specimen type updated, content: { application/json: { schema: { $ref: '#/components/schemas/SpecimenType' } } } }
+  /catalogs/exams:
+    get:
+      tags: [Catalogs]
+      summary: List laboratory exams
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated exams } }
+    post:
+      tags: [Catalogs]
+      summary: Create a laboratory exam
+      description: Requires ADMIN or PROCESS_ADMIN and an active laboratory area.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ExamCatalogInput' } } }
+      responses:
+        '201': { description: Exam created, content: { application/json: { schema: { $ref: '#/components/schemas/ExamCatalog' } } } }
+  /catalogs/exams/{exam_id}:
+    patch:
+      tags: [Catalogs]
+      summary: Update or deactivate a laboratory exam
+      parameters:
+        - $ref: '#/components/parameters/ExamCatalogId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ExamCatalogPatch' } } }
+      responses:
+        '200': { description: Exam updated, content: { application/json: { schema: { $ref: '#/components/schemas/ExamCatalog' } } } }
+  /catalogs/parameters:
+    get:
+      tags: [Catalogs]
+      summary: List result parameter definitions
+      parameters: *catalogListParameters
+      responses: { '200': { description: Paginated parameter definitions } }
+    post:
+      tags: [Catalogs]
+      summary: Create a result parameter definition
+      description: Requires ADMIN or PROCESS_ADMIN.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ParameterDefinitionInput' } } }
+      responses:
+        '201': { description: Parameter created, content: { application/json: { schema: { $ref: '#/components/schemas/ParameterDefinition' } } } }
+  /catalogs/parameters/{parameter_id}:
+    patch:
+      tags: [Catalogs]
+      summary: Update or deactivate a result parameter definition
+      parameters:
+        - $ref: '#/components/parameters/ParameterCatalogId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ParameterDefinitionPatch' } } }
+      responses:
+        '200': { description: Parameter updated, content: { application/json: { schema: { $ref: '#/components/schemas/ParameterDefinition' } } } }
+  /catalogs/exams/{exam_id}/specimen-types:
+    get:
+      tags: [Catalogs]
+      summary: List specimen types allowed for an exam
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      responses:
+        '200': { description: Exam-specimen relations }
+  /catalogs/exams/{exam_id}/specimen-types/{specimen_type_id}:
+    put:
+      tags: [Catalogs]
+      summary: Create or update an exam-specimen relation
+      parameters: &examSpecimenParameters
+        - $ref: '#/components/parameters/ExamId'
+        - $ref: '#/components/parameters/SpecimenTypeId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ExamSpecimenTypeInput' } } }
+      responses: { '200': { description: Exam-specimen relation saved } }
+    delete:
+      tags: [Catalogs]
+      summary: Remove an exam-specimen relation
+      parameters: *examSpecimenParameters
+      responses: { '204': { description: Relation removed } }
+  /catalogs/exams/{exam_id}/parameters:
+    get:
+      tags: [Catalogs]
+      summary: List ordered parameters for an exam
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      responses: { '200': { description: Ordered exam parameters } }
+  /catalogs/exams/{exam_id}/parameters/{parameter_id}:
+    put:
+      tags: [Catalogs]
+      summary: Create or update an ordered exam parameter
+      parameters: &examParameterParameters
+        - $ref: '#/components/parameters/ExamId'
+        - $ref: '#/components/parameters/ParameterId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ExamParameterInput' } } }
+      responses: { '200': { description: Exam parameter saved } }
+    delete:
+      tags: [Catalogs]
+      summary: Remove an exam-parameter relation
+      parameters: *examParameterParameters
+      responses: { '204': { description: Relation removed } }
+  /results/{result_id}/isolates:
+    parameters:
+      - $ref: '#/components/parameters/ResultId'
+    get:
+      tags: [Microbiology]
+      summary: List isolates for a result
+      responses:
+        '200': { description: Isolates, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Isolate' } } } } }
+    post:
+      tags: [Microbiology]
+      summary: Create an isolate for a result
+      description: >-
+        Requires ADMIN, PROCESS_ADMIN or PROCESSOR. If ast_panel_id is provided,
+        antimicrobial results are autofilled from the panel.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IsolateInput' } } }
+      responses:
+        '201': { description: Isolate created, content: { application/json: { schema: { $ref: '#/components/schemas/Isolate' } } } }
+  /results/{result_id}/isolates/{isolate_id}:
+    parameters:
+      - $ref: '#/components/parameters/ResultId'
+      - $ref: '#/components/parameters/IsolateId'
+    get:
+      tags: [Microbiology]
+      summary: Get an isolate detail
+      responses:
+        '200': { description: Isolate, content: { application/json: { schema: { $ref: '#/components/schemas/Isolate' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Microbiology]
+      summary: Update an isolate
+      description: Requires ADMIN, PROCESS_ADMIN or PROCESSOR.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/IsolatePatch' } } }
+      responses:
+        '200': { description: Isolate updated, content: { application/json: { schema: { $ref: '#/components/schemas/Isolate' } } } }
+    delete:
+      tags: [Microbiology]
+      summary: Delete an isolate
+      description: Requires ADMIN or PROCESS_ADMIN.
+      responses:
+        '204': { description: Isolate removed }
+  /isolates/{isolate_id}/antimicrobial-results:
+    parameters:
+      - $ref: '#/components/parameters/IsolateId'
+    get:
+      tags: [Microbiology]
+      summary: List antimicrobial results for an isolate
+      responses:
+        '200': { description: Antimicrobial results, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/AntimicrobialResult' } } } } }
+    post:
+      tags: [Microbiology]
+      summary: Add an antimicrobial result to an isolate
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AntimicrobialResultInput' } } }
+      responses:
+        '201': { description: Antimicrobial result created, content: { application/json: { schema: { $ref: '#/components/schemas/AntimicrobialResult' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /isolates/{isolate_id}/antimicrobial-results/{ar_id}:
+    parameters:
+      - $ref: '#/components/parameters/IsolateId'
+      - name: ar_id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Microbiology]
+      summary: Update an antimicrobial result
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AntimicrobialResultPatch' } } }
+      responses:
+        '200': { description: Antimicrobial result updated, content: { application/json: { schema: { $ref: '#/components/schemas/AntimicrobialResult' } } } }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    PatientId:
+      name: patient_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    OrderItemId:
+      name: order_item_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    AreaCatalogId:
+      name: area_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    OriginCatalogId:
+      name: origin_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ServiceCatalogId:
+      name: service_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ClinicianCatalogId:
+      name: clinician_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ContainerCatalogId:
+      name: container_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    DestinationCatalogId:
+      name: destination_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SpecimenCatalogId:
+      name: specimen_type_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ExamCatalogId:
+      name: exam_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ParameterCatalogId:
+      name: parameter_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ExamId:
+      name: exam_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SpecimenTypeId:
+      name: specimen_type_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ParameterId:
+      name: parameter_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ResultId:
+      name: result_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    IsolateId:
+      name: isolate_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Search:
+      name: search
+      in: query
+      schema: { type: string, maxLength: 100 }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    CatalogPageSize:
+      name: page_size
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    ActiveOnly:
+      name: active_only
+      in: query
+      schema: { type: boolean, default: true }
+  responses:
+    NotFound:
+      description: Resource not found
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Conflict:
+      description: Resource conflicts with an existing record
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Forbidden:
+      description: Current user is not authorized
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unauthorized:
+      description: Authentication failed or access token is expired
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    ValidationError:
+      description: Request is invalid
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    InvalidTransition:
+      description: Workflow transition is not permitted
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string, format: password }
+    TokenResponse:
+      type: object
+      required: [access_token, token_type, expires_in]
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, example: bearer }
+        expires_in: { type: integer, example: 1800 }
+    User:
+      type: object
+      required: [id, username, given_name, family_name, is_active, roles]
+      properties:
+        id: { type: string, format: uuid }
+        username: { type: string }
+        given_name: { type: string }
+        family_name: { type: string }
+        is_active: { type: boolean }
+        roles:
+          type: array
+          items: { type: string }
+    UserInput:
+      type: object
+      required: [username, given_name, family_name, password, role_codes]
+      properties:
+        username: { type: string }
+        given_name: { type: string }
+        family_name: { type: string }
+        password: { type: string, format: password }
+        role_codes:
+          type: array
+          items: { type: string }
+        area_permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AreaPermission'
+    AreaPermission:
+      type: object
+      required: [laboratory_area_id]
+      properties:
+        laboratory_area_id: { type: string, format: uuid }
+        can_preliminary_validate: { type: boolean, default: false }
+        can_final_validate: { type: boolean, default: false }
+    LaboratoryAreaInput:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50, pattern: '^[A-Za-z0-9_-]+$' }
+        name: { type: string, minLength: 2, maxLength: 120 }
+        section: { type: string, minLength: 2, maxLength: 80, default: MICROBIOLOGY }
+    AuditEvent:
+      type: object
+      required: [id, entity_type, action, occurred_at]
+      properties:
+        id: { type: string, format: uuid }
+        actor_user_id: { type: string, format: uuid, nullable: true }
+        entity_type: { type: string }
+        entity_id: { type: string, format: uuid, nullable: true }
+        action: { type: string }
+        occurred_at: { type: string, format: date-time }
+        reason: { type: string, nullable: true }
+    PatientInput:
+      type: object
+      required: [medical_record_number, family_name, given_name, birth_date, sex]
+      properties:
+        medical_record_number: { type: string, minLength: 1, maxLength: 50 }
+        document_number: { type: string, nullable: true, maxLength: 30 }
+        family_name: { type: string, minLength: 1, maxLength: 120 }
+        given_name: { type: string, minLength: 1, maxLength: 120 }
+        birth_date: { type: string, format: date }
+        sex: { type: string, enum: [F, M, X] }
+    PatientPatch:
+      type: object
+      minProperties: 1
+      properties:
+        medical_record_number: { type: string, minLength: 1, maxLength: 50 }
+        document_number: { type: string, nullable: true, maxLength: 30 }
+        family_name: { type: string, minLength: 1, maxLength: 120 }
+        given_name: { type: string, minLength: 1, maxLength: 120 }
+        birth_date: { type: string, format: date }
+        sex: { type: string, enum: [F, M, X] }
+    Patient:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/PatientInput'
+    PatientPage:
+      type: object
+      required: [data, page, page_size, total]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Patient' } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    OrderInput:
+      type: object
+      required: [patient_id, ordered_at, origin_id, service_id]
+      properties:
+        patient_id: { type: string, format: uuid }
+        ordered_at: { type: string, format: date-time }
+        origin_id: { type: string, format: uuid }
+        service_id: { type: string, format: uuid }
+        clinician_id: { type: string, format: uuid, nullable: true }
+        clinical_notes: { type: string, nullable: true, maxLength: 4000 }
+    OrderPatch:
+      type: object
+      minProperties: 1
+      properties:
+        ordered_at: { type: string, format: date-time }
+        origin_id: { type: string, format: uuid }
+        service_id: { type: string, format: uuid }
+        clinician_id: { type: string, format: uuid, nullable: true }
+        clinical_notes: { type: string, nullable: true, maxLength: 4000 }
+    Order:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/OrderInput'
+        - type: object
+          required: [order_number, status, items]
+          properties:
+            order_number: { type: string, pattern: '^\d{8}-\d{6}$' }
+            status: { type: string, enum: [DRAFT, REGISTERED, CANCELLED, CLOSED] }
+            items: { type: array, items: { $ref: '#/components/schemas/OrderItem' } }
+    OrderPage:
+      type: object
+      required: [data, page, page_size, total]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Order' } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    OrderItemInput:
+      type: object
+      required: [exam_id, specimen_type_id]
+      properties:
+        exam_id: { type: string, format: uuid }
+        specimen_type_id: { type: string, format: uuid }
+        collection_at: { type: string, format: date-time, nullable: true }
+        specimen_notes: { type: string, nullable: true, maxLength: 2000 }
+        location: { type: string, maxLength: 250 }
+    OrderItem:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/OrderItemInput'
+        - type: object
+          required: [lab_order_id, item_number, barcode, status, events]
+          properties:
+            lab_order_id: { type: string, format: uuid }
+            item_number: { type: integer, minimum: 1 }
+            barcode: { type: string, maxLength: 100 }
+            received_at: { type: string, format: date-time, nullable: true }
+            destination_id: { type: string, format: uuid, nullable: true }
+            rejection_reason: { type: string, nullable: true }
+            status: { type: string, enum: [REGISTERED, COLLECTED, RECEIVED, IN_PROCESS, RESULT_SAVED, PRELIMINARY_VALIDATED, FINAL_VALIDATED, REJECTED, CANCELLED] }
+            events: { type: array, items: { $ref: '#/components/schemas/WorkflowEvent' } }
+    CollectSpecimenInput:
+      type: object
+      required: [collection_at]
+      properties:
+        collection_at: { type: string, format: date-time }
+        specimen_notes: { type: string, nullable: true, maxLength: 2000 }
+        location: { type: string, nullable: true, maxLength: 250 }
+    ReceiveSpecimenInput:
+      type: object
+      required: [received_at, destination_id]
+      properties:
+        received_at: { type: string, format: date-time }
+        destination_id: { type: string, format: uuid }
+        collection_at: { type: string, format: date-time, nullable: true }
+        specimen_notes: { type: string, nullable: true, maxLength: 2000 }
+        location: { type: string, nullable: true, maxLength: 250 }
+    ReasonInput:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 5, maxLength: 2000 }
+    WorkflowEvent:
+      type: object
+      required: [id, order_item_id, event_type, occurred_at]
+      properties:
+        id: { type: string, format: uuid }
+        order_item_id: { type: string, format: uuid }
+        event_type: { type: string }
+        occurred_at: { type: string, format: date-time }
+        performed_by: { type: string, format: uuid, nullable: true }
+        details: { type: object, nullable: true }
+    ResultValueInput:
+      type: object
+      required: [parameter_definition_id]
+      properties:
+        parameter_definition_id: { type: string, format: uuid }
+        value_text: { type: string, nullable: true, maxLength: 10000 }
+        value_code: { type: string, nullable: true, maxLength: 250 }
+        observed_at: { type: string, format: date-time, nullable: true }
+    ResultSaveInput:
+      type: object
+      required: [values]
+      properties:
+        values:
+          type: array
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/ResultValueInput'
+        ready_for_validation: { type: boolean, default: false }
+    ResultParameter:
+      type: object
+      required:
+        - parameter_definition_id
+        - code
+        - name
+        - value_type
+        - display_order
+        - is_required
+      properties:
+        parameter_definition_id: { type: string, format: uuid }
+        code: { type: string }
+        name: { type: string }
+        section: { type: string, nullable: true }
+        value_type: { type: string, enum: [TEXT, LONG_TEXT, SELECT, DATE, DATETIME] }
+        options_schema:
+          nullable: true
+          oneOf:
+            - { type: array, items: { type: string } }
+            - { type: object }
+        methodology: { type: string, nullable: true }
+        unit: { type: string, nullable: true }
+        reference_low: { type: number, nullable: true }
+        reference_high: { type: number, nullable: true }
+        reference_text: { type: string, nullable: true }
+        display_order: { type: integer, minimum: 1 }
+        is_required: { type: boolean }
+        value_text: { type: string, nullable: true }
+        value_code: { type: string, nullable: true }
+        observed_at: { type: string, format: date-time, nullable: true }
+    Result:
+      type: object
+      required: [order_item_id, status, values]
+      properties:
+        id: { type: string, format: uuid, nullable: true }
+        order_item_id: { type: string, format: uuid }
+        status: { type: string, enum: [NOT_STARTED, IN_PROCESS, RESULT_SAVED, PRELIMINARY_VALIDATED, FINAL_VALIDATED] }
+        saved_at: { type: string, format: date-time, nullable: true }
+        saved_by: { type: string, format: uuid, nullable: true }
+        preliminary_at: { type: string, format: date-time, nullable: true }
+        preliminary_by: { type: string, format: uuid, nullable: true }
+        final_at: { type: string, format: date-time, nullable: true }
+        final_by: { type: string, format: uuid, nullable: true }
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultParameter'
+    TimestampedCatalog:
+      type: object
+      required: [id, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    CatalogInput:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50, pattern: '^[A-Za-z0-9_-]+$' }
+        name: { type: string, minLength: 2, maxLength: 120 }
+        is_active: { type: boolean, default: true }
+    CatalogPatch:
+      type: object
+      minProperties: 1
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50, pattern: '^[A-Za-z0-9_-]+$' }
+        name: { type: string, minLength: 2, maxLength: 120 }
+        is_active: { type: boolean }
+    CatalogItem:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/CatalogInput'
+    LaboratoryAreaPatch:
+      allOf:
+        - $ref: '#/components/schemas/CatalogPatch'
+        - type: object
+          properties:
+            section: { type: string, minLength: 2, maxLength: 80 }
+    LaboratoryArea:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/LaboratoryAreaInput'
+        - type: object
+          required: [is_active]
+          properties:
+            is_active: { type: boolean }
+    ClinicianInput:
+      type: object
+      required: [code, family_name, given_name]
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50 }
+        family_name: { type: string, minLength: 1, maxLength: 120 }
+        given_name: { type: string, minLength: 1, maxLength: 120 }
+        email: { type: string, format: email, nullable: true, maxLength: 254 }
+        is_active: { type: boolean, default: true }
+    ClinicianPatch:
+      type: object
+      minProperties: 1
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50 }
+        family_name: { type: string, minLength: 1, maxLength: 120 }
+        given_name: { type: string, minLength: 1, maxLength: 120 }
+        email: { type: string, format: email, nullable: true, maxLength: 254 }
+        is_active: { type: boolean }
+    Clinician:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/ClinicianInput'
+    SpecimenTypeInput:
+      allOf:
+        - $ref: '#/components/schemas/CatalogInput'
+        - type: object
+          required: [container_id]
+          properties:
+            container_id: { type: string, format: uuid }
+    SpecimenTypePatch:
+      allOf:
+        - $ref: '#/components/schemas/CatalogPatch'
+        - type: object
+          properties:
+            container_id: { type: string, format: uuid }
+    SpecimenType:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/SpecimenTypeInput'
+    ExamCatalogInput:
+      type: object
+      required: [code, name, laboratory_area_id]
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50 }
+        name: { type: string, minLength: 2, maxLength: 180 }
+        external_code: { type: string, nullable: true, maxLength: 80 }
+        barcode_suffix: { type: string, nullable: true, maxLength: 30 }
+        laboratory_area_id: { type: string, format: uuid }
+        sends_to_analyzer: { type: boolean, default: false }
+        requires_colony_count: { type: boolean, default: false }
+        is_active: { type: boolean, default: true }
+    ExamCatalogPatch:
+      type: object
+      minProperties: 1
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50 }
+        name: { type: string, minLength: 2, maxLength: 180 }
+        external_code: { type: string, nullable: true, maxLength: 80 }
+        barcode_suffix: { type: string, nullable: true, maxLength: 30 }
+        laboratory_area_id: { type: string, format: uuid }
+        sends_to_analyzer: { type: boolean }
+        requires_colony_count: { type: boolean }
+        is_active: { type: boolean }
+    ExamCatalog:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/ExamCatalogInput'
+    ParameterDefinitionInput:
+      type: object
+      required: [code, name, value_type]
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50 }
+        name: { type: string, minLength: 2, maxLength: 180 }
+        section: { type: string, nullable: true, maxLength: 120 }
+        value_type: { type: string, enum: [TEXT, LONG_TEXT, SELECT, DATE, DATETIME] }
+        options_schema:
+          nullable: true
+          oneOf:
+            - { type: array, items: { type: string } }
+            - { type: object }
+        methodology: { type: string, nullable: true, maxLength: 250 }
+        unit: { type: string, nullable: true, maxLength: 80 }
+        reference_low: { type: number, nullable: true }
+        reference_high: { type: number, nullable: true }
+        reference_text: { type: string, nullable: true }
+        is_active: { type: boolean, default: true }
+    ParameterDefinitionPatch:
+      type: object
+      minProperties: 1
+      properties:
+        code: { type: string, minLength: 2, maxLength: 50 }
+        name: { type: string, minLength: 2, maxLength: 180 }
+        section: { type: string, nullable: true, maxLength: 120 }
+        value_type: { type: string, enum: [TEXT, LONG_TEXT, SELECT, DATE, DATETIME] }
+        options_schema:
+          nullable: true
+          oneOf:
+            - { type: array, items: { type: string } }
+            - { type: object }
+        methodology: { type: string, nullable: true, maxLength: 250 }
+        unit: { type: string, nullable: true, maxLength: 80 }
+        reference_low: { type: number, nullable: true }
+        reference_high: { type: number, nullable: true }
+        reference_text: { type: string, nullable: true }
+        is_active: { type: boolean }
+    ParameterDefinition:
+      allOf:
+        - $ref: '#/components/schemas/TimestampedCatalog'
+        - $ref: '#/components/schemas/ParameterDefinitionInput'
+    ExamSpecimenTypeInput:
+      type: object
+      properties:
+        is_favorite: { type: boolean, default: false }
+    ExamParameterInput:
+      type: object
+      required: [display_order]
+      properties:
+        display_order: { type: integer, minimum: 1 }
+        external_code: { type: string, nullable: true, maxLength: 80 }
+        is_required: { type: boolean, default: false }
+    Error:
+      type: object
+      required: [code, message, traceId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        traceId: { type: string }
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+    IsolateInput:
+      type: object
+      required: [organism_id]
+      properties:
+        organism_id: { type: string, format: uuid }
+        colony_count_option_id: { type: string, format: uuid, nullable: true }
+        phenotype: { type: string, maxLength: 500, nullable: true }
+        comment: { type: string, maxLength: 4000, nullable: true }
+        ast_panel_id: { type: string, format: uuid, nullable: true }
+    IsolatePatch:
+      type: object
+      minProperties: 1
+      properties:
+        organism_id: { type: string, format: uuid }
+        colony_count_option_id: { type: string, format: uuid, nullable: true }
+        phenotype: { type: string, maxLength: 500, nullable: true }
+        comment: { type: string, maxLength: 4000, nullable: true }
+        ast_panel_id: { type: string, format: uuid, nullable: true }
+    Isolate:
+      type: object
+      required: [id, result_id, organism_id, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        result_id: { type: string, format: uuid }
+        organism_id: { type: string, format: uuid }
+        colony_count_option_id: { type: string, format: uuid, nullable: true }
+        phenotype: { type: string, nullable: true }
+        comment: { type: string, nullable: true }
+        ast_panel_id: { type: string, format: uuid, nullable: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    AntimicrobialResultInput:
+      type: object
+      required: [antibiotic_id, interpretation]
+      properties:
+        antibiotic_id: { type: string, format: uuid }
+        mic_value: { type: string, maxLength: 80, nullable: true }
+        interpretation: { type: string, enum: [S, SDD, I, R, POS, NEG, NA] }
+        method: { type: string, maxLength: 80, nullable: true }
+        is_reportable: { type: boolean, default: true }
+    AntimicrobialResultPatch:
+      type: object
+      minProperties: 1
+      properties:
+        mic_value: { type: string, maxLength: 80, nullable: true }
+        interpretation: { type: string, enum: [S, SDD, I, R, POS, NEG, NA] }
+        method: { type: string, maxLength: 80, nullable: true }
+        is_reportable: { type: boolean }
+    AntimicrobialResult:
+      type: object
+      required: [id, isolate_id, antibiotic_id, interpretation, is_reportable, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        isolate_id: { type: string, format: uuid }
+        antibiotic_id: { type: string, format: uuid }
+        mic_value: { type: string, nullable: true }
+        interpretation: { type: string }
+        method: { type: string, nullable: true }
+        is_reportable: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }

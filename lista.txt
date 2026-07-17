@@ -1,0 +1,2540 @@
+var opciones = Array.from($0.options).map(opt => opt.text.trim());
+var textoPlano = opciones.join('\n');
+copy(textoPlano);
+console.log("¡Lista copiada al portapapeles en formato texto!");
+
+Abiotrophia defectiva
+Abiotrophia sp.
+Absidia corimbifera
+Absidia sp.
+Acanthamoeba sp.
+Acetivibrio sp.
+Acetobacterium sp.
+Acholeplasma sp.
+Achromobacter denitrificans
+Achromobacter piechaudii
+Achromobacter sp.
+Achromobacter xylosoxidans
+Acid fast bacilli
+Acidaminococcus fermentans
+Acidaminococcus sp.
+Acidovorax delafieldii
+Acidovorax facilis
+Acidovorax sp.
+Acidovorax temperans
+Acinetobacter baumannii
+Acinetobacter baumannii complex
+Acinetobacter baylyi
+Acinetobacter calcoaceticus
+Acinetobacter calcoaceticus
+Acinetobacter calcoaceticus-baumannii complex
+Acinetobacter dijkshoorniae
+Acinetobacter haemolyticus
+Acinetobacter johnsonii
+Acinetobacter junii
+Acinetobacter lwoffii
+Acinetobacter nosocomialis
+Acinetobacter parvus
+Acinetobacter pittii
+Acinetobacter radioresistens
+Acinetobacter schindleri
+Acinetobacter seifertti
+Acinetobacter spp
+Acinetobacter ursingii
+Acremonium falciforme
+Acremonium kiliense
+Acremonium recifei
+Acremonium sp.
+Actinobacillus equuli
+Actinobacillus lignieresii
+Actinobacillus pleuropneumoniae
+Actinobacillus seminis
+Actinobacillus sp.
+Actinobacillus suis
+Actinobacillus ureae
+Actinobaculum sp.
+Actinobaculum suis
+Actinomadura madurae
+Actinomadura sp.
+Actinomyces bernardiae
+Actinomyces bovis
+Actinomyces canis
+Actinomyces europaeus
+Actinomyces georgiae
+Actinomyces gerencseriae
+Actinomyces israelii
+Actinomyces meyeri
+Actinomyces naeslundii
+Actinomyces neuii
+Actinomyces neuii ss. anitratus
+Actinomyces neuii ss. neuii
+Actinomyces odontolyticus
+Actinomyces pyogenes-like bacteria
+Actinomyces radingae
+Actinomyces sp.
+Actinomyces turicensis
+Actinomyces viscosus
+Actinotignum schaalii
+Adenovirus
+Aeribacillus pallidus
+Aerococcus sp.
+Aerococcus urinae
+Aerococcus viridans
+Aerococcus viridans var. homari
+Aeromonas dhakensis
+Aeromonas enteropelogenes
+Aeromonas eucrenophila
+Aeromonas hydrophila
+Aeromonas hydrophila/punctata(caviae)
+Aeromonas jandaei
+Aeromonas media
+Aeromonas punctata
+Aeromonas punctata (caviae)
+Aeromonas salmonicida
+Aeromonas schubertii
+Aeromonas sobria
+Aeromonas veronii
+Aeromonas veronii biovar sobria
+Aeromonas veronii biovar veronii
+Afipia broomeae
+Afipia clevelandensis
+Afipia felis
+Afipia sp.
+Agchylostoma duodenale
+Aggregatibacter actinomycetemcomitans
+Aggregatibacter aphrophilus
+Aggregatibacter segnis
+Aggregatibacter sp.
+Agrobacterium sp.
+Ajellomyces capsulatus
+Ajellomyces crescens
+Ajellomyces sp.
+Alcaligenes faecalis ssp faecalis
+Alcaligenes sp.
+Alicyclobacillus acidocaldarius
+Alicyclobacillus acidoterrestris
+Alicyclobacillus acidoterrestris/acidocaldarius
+Aliivibrio salmonicida
+Aliivibrio sp.
+Alistipes putredinis
+Alloiococcus otitis
+Alloiococcus sp.
+Alternaria alternata
+Alternaria sp.
+Alteromonas hanedai
+Alteromonas sp.
+Alysiella sp.
+Anaerobic Gram negative cocci
+Anaerobic Gram negative coccobacilli
+Anaerobic Gram negative organisms
+Anaerobic Gram negative rods
+Anaerobic Gram positive cocci
+Anaerobic Gram positive coccobacilli
+Anaerobic Gram positive organisms
+Anaerobic Gram positive rods
+Anaerobic Gram variable cocci
+Anaerobic Gram variable coccobacilli
+Anaerobic Gram variable rods
+Anaerobic organisms
+Anaerobic streptococci
+Anaerobiospirillum sp.
+Anaerobiospirillum succiniciproducens
+Anaerococcus degeneri
+Anaerococcus hydrogenalis
+Anaerococcus lactolyticus
+Anaerococcus prevotii
+Anaerococcus tetradius
+Anaerococcus vaginalis
+Anaerorhabdus furcosa
+Anaerorhabdus sp.
+Anaerovibrio sp.
+Anaplasma centrale
+Anaplasma marginale
+Anaplasma mesaeterum
+Anaplasma ovis
+Anaplasma phagocytophilum
+Anaplasma sp.
+Ancylostoma braziliense
+Ancylostoma caninum
+Ancylostoma sp.
+Aneurinibacillus aneurinilyticus
+Aneurinibacillus thermoaerophilus
+Angiostrongylus cantonensis
+Angiostrongylus costaricensis
+Angiostrongylus sp.
+Anisakis sp.
+Aphanoascus fulvescens
+Aphanoascus sp.
+Apiotrichum montevideense
+Apiotrichum sp.
+Arcanobacterium haemolyticum
+Arcanobacterium sp.
+Arcobacter butzleri
+Arcobacter cryaerophilus
+Arcobacter nitrofigilis
+Arcobacter sp.
+Arthrinium sp.
+Arthrobacter cumminsii
+Arthrobacter sp.
+Arthroderma borellii
+Arthroderma cajetani
+Arthroderma cookiellum
+Arthroderma corniculatum
+Arthroderma fulvum
+Arthroderma grubyi
+Arthroderma gypseum
+Arthroderma incurvatum
+Arthroderma obtusum
+Arthroderma otae
+Arthroderma persicolor
+Arthroderma racemosum
+Arthroderma sp.
+Arthrographis kalrae
+Arthrographis sp.
+Arxiozyma sp.
+Arxiozyma telluris
+Asaccharospora irregularis
+Ascaris lumbricoides
+Ascaris sp.
+Aspergillus clavatus
+Aspergillus fischerianus
+Aspergillus flavipes
+Aspergillus flavus
+Aspergillus fumigatus
+Aspergillus fumigatus var. phialiseptus
+Aspergillus glaucus complex
+Aspergillus nidulans
+Aspergillus niger
+Aspergillus restrictus
+Aspergillus sp.
+Aspergillus sydowii
+Aspergillus terreus
+Aspergillus versicolor
+Astrovirus
+Atopobium minutum
+Atopobium parvulum
+Atopobium rimae
+Atopobium sp.
+Atopobium vaginae
+Aureobacterium sp.
+Aureobasidium pullulans (H. dematioides)
+Aureobasidium sp.
+Avibacterium avium
+Avibacterium gallinarum
+Avibacterium paragallinarum
+Avibacterium sp.
+Avibacterium volantium
+Azospirillum brasilense
+Babesia bigemina
+Babesia bovis
+Babesia divergens
+Babesia sp.
+Bacillus amyloliquefaciens
+Bacillus anthracis
+Bacillus atrophaeus
+Bacillus badius
+Bacillus cereus
+Bacillus cereus/thuringiensis/mycoides
+Bacillus circulans
+Bacillus clausii
+Bacillus coagulans
+Bacillus farraginis
+Bacillus firmus
+Bacillus fordii
+Bacillus fortis
+Bacillus galactosidilyticus
+Bacillus lentus
+Bacillus licheniformis
+Bacillus megaterium
+Bacillus mycoides
+Bacillus pumilus
+Bacillus ruris
+Bacillus simplex
+Bacillus smithii
+Bacillus sp.
+Bacillus sporothermodurans
+Bacillus subtilis
+Bacillus subtilis/amyloliquefaciens/atrophaeus
+Bacillus thermoamylovorans
+Bacillus thuringiensis
+Bacillus vallismortis
+Bacteroides buccalis
+Bacteroides caccae
+Bacteroides capillosus
+Bacteroides coagulans
+Bacteroides corporis
+Bacteroides eggerthii
+Bacteroides endodontalis
+Bacteroides forsythus
+Bacteroides fragilis
+Bacteroides fragilis group
+Bacteroides gracilis
+Bacteroides levii
+Bacteroides loescheii
+Bacteroides nordii
+Bacteroides ochraceus
+Bacteroides ovatus
+Bacteroides pneumosintes
+Bacteroides pyogenes
+Bacteroides ruminicola
+Bacteroides ruminicola ss. brevis
+Bacteroides sp.
+Bacteroides splanchnicus
+Bacteroides stercoris
+Bacteroides thetaiotaomicron
+Bacteroides uniformis
+Bacteroides vulgatus
+Bacteroides xylanisolvens
+Balantidium coli
+Balantidium sp.
+Bartonella bacilliformis
+Bartonella elizabethae
+Bartonella henselae
+Bartonella quintana
+Bartonella sp.
+Bartonella vinsonii
+Basidiobolus ranarum
+Basidiobolus sp.
+Beauveria sp.
+Bergeriella denitrificans
+Bergeyella sp.
+Bergeyella zoohelcum
+Bibersteinia trehalosi
+Bifidobacterium adolescentis
+Bifidobacterium bifidum
+Bifidobacterium breve
+Bifidobacterium catenulatum
+Bifidobacterium coryneforme
+Bifidobacterium dentium
+Bifidobacterium infantis
+Bifidobacterium longum
+Bifidobacterium magnum
+Bifidobacterium pseudolongum
+Bifidobacterium spp
+Bilophila sp.
+Bilophila wadsworthia
+Bipolaris australiensis
+Bipolaris hawaiiensis
+Bipolaris sp.
+Bipolaris spicifera
+Bisifusarium dimerum
+BK virus
+Blastocystis hominis
+Blastocystis sp.
+Blastomyces dermatitidis
+Blastomyces sp.
+Blastoschizomyces sp.
+Blautia hansenii
+Blautia producta
+Bordetella avium
+Bordetella bronchiseptica
+Bordetella hinzii
+Bordetella holmesii
+Bordetella parapertussis
+Bordetella pertussis
+Bordetella sp.
+Bordetella trematum
+Bordetella-like species
+Borrelia afzelii
+Borrelia anserina
+Borrelia burgdorferi
+Borrelia duttonii
+Borrelia garinii
+Borrelia hermsii
+Borrelia parkeri
+Borrelia recurrentis
+Borrelia sp.
+Borrelia suilla
+Borrelia turicatae
+Brachyspira
+Brachyspira aalborgi
+Brachyspira alvinipulli
+Brachyspira hyodysenteriae
+Brachyspira intermedia
+Brachyspira pilosicoli
+Brachyspira sp.
+Branhamella sp.
+Brevibacillus agri
+Brevibacillus borstelensis
+Brevibacillus brevis
+Brevibacillus brevis/(Brevibacillus agri)
+Brevibacillus centrosporus
+Brevibacillus choshinensis
+Brevibacillus invocatus
+Brevibacillus laterosporus
+Brevibacillus parabrevis
+Brevibacterium acetylicum
+Brevibacterium casei
+Brevibacterium epidermidis
+Brevibacterium iodinum
+Brevibacterium linens
+Brevibacterium luteolum
+Brevibacterium mcbrellneri
+Brevibacterium sp.
+Brevundimonas diminuta
+Brevundimonas diminuta / vesicularis
+Brevundimonas sp.
+Brevundimonas vesicularis
+Brochothrix sp.
+Brochothrix thermosphacta
+Brucella melintensis biovar ovis
+Brucella melitensis
+Brucella melitensis biovar abortus
+Brucella melitensis biovar canis
+Brucella melitensis biovar suis
+Brucella sp.
+Brugia malayi
+Brugia sp.
+Brugia timori
+Budvicia aquatica
+Budvicia sp.
+Burkholderia ambifaria (genomovar VII)
+Burkholderia anthina (genomovar VIII)
+Burkholderia cenocepacia (genomovar III)
+Burkholderia cepacia
+Burkholderia cepacia complex
+Burkholderia cepacia group
+Burkholderia dolosa (genomovar VI)
+Burkholderia gladioli
+Burkholderia mallei
+Burkholderia multivorans
+Burkholderia multivorans (genomovar II)
+Burkholderia pseudomallei
+Burkholderia pyrrocinia (genomovar IX)
+Burkholderia sp.
+Burkholderia stabilis
+Burkholderia stabilis (genomovar IV)
+Burkholderia ubonensis (genomovar X)
+Burkholderia vietnamiensis
+Burkholderia vietnamiensis (genomovar V)
+Buttiauxella agrestis
+Buttiauxella ferragutiae
+Buttiauxella gaviniae
+Buttiauxella noackiae
+Buttiauxella sp.
+Butyrivibrio sp.
+Calodium hepaticum
+Calymmatobacterium granulomatis
+Calymmatobacterium sp.
+Campylobacter coli
+Campylobacter curvus
+Campylobacter fennelliae
+Campylobacter fetus ss. fetus
+Campylobacter fetus ss. venerealis
+Campylobacter fetus ssp fetus
+Campylobacter hyointestinalis
+Campylobacter jejuni
+Campylobacter jejuni biotype 1
+Campylobacter jejuni biotype 2
+Campylobacter jejuni ss. doylei
+Campylobacter jejuni ssp jejuni
+Campylobacter lari
+Campylobacter mucosalis
+Campylobacter rectus
+Campylobacter showae
+Campylobacter sp.
+Campylobacter sputorum
+Campylobacter sputorum ss. bubulus
+Campylobacter upsaliensis
+Campylobacter ureolyticus
+Candida africana
+Candida albicans
+Candida albicans complex
+Candida auris
+Candida blankii
+Candida boidinii
+Candida bracarensis
+Candida carpophila
+Candida catenulata
+Candida ciferrii
+Candida colliculosa
+Candida dubliniensis
+Candida duobushaemulonii
+Candida fabianii
+Candida famata
+Candida fermentati
+Candida freyschussii
+Candida glabrata
+Candida glabrata complex
+Candida guilliermondii
+Candida haemulonii
+Candida haemulonii complex
+Candida haemulonii var vulnera
+Candida humicola
+Candida inconspicua
+Candida inconspicua/lambica
+Candida intermedia
+Candida kefyr
+Candida krusei
+Candida lambica
+Candida lipolytica
+Candida lusitaniae
+Candida magnoliae
+Candida metapsilosis
+Candida nivariensis
+Candida norvegensis
+Candida orthopsilosis
+Candida palmioleophila
+Candida parapsilosis
+Candida parapsilosis complex
+Candida pararugosa
+Candida pelliculosa
+Candida pseudohaemulonii
+Candida pseudorugosa
+Candida pulcherrima
+Candida rugosa
+Candida sake
+Candida sake/(C.famata/C.lipolytica)
+Candida sp.
+Candida spherica
+Candida stellatoidea
+Candida tenuis
+Candida tropicalis
+Candida utilis
+Candida vini
+Candida viswanathii
+Candida zeylanoides
+Candida, not albicans
+Candidatus Hepatobacter penaei
+Candidatus Hepatobacter sp.
+Candidatus Xenohaliotis californiensis
+Candidatus Xenohaliotis sp.
+Capillaria philippinensis
+Capillaria sp.
+Capnocytophaga gingivalis
+Capnocytophaga granulosa
+Capnocytophaga haemolytica
+Capnocytophaga spp
+Capnocytophaga sputigena
+Cardiobacterium hominis
+Cardiobacterium sp.
+Caryophanon sp.
+Catonella morbi
+Catonella sp.
+CDC Coryneform Group A-4
+CDC Coryneform Group F-1
+CDC Coryneform Group G-2
+CDC Coryneform Group I-1
+CDC DF-2
+CDC DF-2-like
+CDC DF-3
+CDC EF-1
+CDC EF-19
+CDC EF-22
+CDC EF-4a
+CDC EF-4b
+CDC Enteric Group 45
+CDC Enteric Group 57
+CDC Enteric Group 58
+CDC Enteric Group 60
+CDC Enteric Group 68
+CDC Enteric Group 69
+CDC Enteric Group 90
+CDC EO-3
+CDC HB-5
+CDC IIc
+CDC IIe
+CDC IIf
+CDC IIh
+CDC IIi
+CDC IVc
+CDC M-2
+CDC M-3
+CDC M-4f
+CDC Vb-3
+Cedecea davisae
+Cedecea lapagei
+Cedecea neteri
+Cedecea sp.
+Cedecea sp. 3
+Cedecea sp. 5
+Cellulomonas sp.
+Cellulomonas turbata
+Cellulosimicrobium cellulans
+Cellulosimicrobium sp.
+Centipeda periodontii
+Centipeda sp.
+Cestode
+Cetobacterium somerae
+Cetobacterium sp.
+Chaetomium sp.
+Chikungunya virus
+Chilomastix mesnili
+Chilomastix sp.
+Chlamydia abortus
+Chlamydia felis
+Chlamydia pneumoniae
+Chlamydia psittaci
+Chlamydia sp.
+Chlamydia trachomatis
+Chlamydophila pecorum
+Chlamydophila sp.
+Chromobacterium sp.
+Chromobacterium violaceum
+Chryseobacterium arthrosphaerae
+Chryseobacterium gleum
+Chryseobacterium indologenes
+Chryseobacterium sp.
+Chryseomonas sp.
+Chrysosporium parvum var. crescens
+Chrysosporium sp.
+Cimex (bed bugs) sp.
+Circinella sp.
+Citrobacter amalonaticus
+Citrobacter amalonaticus group
+Citrobacter braakii
+Citrobacter diversus-levinea
+Citrobacter farmeri
+Citrobacter freundii
+Citrobacter genomospecies 10
+Citrobacter genomospecies 11
+Citrobacter genomospecies 9
+Citrobacter koseri
+Citrobacter sedlakii
+Citrobacter sp.
+Citrobacter werkmanii
+Citrobacter youngae
+Cittotaenia denticulata
+Cittotaenia sp.
+Cladophialophora bantiana
+Cladophialophora boppii
+Cladophialophora carrionii
+Cladophialophora devriesii
+Cladophialophora emmonsii
+Cladophialophora sp.
+Cladosporium sp.
+Cladosporium werneckii
+Clavibacter michiganense ss. michiganense
+Clavibacter michiganensis
+Clavibacter sp.
+Clavispora sp.
+Clo-1
+Clonorchis sinensis
+Clonorchis sp.
+Clostridioides difficile, toxin-nonproducing
+Clostridioides difficile, toxin-producing
+Clostridioides sp.
+Clostridium absonum
+Clostridium acetobutylicum
+Clostridium aminovalericum
+Clostridium argentinense
+Clostridium baratii
+Clostridium beijerinckii
+Clostridium botulinum
+Clostridium butyricum
+Clostridium cadaveris
+Clostridium carnis
+Clostridium chauvoei
+Clostridium clostridioforme
+Clostridium cochlearium
+Clostridium colinum
+Clostridium difficile
+Clostridium fallax
+Clostridium ghoni
+Clostridium glycolicum
+Clostridium group
+Clostridium haemolyticum
+Clostridium hastiforme
+Clostridium indolis
+Clostridium innocuum
+Clostridium malenominatum
+Clostridium nexile
+Clostridium novyi
+Clostridium novyi type A
+Clostridium novyi type B
+Clostridium oroticum
+Clostridium paraputrificum
+Clostridium perfringens
+Clostridium piliforme
+Clostridium putrefaciens
+Clostridium putrificum
+Clostridium ramosum
+Clostridium sartagoforme
+Clostridium scatologenes
+Clostridium septicum
+Clostridium sp.
+Clostridium sphenoides
+Clostridium sporogenes
+Clostridium sporosphaeroides
+Clostridium subterminale
+Clostridium symbiosum
+Clostridium tertium
+Clostridium tetani
+Coagulase negative Staphylococcus
+Coagulase positive Staphylococcus
+Coccidioides immitis
+Coccidioides sp.
+Collinsella aerofaciens
+Comamonas sp.
+Comamonas testosteroni
+Conidiobolus coronatus
+Conidiobolus sp.
+Coniochaeta hoffmannii
+Coniochaeta mutabilis
+Contaminated specimen
+Contracaecum sp.
+Coprococcus sp.
+Coronavirus
+Corynebacterium accolens
+Corynebacterium accolens/tuberculostearicum
+Corynebacterium afermentans
+Corynebacterium amycolatum
+Corynebacterium amycolatum/xerosis
+Corynebacterium argentoratense
+Corynebacterium aurimucosum
+Corynebacterium auris
+Corynebacterium bovis
+Corynebacterium confusum
+Corynebacterium coyleae
+Corynebacterium cystitidis
+Corynebacterium diphtheriae
+Corynebacterium equi
+Corynebacterium freneyi
+Corynebacterium glucuronolyticum
+Corynebacterium glutamicum
+Corynebacterium group F-1
+Corynebacterium jeikeium
+Corynebacterium kroppenstedtii
+Corynebacterium kutscheri
+Corynebacterium macginleyi
+Corynebacterium mastitidis
+Corynebacterium matruchotii
+Corynebacterium minutissimum
+Corynebacterium mucifaciens
+Corynebacterium mycetoides
+Corynebacterium nigricans
+Corynebacterium pilosum
+Corynebacterium propinquum
+Corynebacterium pseudodiphtheriticum
+Corynebacterium pseudotuberculosis
+Corynebacterium renale
+Corynebacterium simulans
+Corynebacterium sp.
+Corynebacterium sp. (diphtheroids)
+Corynebacterium striatum
+Corynebacterium tuberculostearicum
+Corynebacterium ulcerans
+Corynebacterium urealyticum
+Corynebacterium xerosis
+Cosenzaea myxofaciens
+COVID-19
+Cowdria ruminantium
+Coxiella burnetii
+Coxiella sp.
+Coxsackievirus
+Cristispira sp.
+Cronobacter dublinensis ssp dublinensis
+Cronobacter dublinensis ssp lactaridi
+Cronobacter dublinensis ssp lausannensis
+Cronobacter malonaticus
+Cronobacter muytjensii
+Cronobacter sakazakii
+Cronobacter sakazakii group
+Cronobacter sp.
+Cronobacter turicensis
+Cronobacter universalis
+Cryptococcus albidus
+Cryptococcus albidus var. diffluens
+Cryptococcus ater
+Cryptococcus cereanus
+Cryptococcus deuterogattii
+Cryptococcus gastricus
+Cryptococcus gattii
+Cryptococcus lactativorus
+Cryptococcus laurentii
+Cryptococcus luteolus
+Cryptococcus melibiosum
+Cryptococcus neoformans
+Cryptococcus sp.
+Cryptococcus terreus
+Cryptococcus uniguttulatus
+Cryptosporidium parvum
+Cryptosporidium sp.
+Cunninghamella bertholletiae
+Cunninghamella sp.
+Cupriavidus pauculus
+Cupriavidus sp.
+Curvularia sp.
+Cutibacterium sp.
+Cyberlindnera sp.
+Cyclospora cayetanensis
+Cyclospora sp.
+Cylindrocarpon cyanescens
+Cylindrocarpon lichenicola
+Cylindrocarpon sp.
+Cytomegalovirus
+Debaryomyces sp.
+Deinococcus sp.
+Delftia acidovorans
+Delftia sp.
+Dendrostilbella sp.
+Dengue virus
+Dermabacter hominis
+Dermabacter sp.
+Dermacentor sp.
+Dermacoccus nishinomiyaensis
+Dermacoccus nishinomiyaensis/Kytococcus sedentarius
+Dermacoccus sp.
+Dermatophilus congolensis
+Dermatophilus sp.
+Dermatophyte
+Desulfobacter sp.
+Desulfobulbus sp.
+Desulfococcus sp.
+Desulfomonas pigra
+Desulfomonas sp.
+Desulfosarcina sp.
+Desulfovibrio desulfuricans ss. aestuarii
+Desulfovibrio desulfuricans ss. desulfuricans
+Desulfovibrio sp.
+Dialister sp.
+Dichelobacter nodosus
+Dichelobacter sp.
+Dientamoeba fragilis
+Dientamoeba sp.
+Dietzia spp
+Dipetalonema sp.
+Diphyllobothrium latum
+Diphyllobothrium sp.
+Dipodascus geotrichum
+Dipylidium caninum
+Dipylidium sp.
+Dirofilaria immitis
+Dirofilaria sp.
+Diutina sp.
+Dolosigranulum pigrum
+Dolosigranulum sp.
+Dracunculus medinensis
+Dracunculus sp.
+Drechslera sp.
+Echinococcus granulosus
+Echinococcus multilocularis
+Echinococcus sp.
+Echinostoma ilocanum
+Echinostoma sp.
+Echovirus
+Edwardsiella anguillarum
+Edwardsiella hoshinae
+Edwardsiella ictaluri
+Edwardsiella piscicida
+Edwardsiella sp.
+Edwardsiella tarda
+Eggerthella lenta
+Eggerthella sp.
+Eggerthia catenaformis
+Ehrlichia canis
+Ehrlichia chaffeensis
+Ehrlichia sennetsu
+Ehrlichia sp.
+Eikenella corrodens
+Eikenella sp.
+Eimeria sp.
+Elizabethkingia anophelis
+Elizabethkingia meningoseptica
+Elizabethkingia sp.
+Empedobacter brevis
+Empedobacter sp.
+Encephalitozoon
+Encephalitozoon bieneusi
+Encephalitozoon intestinalis
+Encephalitozoon sp.
+Endolimax nana
+Endolimax sp.
+Entamoeba coli
+Entamoeba dispar
+Entamoeba gingivalis
+Entamoeba hartmanni
+Entamoeba histolytica
+Entamoeba polecki
+Entamoeba sp.
+Enterobacter aerogenes
+Enterobacter amnigenus
+Enterobacter asburiae
+Enterobacter cancerogenus
+Enterobacter catenibacterium
+Enterobacter cloacae
+Enterobacter cloacae
+Enterobacter cloacae complex
+Enterobacter cloacae ss. dissolvens
+Enterobacter cloacae ssp cloacae
+Enterobacter cloacae ssp dissolvens
+Enterobacter hormaechei
+Enterobacter kobei
+Enterobacter ludwigii
+Enterobacter nimipressuralis
+Enterobacter xiangfangensis
+Enterobius sp.
+Enterobius vermicularis
+Enterococcus asini
+Enterococcus avium
+Enterococcus casseliflavus
+Enterococcus cecorum
+Enterococcus columbae
+Enterococcus dispar
+Enterococcus durans
+Enterococcus faecalis
+Enterococcus faecium
+Enterococcus flavescens
+Enterococcus gallinarum
+Enterococcus gilvus
+Enterococcus hirae
+Enterococcus malodoratus
+Enterococcus mundtii
+Enterococcus pallens
+Enterococcus porcinus
+Enterococcus pseudoavium
+Enterococcus raffinosus
+Enterococcus saccharolyticus
+Enterococcus seriolicida
+Enterococcus solitarius
+Enterococcus sp.
+Enterococcus spp
+Enterococcus sulfureus
+Enterocytozoon sp.
+Enteromonas hominis
+Enteromonas sp.
+Enterovirus
+Epicoccum sp.
+Epidermophyton floccosum
+Epidermophyton sp.
+Epidermophyton stockdaleae
+Epstein-Barr virus
+Erwinia amylovora
+Erwinia carnegieana
+Erwinia carotovora
+Erwinia sp.
+Erysipelothrix rhusiopathiae
+Erysipelothrix sp.
+Escherichia blattae
+Escherichia coli
+Escherichia coli (alkalescens-dispar)
+Escherichia coli K99
+Escherichia coli O149:F4
+Escherichia coli O157
+Escherichia coli O1K1
+Escherichia coli O26
+Escherichia coli O2K2
+Escherichia coli O78K80
+Escherichia coli, attaching and effacing (AEEC)
+Escherichia coli, enteroaggregative (EAEC)
+Escherichia coli, enterohemorrhagic (EHEC)
+Escherichia coli, enteroinvasive (EIEC)
+Escherichia coli, enteropathogenic (EPEC)
+Escherichia coli, enterotoxigenic (ETEC)
+Escherichia coli, verocytotoxigenic (VTEC)
+Escherichia fergusonii
+Escherichia hermannii
+Escherichia sp.
+Escherichia vulneris
+Eubacterium alactolyticum
+Eubacterium brachy
+Eubacterium combesii
+Eubacterium contortum
+Eubacterium cylindroides
+Eubacterium limosum
+Eubacterium moniliforme
+Eubacterium nitritogenes
+Eubacterium nodatum
+Eubacterium rectale
+Eubacterium saburreum
+Eubacterium saphenum
+Eubacterium schtitka
+Eubacterium sp.
+Eubacterium sulci
+Eubacterium tenue
+Eubacterium timidum
+Eubacterium yurii ss. margaretiae
+Eubacterium yurii ss. yurii
+Ewingella americana
+Ewingella sp.
+Exiguobacterium sp.
+Exophiala dermatitidis
+Exophiala exophialae
+Exophiala jeanselmei
+Exophiala rostratum
+Exophiala sp.
+Exophiala spinifera
+Exserohilum sp.
+Facklamia hominis
+Faecalibacterium prausnitzii
+Fasciola hepatica
+Fasciola sp.
+Fasciolopsis buski
+Fasciolopsis sp.
+Fibrobacter sp.
+Fictibacillus gelatini
+Filifactor alocis
+Filifactor sp.
+Filifactor villosus
+Filobasidiella neoformans
+Filobasidiella neoformans var. bacillispora
+Filobasidiella sp.
+Finegoldia magna
+Finegoldia sp.
+Flavimonas sp.
+Flavobacterium branchiophilum
+Flavobacterium columnare
+Flavobacterium mizutaii
+Flavobacterium psychrophilum
+Flavobacterium sp.
+Fluoribacter bozemanae
+Fluoribacter dumoffii
+Fluoribacter gormanii
+Fluoribacter sp.
+Fonsecaea compacta
+Fonsecaea pedrosoi
+Fonsecaea sp.
+Francisella noatunensis
+Francisella novicida
+Francisella philomiragia
+Francisella sp.
+Francisella tularensis
+Francisella tularensis ss. holarctica
+Francisella tularensis ss. mediasiatica
+Francisella tularensis Type B
+Fungus
+Fusarium coeruleum
+Fusarium fujikuroi
+Fusarium pallidoroseum
+Fusarium solani
+Fusarium sp.
+Fusobacterium canifelinum
+Fusobacterium gonidiaformans
+Fusobacterium mortiferum
+Fusobacterium naviforme
+Fusobacterium necrogenes
+Fusobacterium necrophorum
+Fusobacterium necrophorum ss. funduliforme
+Fusobacterium nucleatum
+Fusobacterium nucleatum ss. fusiforme
+Fusobacterium nucleatum ss. polymorphum
+Fusobacterium nucleatum ss. vincentii
+Fusobacterium periodonticum
+Fusobacterium russii
+Fusobacterium sp.
+Fusobacterium ulcerans
+Fusobacterium varium
+Galactomyces geotrichum
+Galactomyces sp.
+Gallibacterium anatis
+Gallibacterium anatis biovar haemolytica
+Gallibacterium sp.
+Gardnerella sp.
+Gardnerella vaginalis
+GB virus C
+Gemella bergeri
+Gemella haemolysans
+Gemella morbillorum
+Gemella sanguinis
+Gemella sp.
+Geobacillus caldoxylosilyticus
+Geobacillus stearothermophilus
+Geobacillus thermodenitrificans
+Geobacillus thermoglucosidasius
+Geobacillus thermoglucosidasius/Geob.thermodenitrificans
+Geobacillus thermoleovorans
+Geobacillus toebii
+Geomyces pannorum
+Geomyces sp.
+Geotrichum beigelii
+Geotrichum klebahnii
+Geotrichum sp.
+Giardia lamblia
+Giardia sp.
+Gilmaniella sp.
+Gliocladium sp.
+Gliomastix sp.
+Globicatella sanguinis
+Globicatella sp.
+Globicatella sulfidifaciens
+Gnathostoma sp.
+Gnathostoma spinigerum
+Gordonia aichiensis
+Gordonia bronchialis
+Gordonia rubripertincta
+Gordonia sp.
+Gordonia spp
+Gordonia sputi
+Gordonia terrae
+Gram negative bacteria
+Gram negative cocci
+Gram negative coccobacilli
+Gram negative enteric organism
+Gram negative rods
+Gram positive bacteria
+Gram positive cocci
+Gram positive coccobacilli
+Gram positive rods
+Gram variable cocci
+Gram variable coccobacilli
+Gram variable rods
+Granulicatella adiacens
+Granulicatella elegans
+Granulicatella sp.
+Grimontia hollisae
+Haemobartonella canis
+Haemobartonella felis
+Haemonchus contortus
+Haemonchus sp.
+Haemophilus aegyptius
+Haemophilus ducreyi
+Haemophilus equigenitalis
+Haemophilus haemoglobinophilus
+Haemophilus haemolyticus
+Haemophilus influenzae
+Haemophilus influenzae (not typable)
+Haemophilus influenzae (not type b)
+Haemophilus influenzae (type b)
+Haemophilus paracuniculus
+Haemophilus parahaemolyticus
+Haemophilus parainfluenzae
+Haemophilus paraphrohaemolyticus
+Haemophilus parasuis
+Haemophilus sp.
+Hafnia alvei
+Hafnia paralvei
+Hafnia sp.
+Hallella seregens
+Hallella sp.
+Hamigera insecticola
+Hanseniaspora sp.
+Hanseniaspora uvarum
+Hansenula anomala
+Hansenula polymorpha
+Hansenula sp.
+Hantavirus
+Hartmannella sp.
+Hathewaya histolytica
+Hathewaya limosa
+Hathewaya sp.
+Helcococcus kunzii
+Helcococcus sp.
+Helicobacter felis
+Helicobacter mustelae
+Helicobacter nemestrinae
+Helicobacter pullorum
+Helicobacter pylori
+Helicobacter sp.
+Helminthosporium sp.
+Hemispora sp.
+Hepatitis A virus
+Hepatitis B virus
+Hepatitis C virus
+Hepatitis D virus
+Hepatitis E virus
+Herbaspirillum sp.
+Herpes simplex virus
+Herpes simplex virus 1
+Herpes simplex virus 2
+Heterophyes heterophyes
+Heterophyes sp.
+Histophilus somni
+Histophilus sp.
+Histoplasma capsulatum
+Histoplasma capsulatum var. duboisii
+Histoplasma capsulatum var. farciminosum
+Histoplasma sp.
+Hookworm
+Hormonema sp.
+Hortaea sp.
+Human herpesvirus
+Human metapneumovirus
+Human papillomavirus
+Human T-lymphotropic virus
+Hymenolepis diminuta
+Hymenolepis nana
+Hymenolepis sp.
+Ilyobacter sp.
+Influenza A virus
+Influenza B virus
+Influenza C virus
+Influenza virus
+Insect
+Iodamoeba buetschlii
+Iodamoeba sp.
+Isospora belli
+Isospora sp.
+Isospora suis
+Ixodes sp.
+JC virus
+Johnsonella ignava
+Johnsonella sp.
+Kingella denitrificans
+Kingella kingae
+Kingella oralis
+Kingella sp.
+Klebsiella oxytoca
+Klebsiella pneumoniae
+Klebsiella pneumoniae
+Klebsiella pneumoniae ssp ozaenae
+Klebsiella pneumoniae ssp rhinoscleromatis
+Klebsiella quasipneumoniae
+Klebsiella spp
+Klebsiella variicola
+Kloeckera apiculata
+Kloeckera apis
+Kloeckera japonica
+Kloeckera spp
+Kluyvera ascorbata
+Kluyvera cryocrescens
+Kluyvera intermedia
+Kluyvera sp.
+Kluyveromyces fragilis
+Kluyveromyces lactis
+Kluyveromyces sp.
+Kocuria kristinae
+Kocuria rhizophila
+Kocuria rosea
+Kocuria sp.
+Kocuria varians
+Kodamaea ohmeri
+Koserella sp.
+Kukoppevirus???
+Kurthia sp.
+Kytococcus sedentarius
+Lactobacillus acidophilus
+Lactobacillus amylovorus
+Lactobacillus brevis
+Lactobacillus buchneri
+Lactobacillus casei
+Lactobacillus cellobiosus
+Lactobacillus confusus
+Lactobacillus crispatus
+Lactobacillus dextrinicus
+Lactobacillus fermentum
+Lactobacillus gasseri
+Lactobacillus hilgardii
+Lactobacillus jensenii
+Lactobacillus johnsonii
+Lactobacillus oris
+Lactobacillus parabuchneri
+Lactobacillus paracasei
+Lactobacillus plantarum
+Lactobacillus reuteri
+Lactobacillus rhamnosus
+Lactobacillus sakei ssp sakei
+Lactobacillus salivarius
+Lactobacillus sp.
+Lactobacillus uli
+Lactobacillus vaginalis
+Lactococcus garvieae
+Lactococcus lactis
+Lactococcus lactis ss. cremoris
+Lactococcus lactis ssp cremoris
+Lactococcus lactis ssp lactis
+Lactococcus raffinolactis
+Lactococcus sp.
+Lasiodiplodia sp.
+Lasiodiplodia theobromae
+Lawsonia intracellularis
+Lawsonia sp.
+Leclercia adecarboxylata
+Leclercia sp.
+Lecythophora sp.
+Legionella anisa
+Legionella birminghamensis
+Legionella brunensis
+Legionella cherrii
+Legionella cincinnatiensis
+Legionella erythra
+Legionella geestiana
+Legionella hackeliae
+Legionella interrogans serovar autumnalis
+Legionella interrogans serovar ballum
+Legionella interrogans serovar bataviae
+Legionella interrogans serovar canicola
+Legionella interrogans serovar grippotyphosa
+Legionella interrogans serovar icterohaemorrhagiae
+Legionella israelensis
+Legionella jamestowniensis
+Legionella jordanis
+Legionella lansingensis
+Legionella londiniensis
+Legionella longbeachae
+Legionella maceachernii
+Legionella micdadei
+Legionella moravica
+Legionella nautarum
+Legionella oakridgensis
+Legionella parisiensis
+Legionella pneumophila
+Legionella pneumophila ss. fraseri
+Legionella pneumophila ss. pascullei
+Legionella quateirensis
+Legionella quinlivanii
+Legionella rubrilucens
+Legionella sainthelensi
+Legionella santicrucis
+Legionella shakespearei
+Legionella sp.
+Legionella spiritensis
+Legionella steigerwaltii
+Legionella tucsonensis
+Legionella wadsworthii
+Legionella worsleiensis
+Leifsonia aquatica
+Leifsonia sp.
+Leishmania amazonensis
+Leishmania braziliensis
+Leishmania donovani
+Leishmania peruviana
+Leishmania sp.
+Leishmania tropica
+Lelliottia amnigena
+Lelliottia amnigena 1
+Lelliottia amnigena 2
+Leminorella richardii
+Leminorella sp.
+Leptospira borgpetersenii
+Leptospira inadai
+Leptospira interrogans
+Leptospira interrogans serovar Ballum
+Leptospira interrogans serovar Bratislava
+Leptospira interrogans serovar Canicola
+Leptospira interrogans serovar Grippotyphosa
+Leptospira interrogans serovar Hardjo
+Leptospira interrogans serovar Icterohaemorrhagiae
+Leptospira interrogans serovar Pomona
+Leptospira interrogans serovar Sejroe
+Leptospira interrogans serovar Tarassovi
+Leptospira kirschneri
+Leptospira noguchii
+Leptospira santarosai
+Leptospira sp.
+Leptospira weilii
+Leptotrichia buccalis
+Leptotrichia sp.
+Leuconostoc citreum
+Leuconostoc cremoris
+Leuconostoc dextranicum
+Leuconostoc lactis
+Leuconostoc mesenteroides
+Leuconostoc mesenteroides ssp cremoris
+Leuconostoc mesenteroides ssp dextranicum
+Leuconostoc mesenteroides ssp mesenteroides
+Leuconostoc oenos
+Leuconostoc pseudomesenteroides
+Leuconostoc sp.
+Listeria fleischmannii
+Listeria grayi
+Listeria innocua
+Listeria ivanovii
+Listeria ivanovii ssp ivanovii
+Listeria ivanovii ssp londoniensis
+Listeria monocytogenes
+Listeria rocourtiae
+Listeria seeligeri
+Listeria sp.
+Listeria welshimeri
+Listonella anguillarum
+Listonella pelagia
+Listonella sp.
+Loa loa
+Loboa loboi
+Loboa sp.
+Lysinibacillus fusiformis
+Lysinibacillus sp.
+Lysinibacillus sphaericus
+Lysinibacillus sphaericus/Lysinibacillus fusiformis
+Macrococcus caseolyticus
+Macrococcus sp.
+Madurella mycetomatis
+Madurella sp.
+Malassezia furfur
+Malassezia pachydermatis
+Malassezia sp.
+Malbranchea sp.
+Mannheimia haemolytica
+Mannheimia sp.
+Mannheimia varigena
+Mansonella ozzardi
+Mansonella perstans
+Mansonella sp.
+Mansonella streptocerca
+Measles virus
+Megamonas hypermegale
+Megamonas sp.
+Megasphaera elsdenii
+Megasphaera sp.
+Melissococcus plutonius
+Melissococcus sp.
+Metagonimus sp.
+Metagonimus yokogawai
+Methanobacterium sp.
+Methylobacterium extorquens
+Methylobacterium mesophilicum
+Methylobacterium sp.
+Methylobacterium spp
+Metschnikowia sp.
+Meyerozyma caribbica
+Meyerozyma guilliermondii complex
+Meyerozyma sp.
+Microbacterium arborescens
+Microbacterium flavescens
+Microbacterium imperiale
+Microbacterium lacticum
+Microbacterium liquefaciens
+Microbacterium oxydans
+Microbacterium spp
+Micrococcus luteus
+Micrococcus luteus / lylae (no longer in use)
+Micrococcus lylae
+Micrococcus sp.
+Microfilaria sp.
+Micropolyspora faeni
+Micropolyspora sp.
+Microsporidium sp.
+Microsporum audouinii
+Microsporum canis
+Microsporum cookei
+Microsporum distortum
+Microsporum ferrugineum
+Microsporum fulvum
+Microsporum gallinae
+Microsporum gypseum
+Microsporum nanum
+Microsporum persicolor
+Microsporum sp.
+Microsporum vanbreuseghemii
+Millerozyma farinosa
+Mitsuokella dentalis
+Mitsuokella multacida
+Mitsuokella sp.
+Mixed bacterial species present
+Mobiluncus curtisii
+Mobiluncus curtisii ss. holmesii
+Mobiluncus mulieris
+Mobiluncus sp.
+Moellerella sp.
+Moellerella wisconsensis
+Mold
+Molluscum contagiosum virus
+Monilia sitophila
+Monilia sp.
+Monosporium apoispermum
+Moraxella (Branhamella) catarrhalis
+Moraxella (Neisseria) ovis
+Moraxella bovis
+Moraxella canis
+Moraxella group
+Moraxella lacunata
+Moraxella mima polymorpha (var. oxidans)
+Moraxella nonliquefaciens
+Moraxella osloensis
+Moraxella ovis
+Moraxella urethralis
+Morganella morganii
+Morganella morganii ss. sibonii
+Morganella morganii ssp morganii
+Morganella morganii ssp sibonii
+Morganella sp.
+Moritella sp.
+Moritella viscosa
+Mortierella sp.
+Mucor pusillus
+Mucor sp.
+Multiceps multiceps
+Multiceps sp.
+Mumps virus
+Mycelia sterilia
+Mycobacterium abscessus
+Mycobacterium africanum
+Mycobacterium agri
+Mycobacterium aichiense
+Mycobacterium alvei
+Mycobacterium asiaticum
+Mycobacterium aurum
+Mycobacterium austroafricanum
+Mycobacterium avium
+Mycobacterium avium complex
+Mycobacterium avium ss. paratuberculosis
+Mycobacterium avium-intracellulare complex
+Mycobacterium bovis
+Mycobacterium brumae
+Mycobacterium canetti
+Mycobacterium caprae
+Mycobacterium celatum
+Mycobacterium chelonae
+Mycobacterium chelonae-like organism (MCLO)
+Mycobacterium chimaera
+Mycobacterium chitae
+Mycobacterium chubuense
+Mycobacterium confluentis
+Mycobacterium diernhoferi
+Mycobacterium duvalii
+Mycobacterium fallax
+Mycobacterium farcinogenes
+Mycobacterium flavescens
+Mycobacterium fortuitum
+Mycobacterium gadium
+Mycobacterium gastri
+Mycobacterium genavense
+Mycobacterium gilvum
+Mycobacterium gordonae
+Mycobacterium haemophilum
+Mycobacterium interjectum
+Mycobacterium intracellulare
+Mycobacterium kansasii
+Mycobacterium komossense
+Mycobacterium lentiflavum
+Mycobacterium leprae
+Mycobacterium lepraemurium
+Mycobacterium malmoense
+Mycobacterium marinum
+Mycobacterium microti
+Mycobacterium mungi
+Mycobacterium neoaurum
+Mycobacterium nonchromogenicum
+Mycobacterium obuense
+Mycobacterium orygis
+Mycobacterium parafortuitum
+Mycobacterium peregrinum
+Mycobacterium phlei
+Mycobacterium pinnipedii
+Mycobacterium porcinum
+Mycobacterium rhodesiae
+Mycobacterium scrofulaceum
+Mycobacterium senegalense
+Mycobacterium shimoidei
+Mycobacterium simiae
+Mycobacterium smegmatis
+Mycobacterium sp.
+Mycobacterium sphagni
+Mycobacterium suricattae
+Mycobacterium szulgai
+Mycobacterium terrae
+Mycobacterium thermoresistibile
+Mycobacterium tokaiense
+Mycobacterium triviale
+Mycobacterium tuberculosis
+Mycobacterium tuberculosis complex
+Mycobacterium ulcerans
+Mycobacterium vaccae
+Mycobacterium xenopi
+Mycoplasma agalactiae
+Mycoplasma arginini
+Mycoplasma bovis
+Mycoplasma buccale
+Mycoplasma capricolum
+Mycoplasma capricolum ss. capripneumoniae
+Mycoplasma conjunctivae
+Mycoplasma dispar
+Mycoplasma faucium
+Mycoplasma fermentans
+Mycoplasma gallisepticum
+Mycoplasma genitalium
+Mycoplasma haemosuis
+Mycoplasma hominis
+Mycoplasma hyopneumoniae
+Mycoplasma hyorhinis
+Mycoplasma hyosynoviae
+Mycoplasma iowae
+Mycoplasma lipophilum
+Mycoplasma meleagridis
+Mycoplasma mycoides ss. mycoides
+Mycoplasma orale
+Mycoplasma ovipneumoniae
+Mycoplasma penetrans
+Mycoplasma pneumoniae
+Mycoplasma primatum
+Mycoplasma putrefaciens
+Mycoplasma salivarium
+Mycoplasma sp.
+Mycoplasma spermatophilum
+Mycoplasma suis
+Mycoplasma synoviae
+Mycoplasmoides gallisepticum
+Mycoplasmoides sp.
+Myroides sp.
+Myroides spp
+Myxozyma sp.
+Naegleria fowleri
+Naegleria sp.
+Naganishia sp.
+Nannizzia sp.
+Nattrassia mangiferae
+Nattrassia sp.
+Necator americanus
+Necator sp.
+Neisseria animaloris
+Neisseria animaloris/zoodegmatis
+Neisseria canis
+Neisseria cinerea
+Neisseria elongata
+Neisseria elongata
+Neisseria elongata ss. glycolytica
+Neisseria flavescens
+Neisseria gonorrhoeae
+Neisseria gonorrhoeae ss. kochii
+Neisseria lactamica
+Neisseria meningitidis
+Neisseria meningitidis, other serogroups
+Neisseria meningitidis, serogroup a
+Neisseria meningitidis, serogroup b
+Neisseria meningitidis, serogroup c
+Neisseria meningitidis, serogroup Y
+Neisseria mucosa
+Neisseria polysaccharea
+Neisseria sicca
+Neisseria sp.
+Neisseria subflava
+Neisseria subflava biovar flava
+Neisseria subflava biovar perflava
+Neisseria subflava biovar subflava
+Neisseria weaveri
+Neisseria zoodegmatis
+Nematode
+Neoscytalidium dimidiatum
+Neospora caninum
+Neospora sp.
+Neotestudina rosatii
+Neotestudina sp.
+Nigrospora sp.
+No acid-fast bacilli found
+No anaerobes found
+No C. difficile found
+No Campylobacter found
+No Chlamydia found
+No Coronavirus found
+No COVID-19 found
+No enteric pathogens found
+No fungi found
+No growth
+No Influenza A virus found
+No Influenza B virus found
+No Influenza C virus found
+No Influenza virus found
+No Legionalla found
+No MRSA found
+No mycobacteria found
+No N. gonorrhoeae found
+No N. gonorrhoeae or Chlamydia found
+No parasites found
+No pathogens found
+No Plasmodium found
+No Salmonella found
+No significant growth found
+No VRE were found
+Nocardia asteroides
+Nocardia brasiliensis
+Nocardia carnea
+Nocardia coeliaca
+Nocardia crassostreae
+Nocardia farcinica
+Nocardia nova
+Nocardia otitidiscaviarum
+Nocardia seriolae
+Nocardia sp.
+Nocardia transvalensis
+Nocardiopsis dassonvillei
+Nocardiopsis sp.
+Non-fermenting Gram negative rods
+Normal flora
+Normal oral flora
+Normal vaginal flora
+Norovirus
+Nosema sp.
+Ochrobactrum anthropi
+Ochrobactrum sp.
+Ochroconis sp.
+Ochroconis tshawytschae
+Ockelbovirus???
+Oenococcus sp.
+Oerskovia sp.
+Oligella sp.
+Oligella ureolytica
+Oligella urethralis
+Onchocerca sp.
+Onchocerca volvulus
+Ophiostoma sp.
+Ophiostoma stenoceras
+Opisthorchis felineus
+Opisthorchis sp.
+Opisthorchis viverrini
+Orf virus
+Oribaculum catoniae
+Oribaculum sp.
+Orientia sp.
+Orientia tsutsugamushi
+Ornithobacterium rhinotracheale
+Ornithobacterium sp.
+Other
+Paecilomyces lilacinus
+Paecilomyces sp.
+Paenibacillus alvei
+Paenibacillus amylolyticus
+Paenibacillus cineris
+Paenibacillus cookii
+Paenibacillus durus
+Paenibacillus glucanolyticus
+Paenibacillus glucanolyticus/(Bacillus circulans)
+Paenibacillus lactis
+Paenibacillus larvae
+Paenibacillus lautus
+Paenibacillus macerans
+Paenibacillus pabuli
+Paenibacillus pabuli/(Paenibacillus polymyxa)
+Paenibacillus peoriae
+Paenibacillus polymyxa
+Paenibacillus sp.
+Paenibacillus thiaminolyticus
+Paenibacillus validus
+Paeniclostridium sordellii
+Pandoraea sp.
+Pandoraea spp
+Pantoea agglomerans
+Pantoea dispersa
+Pantoea sp.
+Pantoea spp
+Parabacteroides distasonis
+Parabacteroides merdae
+Paraclostridium bifermentans
+Paracoccidioides brasiliensis
+Paracoccidioides sp.
+Paracoccus sp.
+Paracoccus yeei
+Paragonimus mexicanus
+Paragonimus sp.
+Paragonimus westermani
+Parainfluenza virus
+Paraphyton sp.
+Parasite
+Parvimonas micra
+Parvimonas sp.
+Parvovirus B19
+Passalurus ambiguus
+Passalurus sp.
+Pasteurella aerogenes
+Pasteurella canis
+Pasteurella dagmatis
+Pasteurella gallicida
+Pasteurella langaaensis
+Pasteurella lymphangitidis
+Pasteurella mairii
+Pasteurella multocida
+Pasteurella multocida ss. septica
+Pasteurella pneumotropica
+Pasteurella sp.
+Pasteurella stomatis
+Pasteurella testudinis
+Pectinatus sp.
+Pectobacterium sp.
+Pediculus capitis
+Pediculus humanus
+Pediculus sp.
+Pediococcus acidilactici
+Pediococcus damnosus
+Pediococcus parvulus
+Pediococcus pentosaceus
+Pediococcus sp.
+Pelobacter sp.
+Penicillium marneffei
+Penicillium sp.
+Peptococcus niger
+Peptococcus sp.
+Peptoniphilus asaccharolyticus
+Peptoniphilus indolicus
+Peptoniphilus lacrimalis
+Peptostreptococcus anaerobius
+Peptostreptococcus sp.
+Periconia sp.
+Phaeoannellomyces sp.
+Phaeococcomyces sp.
+Phialophora sp.
+Phialophora verrucosa
+Phocanema sp.
+Phoma sp.
+Photobacterium damselae
+Photobacterium damselae ss. piscicida
+Photobacterium sp.
+Phthirus pubis
+Pichia farinosa
+Pichia sp.
+Piedraia hortae
+Piedraia sp.
+Piscirickettsia salmonis
+Piscirickettsia sp.
+Pityrosporum sp.
+Planococcus sp.
+Plasmodium falciparum
+Plasmodium malariae
+Plasmodium ovale
+Plasmodium sp.
+Plasmodium vivax
+Pleistophora sp.
+Plesiomonas shigelloides
+Plesiomonas sp.
+Pleurothecium obovoideum
+Pluralibacter gergoviae
+Pneumocystis carinii
+Pneumocystis sp.
+Poliovirus
+Porphyromonas asaccharolytica
+Porphyromonas gingivalis
+Porphyromonas gingivicanis
+Porphyromonas gulae
+Porphyromonas macacae
+Porphyromonas uenonis
+Prevotella bivia
+Prevotella buccae
+Prevotella denticola
+Prevotella disiens
+Prevotella enoeca
+Prevotella heparinolytica
+Prevotella intermedia
+Prevotella melaninogenica
+Prevotella nanceiensis
+Prevotella nigrescens
+Prevotella oralis
+Prevotella oris
+Prevotella oulorum
+Prevotella salivae
+Prevotella sp.
+Prevotella tannerae
+Prevotella timonensis
+Prevotella veroralis
+Prevotella zoogleoformans
+Propionibacterium acnes
+Propionibacterium avidum
+Propionibacterium freudenreichii
+Propionibacterium granulosum
+Propionibacterium jensenii
+Propionibacterium lymphophilum
+Propionibacterium propionicum
+Propionibacterium sp.
+Propionibacterium thoenii
+Propionigenium sp.
+Propionispira sp.
+Proteus hauseri
+Proteus mirabilis
+Proteus penneri
+Proteus sp.
+Proteus vulgaris
+Prototheca sp.
+Prototheca stagnorum
+Prototheca wickerhamii
+Prototheca zopfii
+Providencia alcalifaciens
+Providencia heimbachae
+Providencia rettgeri
+Providencia rustigianii
+Providencia sp.
+Providencia stuartii
+Providencia stuartii urea +
+Pseudallescheria boydii
+Pseudallescheria sp.
+Pseudochaetosphaeronema larense
+Pseudochaetosphaeronema sp.
+Pseudomonas aeruginosa
+Pseudomonas alcaligenes
+Pseudomonas anguilliseptica
+Pseudomonas chlororaphis
+Pseudomonas fluorescens
+Pseudomonas indigofera
+Pseudomonas luteola
+Pseudomonas mendocina
+Pseudomonas oleovorans
+Pseudomonas oryzihabitans
+Pseudomonas otitidis
+Pseudomonas pertucinogena
+Pseudomonas pseudoalcaligenes
+Pseudomonas putida
+Pseudomonas sp. group 1
+Pseudomonas spp
+Pseudomonas stutzeri
+Pseudomonas viridiflava
+Pseudopropionibacterium sp.
+Psychrobacter immobilis
+Psychrobacter sp.
+Pthirus sp.
+Pythium insidiosum
+Pythium sp.
+Rabies virus
+Rahnella aquatilis
+Rahnella sp.
+Ralstonia euphora
+Ralstonia insidiosa
+Ralstonia mannitolilytica
+Ralstonia pickettii
+Ralstonia sp.
+Ramichloridium sp.
+Ramularia sp.
+Raoultella ornithinolytica
+Raoultella planticola
+Raoultella sp.
+Raoultella terrigena
+Rejected sample
+Renibacterium salmoninarum
+Renibacterium sp.
+Reovirus
+Respiratory syncytial virus
+Retortamonas intestinalis
+Retortamonas sp.
+Rhinocladiella aquaspersa
+Rhinocladiella sp.
+Rhinovirus
+Rhizobium radiobacter
+Rhizobium sp.
+Rhizomucor sp.
+Rhizopus arrhizus
+Rhizopus microsporus
+Rhizopus microsporus var. rhizopodiformis
+Rhizopus oryzae
+Rhizopus sp.
+Rhizopus stolonifer
+Rhodococcus coprophilus
+Rhodococcus coprophilus/erythropolis/globerulus
+Rhodococcus erythropolis
+Rhodococcus fascians
+Rhodococcus globerulus
+Rhodococcus hoagii
+Rhodococcus opacus
+Rhodococcus rhodnii
+Rhodococcus rhodochrous
+Rhodococcus ruber
+Rhodococcus sp.
+Rhodotorula glutinis
+Rhodotorula glutinis/mucilaginosa/(Crypto.laurentii)
+Rhodotorula minuta
+Rhodotorula mucilaginosa
+Rhodotorula mucilaginosa
+Rhodotorula pilimanae
+Rhodotorula sp.
+Rickettsia akari
+Rickettsia conorii
+Rickettsia japonica
+Rickettsia prowazekii
+Rickettsia rickettsii
+Rickettsia sp.
+Riemerella anatipestifer
+Riemerella sp.
+Rikenella sp.
+Roseburia sp.
+Roseomonas cervicalis
+Roseomonas genomospecies 4
+Roseomonas genomospecies 5
+Roseomonas genomospecies 6
+Roseomonas gilardii
+Roseomonas sp.
+Rotavirus
+Rothia dentocariosa
+Rothia mucilaginosa
+Rothia sp.
+Rubella virus
+Ruminobacter sp.
+Ruminococcus sp.
+Saccharomonospora sp.
+Saccharomonospora viridis
+Saccharomyces cerevisiae
+Saccharomyces sp.
+Saccharopolyspora sp.
+Salmonella Abortusovis
+Salmonella Agona
+Salmonella Amsterdam
+Salmonella Anatum
+Salmonella Arechavaleta
+Salmonella Bareilly
+Salmonella Blockley
+Salmonella bongori
+Salmonella Bonn
+Salmonella Bovismorbificans
+Salmonella Braenderup
+Salmonella Brandenburg
+Salmonella Bredeney
+Salmonella Cerro
+Salmonella Chester
+Salmonella Choleraesuis
+Salmonella Copenhagen
+Salmonella Derby
+Salmonella Dublin
+Salmonella Emek
+Salmonella enterica ss. diarizonae (Subgroup IIIb)
+Salmonella enterica ss. enterica (Subgroup I)
+Salmonella enterica ss. houtenae (Subgroup IV)
+Salmonella enterica ss. indica (Subgoup VI)
+Salmonella enterica ss. salamae (Subgroup II)
+Salmonella enterica ssp arizonae
+Salmonella enterica ssp diarizonae
+Salmonella enterica ssp enterica
+Salmonella Enteritidis
+Salmonella Falkensee
+Salmonella Gallinarum
+Salmonella Gallinarum biovar Pullorum
+Salmonella Give
+Salmonella Goldcoast
+Salmonella group
+Salmonella Group 51 (O:51)
+Salmonella Group 52 (O:52)
+Salmonella Group 53 (O:53)
+Salmonella Group 54 (O:54)
+Salmonella Group 55 (O:55)
+Salmonella Group 56 (O:56)
+Salmonella Group 57 (O:57)
+Salmonella Group 58 (O:58)
+Salmonella Group 59 (O:59)
+Salmonella Group 60 (O:60)
+Salmonella Group 61 (O:61)
+Salmonella Group 62 (O:62)
+Salmonella Group 63 (O:63)
+Salmonella Group 64 (O:64)
+Salmonella Group 65 (O:65)
+Salmonella Group 66 (O:66)
+Salmonella Group 67 (O:67)
+Salmonella Group A (O:2)
+Salmonella Group B (O:4)
+Salmonella Group C (C1-C4, C2-C3)
+Salmonella Group C1 (O:7)
+Salmonella Group C2 (O:6,8)
+Salmonella Group C3 (O:8)
+Salmonella Group C4 (O:7,14)
+Salmonella Group D (D1, D2, D3)
+Salmonella Group D1 (O:9)
+Salmonella Group D2 (O:9,46)
+Salmonella Group D3 (O:9,46,27)
+Salmonella Group E (E1-E2-E3)
+Salmonella Group E1 (O:3,10)
+Salmonella Group E2 (O:3,15)
+Salmonella Group E3 (O:3,15,14)
+Salmonella Group E4 (O:1,3,19)
+Salmonella Group F (O:11)
+Salmonella Group G (O:13) (G1-G2)
+Salmonella Group G1 (O:13,22)
+Salmonella Group G2 (O:13,23)
+Salmonella Group H (O:6,14)
+Salmonella Group I (O:16)
+Salmonella Group J (O:17)
+Salmonella Group K (O:18)
+Salmonella Group L (O:21)
+Salmonella Group M (O:28)
+Salmonella Group N (O:30)
+Salmonella Group O (O:35)
+Salmonella Group P (O:38)
+Salmonella Group Q (O:39)
+Salmonella Group R (O:40)
+Salmonella Group S (O:41)
+Salmonella Group T (O:42)
+Salmonella Group U (O:43)
+Salmonella Group V (O:44)
+Salmonella Group W (O:45)
+Salmonella Group X (O:47)
+Salmonella Group Y (O:48)
+Salmonella Group Z (O:50)
+Salmonella Hadar
+Salmonella Heidelberg
+Salmonella Hirschfeldii (S. Paratyphi C)
+Salmonella Indiana
+Salmonella Infantis
+Salmonella Isangi
+Salmonella Java (Salmonella Paratyphi B)
+Salmonella Javiana
+Salmonella Kaapstad
+Salmonella Kedougou
+Salmonella Kentucky
+Salmonella Kottbus
+Salmonella Krefeld
+Salmonella Larochelle
+Salmonella Lexington
+Salmonella Litchfield
+Salmonella Livingstone
+Salmonella Lomita
+Salmonella London
+Salmonella Manhattan
+Salmonella Mbandaka
+Salmonella Montevideo
+Salmonella Muenchen
+Salmonella Muenster
+Salmonella Narashino
+Salmonella Newport
+Salmonella Ohio
+Salmonella Oranienburg
+Salmonella Orion
+Salmonella Ouakam
+Salmonella Panama
+Salmonella Paratyphi
+Salmonella Paratyphi A
+Salmonella Paratyphi B
+Salmonella Poona
+Salmonella Potsdam
+Salmonella Reading
+Salmonella Rissen
+Salmonella Saintpaul
+Salmonella Sandiego
+Salmonella Schwarzengrund
+Salmonella Senftenberg
+Salmonella ser.Enteritidis
+Salmonella ser.Gallinarum
+Salmonella ser.Paratyphi A
+Salmonella ser.Paratyphi B
+Salmonella ser.Paratyphi C
+Salmonella ser.Typhi
+Salmonella ser.Typhimurium
+Salmonella sp.
+Salmonella sp. (rough)
+Salmonella sp., nontypable
+Salmonella sp., non-Typhi
+Salmonella sp., non-Typhi/non-Paratyphi
+Salmonella sp., typhoidal
+Salmonella sp., unnamed
+Salmonella spp
+Salmonella Stanley
+Salmonella subterranea
+Salmonella Tennessee
+Salmonella Thompson
+Salmonella Typhimurium
+Salmonella Typhimurium var. Copenhagen
+Salmonella Typhisuis
+Salmonella Virchow
+Salmonella Virginia
+Salmonella Wandsworth
+Salmonella Weltevreden
+Salmonella Weybridge
+Salmonella Worthington
+Saprochaete capitata
+Sarcina sp.
+Sarcina ventriculi
+Sarcinosporon sp.
+Sarcocystis hominis
+Sarcocystis sp.
+Sarcocystis suihominis
+Sarcoptes scabiei
+Sarcoptes sp.
+SARS coronavirus
+Scedosporium inflatum
+Scedosporium sp.
+Schistosoma haematobium
+Schistosoma intercalatum
+Schistosoma japonicum
+Schistosoma mansoni
+Schistosoma mekongi
+Schistosoma sp.
+Scolecobasidium constrictum
+Scolecobasidium humicola
+Scolecobasidium sp.
+Scopulariopsis sp.
+Scytalidium sp.
+Sebaldella sp.
+Selenomonas artemidis
+Selenomonas dianae
+Selenomonas flueggei
+Selenomonas infelix
+Selenomonas noxia
+Selenomonas sp.
+Selenomonas sputigena
+Sepedonium sp.
+Serratia entomophila
+Serratia ficaria
+Serratia fonticola
+Serratia grimesii
+Serratia liquefaciens
+Serratia liquefaciens group
+Serratia marcescens
+Serratia odorifera
+Serratia odorifera 1
+Serratia odorifera 2
+Serratia plymuthica
+Serratia proteamaculans
+Serratia proteamaculans ss. quinovora
+Serratia rubidaea
+Serratia sp.
+Shewanella algae
+Shewanella benthica
+Shewanella putrefaciens
+Shewanella putrefaciens group
+Shewanella sp.
+Shigella boydii
+Shigella boydii serotype 1
+Shigella boydii serotype 10
+Shigella boydii serotype 11
+Shigella boydii serotype 12
+Shigella boydii serotype 13
+Shigella boydii serotype 14
+Shigella boydii serotype 15
+Shigella boydii serotype 16
+Shigella boydii serotype 17
+Shigella boydii serotype 18
+Shigella boydii serotype 2
+Shigella boydii serotype 3
+Shigella boydii serotype 4
+Shigella boydii serotype 5
+Shigella boydii serotype 6
+Shigella boydii serotype 7
+Shigella boydii serotype 8
+Shigella boydii serotype 9
+Shigella boydii, nontypable
+Shigella dysenteriae
+Shigella dysenteriae serotype 1
+Shigella dysenteriae serotype 10
+Shigella dysenteriae serotype 11
+Shigella dysenteriae serotype 12
+Shigella dysenteriae serotype 13
+Shigella dysenteriae serotype 14
+Shigella dysenteriae serotype 15
+Shigella dysenteriae serotype 2
+Shigella dysenteriae serotype 3
+Shigella dysenteriae serotype 4
+Shigella dysenteriae serotype 5
+Shigella dysenteriae serotype 6
+Shigella dysenteriae serotype 7
+Shigella dysenteriae serotype 8
+Shigella dysenteriae serotype 9
+Shigella dysenteriae Type 1
+Shigella dysenteriae, nontypable
+Shigella dysenteriae, not Type 1
+Shigella flexneri
+Shigella flexneri serotype 1
+Shigella flexneri serotype 1a
+Shigella flexneri serotype 1b
+Shigella flexneri serotype 2
+Shigella flexneri serotype 2a
+Shigella flexneri serotype 2b
+Shigella flexneri serotype 3
+Shigella flexneri serotype 3a
+Shigella flexneri serotype 3b
+Shigella flexneri serotype 4
+Shigella flexneri serotype 4a
+Shigella flexneri serotype 4b
+Shigella flexneri serotype 4c
+Shigella flexneri serotype 5
+Shigella flexneri serotype 5a
+Shigella flexneri serotype 5b
+Shigella flexneri serotype 6
+Shigella flexneri, nontypable
+Shigella flexneri, variant X
+Shigella flexneri, variant Y
+Shigella group
+Shigella sonnei
+Shigella sonnei Form I
+Shigella sonnei Form II
+Shigella spp
+Shigella, non-dysenteriae
+Simonsiella sp.
+Solobacterium moorei
+Solobacterium sp.
+Sphingobacterium multivorum
+Sphingobacterium sp.
+Sphingobacterium spiritivorum
+Sphingobacterium thalpophilum
+Sphingomonas paucimobilis
+Sphingomonas sp.
+Spilopsyllus cuniculi
+Spilopsyllus sp.
+Spirillum minor
+Spirillum sp.
+Spirillum volutans
+Spirocerca lupi
+Spirocerca sp.
+Spirometra mansonoides
+Spirometra sp.
+Spironucleus sp.
+Sporobolomyces salmonicolor
+Sporobolomyces sp.
+Sporopachydermia sp.
+Sporothrix schenckii
+Sporothrix sp.
+Sporotrichum sp.
+Stachybotrys sp.
+Staphylococcus argenteus
+Staphylococcus arlettae
+Staphylococcus aureus
+Staphylococcus auricularis
+Staphylococcus capitis
+Staphylococcus capitis ss. ureolyticus
+Staphylococcus caprae
+Staphylococcus carnosus
+Staphylococcus carnosus ssp carnosus
+Staphylococcus chromogenes
+Staphylococcus coagulans
+Staphylococcus cohnii
+Staphylococcus cohnii ss. urealyticus
+Staphylococcus cohnii ssp cohnii
+Staphylococcus cohnii ssp urealyticus
+Staphylococcus delphini
+Staphylococcus epidermidis
+Staphylococcus equorum
+Staphylococcus felis
+Staphylococcus gallinarum
+Staphylococcus haemolyticus
+Staphylococcus hominis
+Staphylococcus hominis ss. novobiosepticus
+Staphylococcus hominis ssp hominis
+Staphylococcus hominis ssp novobiosepticus
+Staphylococcus hyicus
+Staphylococcus intermedius
+Staphylococcus kloosii
+Staphylococcus lentus
+Staphylococcus lugdunensis
+Staphylococcus muscae
+Staphylococcus pasteuri
+Staphylococcus piscifermentans
+Staphylococcus pseudintermedius
+Staphylococcus saccharolyticus
+Staphylococcus saprophyticus
+Staphylococcus saprophyticus ss. bovis
+Staphylococcus schleiferi
+Staphylococcus schleiferi ss. schleiferi
+Staphylococcus sciuri
+Staphylococcus simulans
+Staphylococcus sp.
+Staphylococcus vitulinus
+Staphylococcus warneri
+Staphylococcus xylosus
+Stemphylium sp.
+Stenella araguata
+Stenella sp.
+Stenotrophomonas maltophilia
+Stenotrophomonas sp.
+Stomatococcus sp.
+Streptobacillus moniliformis
+Streptobacillus sp.
+Streptococcus acidominimus
+Streptococcus agalactiae
+Streptococcus agalactiae
+Streptococcus alactolyticus
+Streptococcus anginosus
+Streptococcus bovis
+Streptococcus bovis I
+Streptococcus bovis II
+Streptococcus bovis-variant
+Streptococcus canis
+Streptococcus constellatus
+Streptococcus constellatus ssp constellatus
+Streptococcus constellatus ssp pharyngis
+Streptococcus criceti
+Streptococcus cristatus
+Streptococcus downei
+Streptococcus dysgalactiae
+Streptococcus dysgalactiae ssp dysgalactiae
+Streptococcus dysgalactiae ssp equisimilis
+Streptococcus equi ssp equi
+Streptococcus equi ssp zooepidemicus
+Streptococcus equinus
+Streptococcus ferus
+Streptococcus gallolyticus ss. pasteurianus
+Streptococcus gallolyticus ssp gallolyticus
+Streptococcus gallolyticus ssp pasteurianus
+Streptococcus gordonii
+Streptococcus group A
+Streptococcus group B
+Streptococcus group C
+Streptococcus group G
+Streptococcus hyointestinalis
+Streptococcus infantarius
+Streptococcus infantarius ss. coli
+Streptococcus infantarius ss. infantarius
+Streptococcus infantarius ssp coli (Str.lutetiensis)
+Streptococcus infantarius ssp infantarius
+Streptococcus infantis
+Streptococcus iniae
+Streptococcus intermedius
+Streptococcus lutetiensis
+Streptococcus macacae
+Streptococcus milleri
+Streptococcus mitis
+Streptococcus mitis/Streptococcus oralis
+Streptococcus mutans
+Streptococcus oralis
+Streptococcus oralis
+Streptococcus ovis
+Streptococcus parasanguinis
+Streptococcus pleomorphus
+Streptococcus pluranimalium
+Streptococcus pneumoniae
+Streptococcus porcinus
+Streptococcus pseudopneumoniae
+Streptococcus pseudoporcinus
+Streptococcus pyogenes
+Streptococcus pyogenes
+Streptococcus ratti
+Streptococcus salivarius
+Streptococcus salivarius ssp salivarius
+Streptococcus salivarius ssp thermophilus
+Streptococcus sanguinis
+Streptococcus sanguinis
+Streptococcus sanguinis III
+Streptococcus sobrinus
+Streptococcus sp.
+Streptococcus suis
+Streptococcus suis I
+Streptococcus suis II
+Streptococcus thoraltensis
+Streptococcus uberis
+Streptococcus vestibularis
+Streptococcus viridans group except S.pneumoniae
+Streptococcus viridans, alpha-hem.
+Streptococcus, beta-haem. Group C
+Streptococcus, beta-haem. Group E
+Streptococcus, beta-haem. Group F
+Streptococcus, beta-haemolytic
+Streptococcus, beta-haemolytic (not Group A)
+Streptococcus, Group D (non-enterococcal)
+Streptococcus, microaerophilic
+Streptococcus, non-haemolytic (gamma)
+Streptococcus, nutritionally variant
+Streptomyces griseus
+Streptomyces paraguayensis
+Streptomyces somaliensis
+Streptomyces sp.
+Strongyloides sp.
+Strongyloides stercoralis
+Succinimonas amylolytica
+Succinimonas sp.
+Succinivibrio sp.
+Suttonella indologenes
+Suttonella sp.
+Syncephalastrum sp.
+Taenia saginata
+Taenia solium
+Taenia sp.
+Tatlockia sp.
+Tatumella ptyseos
+Tatumella sp.
+Tausonia pullulans
+Taylorella sp.
+Tenacibaculum maritimum
+Tenacibaculum sp.
+Terrisporobacter glycolicus
+Theileria annulata
+Theileria lestoquardi
+Theileria orientalis
+Theileria ovis
+Theileria parva
+Theileria separata
+Theileria sp.
+Thelazia sp.
+Tick-borne encephalitis virus
+Tissierella praeacuta
+Tissierella sp.
+Torulopsis sp.
+Toxocara canis
+Toxocara cati
+Toxocara sp.
+Toxoplasma gondii
+Toxoplasma sp.
+Trabulsiella sp.
+Trematode
+Treponema carateum
+Treponema denticola
+Treponema pallidum ss. endemicum
+Treponema pallidum ss. pallidum
+Treponema pallidum ss. pertenue
+Treponema phagedensis
+Treponema refringens
+Treponema sp.
+Trichinella sp.
+Trichinella spiralis
+Trichoderma sp.
+Trichomonas gallinae
+Trichomonas hominis
+Trichomonas sp.
+Trichomonas tenax
+Trichomonas vaginalis
+Trichomonascus sp.
+Trichophyton ajelloi
+Trichophyton concentricum
+Trichophyton equinum
+Trichophyton megninii
+Trichophyton mentagrophytes
+Trichophyton rubrum
+Trichophyton schoenleinii
+Trichophyton soudanense
+Trichophyton sp.
+Trichophyton terrestre
+Trichophyton tonsurans
+Trichophyton verrucosum
+Trichophyton violaceum
+Trichophyton yaoundei
+Trichosporon asahii
+Trichosporon inkin
+Trichosporon mucoides
+Trichosporon sp.
+Trichostrongylus sp.
+Trichuris sp.
+Trichuris trichiura
+Tricothecium roseum
+Tricothecium sp.
+Tritrichomonas foetus
+Tritrichomonas sp.
+Trueperella bernardiae
+Trueperella pyogenes
+Trueperella sp.
+Trypanosoma brucei ss. brucei
+Trypanosoma brucei ss. gambiense
+Trypanosoma brucei ss. rhodesiense
+Trypanosoma congolense
+Trypanosoma cruzi
+Trypanosoma evansi
+Trypanosoma rangeli
+Trypanosoma sp.
+Trypanosoma vivax
+Tsukamurella paurometabola
+Tsukamurella sp.
+TT virus
+Turicella otitidis
+Turicella sp.
+Ulocladium sp.
+Unknown
+Ureaplasma sp.
+Ureaplasma urealyticum
+Vaccinia virus
+Vagococcus fluvialis
+Vanrija sp.
+Varicella zoster virus
+Veillonella parvula
+Veillonella sp.
+Veillonella spp
+Verticillium sp.
+Vibrio aestuarianus
+Vibrio alginolyticus
+Vibrio anguillarum
+Vibrio cholerae
+Vibrio cholerae El Tor
+Vibrio cholerae non O1, non O139
+Vibrio cholerae O1
+Vibrio cholerae O1 Hikojima
+Vibrio cholerae O1 Inaba
+Vibrio cholerae O1 Ogawa
+Vibrio cincinnatiensis
+Vibrio fluvialis
+Vibrio furnissii
+Vibrio harveyi
+Vibrio metschnikovii
+Vibrio mimicus
+Vibrio parahaemolyticus
+Vibrio sp.
+Vibrio vulnificus
+Virgibacillus pantothenticus
+Virgibacillus proomii
+Vogesella sp.
+Wangiella sp.
+Weeksella sp.
+Weissella sp.
+West Nile virus
+Wickerhamomyces sp.
+Wolinella sp.
+Wolinella succinogenes
+Wuchereria bancrofti
+Wuchereria sp.
+Xanthomonas sp.
+Xylohypha sp.
+Yamadazyma sp.
+Yarrowia sp.
+Yeast
+Yeast, not C. albicans
+Yersinia aldovae
+Yersinia bercovieri
+Yersinia enterocolitica
+Yersinia enterocolitica group
+Yersinia enterocolitica/frederiksenii
+Yersinia frederiksenii
+Yersinia intermedia
+Yersinia kristensenii
+Yersinia mollaretii
+Yersinia pestis
+Yersinia pseudotuberculosis
+Yersinia rohdei
+Yersinia ruckeri
+Yersinia sp.
+Yokenella regensburgei
+Zika virus
+Zygosaccharomyces bailii
+Zygosaccharomyces spp

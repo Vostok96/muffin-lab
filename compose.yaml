@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: muffin-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-muffin}
+      POSTGRES_USER: ${POSTGRES_USER:-muffin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=384MB
+      - -c
+      - effective_cache_size=1024MB
+      - -c
+      - work_mem=8MB
+      - -c
+      - maintenance_work_mem=128MB
+      - -c
+      - max_connections=40
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - wal_compression=on
+    volumes:
+      - muffin_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    mem_limit: 1536m
+    cpus: 2.0
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: muffin-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-muffin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-muffin}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      ACCESS_TOKEN_MINUTES: ${ACCESS_TOKEN_MINUTES:-30}
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_GIVEN_NAME: ${BOOTSTRAP_ADMIN_GIVEN_NAME:-Administrador}
+      BOOTSTRAP_ADMIN_FAMILY_NAME: ${BOOTSTRAP_ADMIN_FAMILY_NAME:-MUFFIN}
+    ports:
+      - "${MUFFIN_BIND_ADDRESS:-0.0.0.0}:${MUFFIN_API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+    mem_limit: 768m
+    cpus: 1.5
+
+volumes:
+  muffin_postgres_data:
+    name: muffin_postgres_data

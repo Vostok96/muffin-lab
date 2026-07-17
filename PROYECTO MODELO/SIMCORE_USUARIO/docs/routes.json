@@ -1,0 +1,289 @@
+[
+  {
+    "path": "/SIMCORE_WEB/Login/Index",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Login/Index",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 27006,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Login__Index.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Home/Index",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Home/Index",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 27006,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Home__Index.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_persona/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_persona/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 30387,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_persona.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_procedencia/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_procedencia/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29950,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_procedencia.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_servicio/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_servicio/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29941,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_servicio.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_medico/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_medico/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29915,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_medico.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_res_comentarios_def/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_res_comentarios_def/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29610,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_res_comentarios_def.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_area/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_area/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29975,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_area.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_examen/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_examen/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 37639,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_examen.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_muestra/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_muestra/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29607,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_muestra.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_muestra_contenedor/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_muestra_contenedor/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29641,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_muestra_contenedor.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_parametro/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_parametro/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 32198,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_parametro.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/mic_orga_panel/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/mic_orga_panel/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 32940,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__mic_orga_panel.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_res_panel_recuento/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_res_panel_recuento/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29563,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_res_panel_recuento.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_orga/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_orga/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 30321,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_orga.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_antibiotico/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_antibiotico/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 30298,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_antibiotico.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_usuario/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_usuario/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 34574,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_usuario.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_destinos/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_destinos/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 31253,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_destinos.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_seccion/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_seccion/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 35042,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_seccion.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_configuracion_general/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_configuracion_general/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 31507,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_configuracion_general.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_orden/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_orden/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 43783,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_orden.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_destinos_orden_detalle/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_destinos_orden_detalle/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 33749,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_destinos_orden_detalle.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 49436,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Mic_orden_detalle__Resultado_microbiologia.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Trans_consultas/Microbiologia_pac_orden",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Trans_consultas/Microbiologia_pac_orden",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 36900,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Trans_consultas__Microbiologia_pac_orden.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Trans_consultas/Microbiologia_proce_servi_medico",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Trans_consultas/Microbiologia_proce_servi_medico",
+    "status": 500,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 27193,
+    "stored": false
+  },
+  {
+    "path": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_produccion",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_produccion",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 30431,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Trans_reportes__Microbiologia_rep_produccion.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_idt_ast",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_idt_ast",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29866,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Trans_reportes__Microbiologia_rep_idt_ast.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_botellas",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_botellas",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 28199,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Trans_reportes__Microbiologia_rep_botellas.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_etiquetas_gen",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_etiquetas_gen",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 28207,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Trans_reportes__Microbiologia_rep_etiquetas_gen.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_hoja_trabajo",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_hoja_trabajo",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 29520,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Trans_reportes__Microbiologia_rep_hoja_trabajo.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/",
+    "url": "http://192.168.0.220/SIMCORE_WEB/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 27006,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB.html"
+  },
+  {
+    "path": "/SIMCORE_WEB/Home/Salir",
+    "url": "http://192.168.0.220/SIMCORE_WEB/Home/Salir",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 2137,
+    "stored": true,
+    "local_file": "mirror/_pages/SIMCORE_WEB__Home__Salir.html"
+  }
+]

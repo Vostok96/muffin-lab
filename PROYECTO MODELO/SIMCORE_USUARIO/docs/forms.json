@@ -1,0 +1,298 @@
+[
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Login/Index"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Home/Index"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_persona/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_persona/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_procedencia/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_procedencia/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_servicio/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_servicio/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_medico/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_medico/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_res_comentarios_def/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_res_comentarios_def/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_area/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_area/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_examen/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_examen/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_examen/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_examen/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_examen/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_examen/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_muestra/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_muestra/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_muestra_contenedor/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_muestra_contenedor/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_parametro/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_parametro/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/mic_orga_panel/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/mic_orga_panel/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/mic_orga_panel/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/mic_orga_panel/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_res_panel_recuento/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_res_panel_recuento/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orga/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orga/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_antibiotico/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_antibiotico/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_usuario/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_usuario/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_usuario/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_usuario/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_destinos/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_destinos/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_seccion/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_seccion/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_seccion/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_seccion/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_configuracion_general/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_configuracion_general/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_destinos_orden_detalle/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_destinos_orden_detalle/"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_consultas/Microbiologia_pac_orden"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_consultas/Microbiologia_pac_orden"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_consultas/Microbiologia_pac_orden"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_produccion"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_produccion"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_idt_ast"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_idt_ast"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_botellas"
+  },
+  {
+    "method": "POST",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_botellas_export"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_etiquetas_gen"
+  },
+  {
+    "method": "POST",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_etiquetas_gen_export"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_hoja_trabajo"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_hoja_trabajo"
+  },
+  {
+    "method": "GET",
+    "action": "/SIMCORE_WEB/"
+  },
+  {
+    "method": "POST",
+    "action": "/SIMCORE_WEB/Login/Index"
+  }
+]

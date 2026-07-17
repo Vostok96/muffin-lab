@@ -1,0 +1,129 @@
+[
+  {
+    "code": "SIN_ATB",
+    "name": "PANEL SIN ATB",
+    "display_order": 1,
+    "antibiotics": []
+  },
+  {
+    "code": "AST-N401",
+    "name": "PANEL AST-N401",
+    "display_order": 10,
+    "antibiotics": [
+      ["AMK", "Amikacina", 1],
+      ["SAM", "Ampicilina/Sulbactam", 2],
+      ["CEF", "Cefalotina", 3],
+      ["CFZ", "Cefazolina", 4],
+      ["CAZ", "Ceftazidima", 5],
+      ["FEP", "Cefepima", 5],
+      ["CRO", "Ceftriaxona", 6],
+      ["CIP", "Ciprofloxacina", 7],
+      ["ETP", "Ertapenem", 8],
+      ["FOS", "Fosfomicina", 9],
+      ["GEN", "Gentamicina", 10],
+      ["NIT", "Nitrofurantoina", 10],
+      ["SXT", "Trimetoprima/Sulfametoxazol", 11],
+      ["MEM", "Meropenem", 11],
+      ["NOR", "Norfloxacina", 12]
+    ]
+  },
+  {
+    "code": "AST-N402",
+    "name": "PANEL AST-N402",
+    "display_order": 11,
+    "antibiotics": [
+      ["AMK", "Amikacina", 1],
+      ["SAM", "Ampicilina/Sulbactam", 2],
+      ["CFZ", "Cefazolina", 3],
+      ["CRO", "Ceftriaxona", 4],
+      ["FEP", "Cefepima", 4],
+      ["CIP", "Ciprofloxacina", 5],
+      ["ETP", "Ertapenem", 6],
+      ["GEN", "Gentamicina", 7],
+      ["IPM", "Imipenem", 8],
+      ["MEM", "Meropenem", 9],
+      ["TZP", "Piperacilina/Tazobactam", 10],
+      ["TGC", "Tigeciclina", 11]
+    ]
+  },
+  {
+    "code": "AST-N403",
+    "name": "PANEL AST-N403",
+    "display_order": 13,
+    "antibiotics": [
+      ["AMK", "Amikacina", 1],
+      ["SAM", "Ampicilina/Sulbactam", 2],
+      ["ATM", "Aztreonam", 3],
+      ["CAZ", "Ceftazidima", 4],
+      ["CIP", "Ciprofloxacina", 5],
+      ["FEP", "Cefepima", 5],
+      ["CZA", "Ceftazidime/Avibactam", 5],
+      ["ETP", "Ertapenem", 6],
+      ["IPM", "Imipenem", 7],
+      ["MEM", "Meropenem", 8],
+      ["TZP", "Piperacilina/Tazobactam", 9],
+      ["CZT", "Ceftolozane/Tazobactam", 9],
+      ["TGC", "Tigeciclina", 10]
+    ]
+  },
+  {
+    "code": "AST-P663",
+    "name": "PANEL AST-P663",
+    "display_order": 15,
+    "antibiotics": [
+      ["AMP", "Ampicilina", 1],
+      ["PEN_G", "Bencilpenicilina G", 1],
+      ["CPT", "Ceftarolina", 2],
+      ["CIP", "Ciprofloxacina", 2],
+      ["CLI", "Clindamicina", 3],
+      ["DAP", "Daptomicina", 4],
+      ["ERY", "Eritromicina", 5],
+      ["GEN", "Gentamicina", 6],
+      ["LVX", "Levofloxacina", 7],
+      ["LZD", "Linezolid", 8],
+      ["OXA", "Oxacilina", 9],
+      ["RIF", "Rifampicina", 10],
+      ["TCY", "Tetraciclina", 11],
+      ["VAN", "Vancomicina", 12],
+      ["SXT", "Trimetoprima/Sulfametoxazol", 12],
+      ["STR_HL", "Estreptomicina Alto Carga (Sinergia)", 12],
+      ["NIT", "Nitrofurantoina", 13]
+    ]
+  },
+  {
+    "code": "AST-ST03",
+    "name": "PANEL AST-ST03",
+    "display_order": 16,
+    "antibiotics": [
+      ["PEN_G_PNEUMONIA", "Bencilpenicilina G(neumonia)", 1],
+      ["PEN_G_ORAL", "Bencilpenicilina G(oral)", 2],
+      ["PEN_G_MENINGITIS", "Bencilpenicilina G(meningitis)", 3],
+      ["PEN_G_OTRO", "Bencilpenicilina G(otro)", 4],
+      ["CTX_MENINGITIS", "Cefotaxima(meningitis)", 5],
+      ["CTX_OTRO", "Cefotaxima(otro)", 6],
+      ["CRO_MENINGITIS", "Ceftriaxona(meningitis)", 7],
+      ["CRO_OTRO", "Ceftriaxona(otro)", 8],
+      ["ERY", "Eritromicina", 9],
+      ["CLI", "Clindamicina", 10],
+      ["LZD", "Linezolid", 11],
+      ["VAN", "Vancomicina", 12],
+      ["TCY", "Tetraciclina", 14],
+      ["TGC", "Tigeciclina", 15],
+      ["CHL", "Cloramfenicol", 16],
+      ["RIF", "Rifampicina", 17],
+      ["SXT", "Trimetoprima/Sulfametoxazol", 19]
+    ]
+  },
+  {
+    "code": "AST-YS08",
+    "name": "PANEL AST-YS08",
+    "display_order": 17,
+    "antibiotics": [
+      ["AMB", "Anfotericina B", 1],
+      ["CAS", "Caspofungin", 2],
+      ["FLC", "Fluconazol", 3],
+      ["MCF", "Micafungin", 5],
+      ["VRC", "Voriconazol", 6]
+    ]
+  }
+]

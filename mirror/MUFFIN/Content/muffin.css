@@ -1,0 +1,984 @@
+:root {
+    --muffin-mint: #76cdb8;
+    --muffin-teal: #239ca3;
+    --muffin-teal-dark: #176d78;
+    --muffin-peach: #f4ad83;
+    --muffin-pink: #ee809f;
+    --muffin-cream: #fff8ec;
+    --muffin-cream-deep: #f7e8cf;
+    --muffin-ink: #294c52;
+    --muffin-muted: #62787b;
+    --muffin-line: #d8ebe5;
+    --muffin-surface: #fffefa;
+    --muffin-surface-alt: #f5fbf8;
+    --muffin-hero-start: #dff6ed;
+    --muffin-hero-mid: #bcebe2;
+    --muffin-hero-end: #fce1ca;
+}
+[data-theme="dark"] {
+    --muffin-mint: #4a9e87;
+    --muffin-teal: #48b8bf;
+    --muffin-teal-dark: #1a5c63;
+    --muffin-peach: #c47a5e;
+    --muffin-pink: #c4607a;
+    --muffin-cream: #0d1c1f;
+    --muffin-cream-deep: #111f23;
+    --muffin-ink: #d4e8e2;
+    --muffin-muted: #7ea09a;
+    --muffin-line: #1e3e44;
+    --muffin-surface: #152e33;
+    --muffin-surface-alt: #12282d;
+    --muffin-hero-start: #152e33;
+    --muffin-hero-mid: #1a3a40;
+    --muffin-hero-end: #1e3035;
+}
+
+body {
+    background: var(--muffin-cream);
+    box-sizing: border-box;
+    color: var(--muffin-ink);
+    overflow-x: hidden;
+}
+
+.muffin-nav {
+    background: linear-gradient(100deg, var(--muffin-teal-dark), var(--muffin-teal)) !important;
+    box-shadow: 0 4px 18px rgba(23, 109, 120, 0.22);
+    font-weight: 700 !important;
+    overflow-x: hidden;
+}
+
+.muffin-nav .navbar-brand {
+    align-items: center;
+    display: flex;
+    gap: 0.65rem;
+    letter-spacing: 0.04em;
+}
+
+.muffin-nav .navbar-brand::after {
+    color: #fff8ec;
+    content: "MUFFIN";
+    font-size: 1.1rem;
+}
+
+.muffin-nav .navbar-brand img {
+    background: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    height: 44px;
+    object-fit: cover;
+    padding: 2px;
+    width: 44px;
+}
+
+.muffin-nav .nav-link {
+    align-items: center;
+    border-radius: 999px;
+    display: flex;
+    gap: 0.45rem;
+    margin: 0.15rem;
+    padding-left: 0.72rem !important;
+    padding-right: 0.72rem !important;
+}
+
+.muffin-nav .nav-link:hover,
+.muffin-nav .nav-link:focus {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.muffin-nav .dropdown-menu {
+    border: 0;
+    border-radius: 0.8rem;
+    box-shadow: 0 12px 30px rgba(41, 76, 82, 0.2);
+}
+
+.muffin-dashboard {
+    margin: 0 auto;
+    max-width: 1320px;
+    padding: 2.25rem 1.25rem 2rem;
+    width: 100%;
+}
+
+.muffin-hero {
+    background:
+        radial-gradient(circle at 86% 12%, rgba(255, 255, 255, 0.7) 0 6px, transparent 7px),
+        radial-gradient(circle at 92% 28%, rgba(244, 173, 131, 0.42) 0 9px, transparent 10px),
+        linear-gradient(130deg, var(--muffin-hero-start) 0%, var(--muffin-hero-mid) 53%, var(--muffin-hero-end) 100%);
+    border: 1px solid rgba(35, 156, 163, 0.18);
+    border-radius: 1.8rem;
+    box-shadow: 0 16px 36px rgba(41, 76, 82, 0.1);
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1.45fr) minmax(180px, 0.55fr);
+    overflow: hidden;
+    padding: clamp(1.5rem, 4vw, 3.25rem);
+    position: relative;
+}
+
+.muffin-hero::after {
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    content: "";
+    height: 16rem;
+    position: absolute;
+    right: -6rem;
+    top: -8rem;
+    width: 16rem;
+}
+[data-theme="dark"] .muffin-hero::after { opacity: .18; }
+
+.muffin-eyebrow {
+    color: var(--muffin-teal-dark);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    margin: 0 0 0.7rem;
+    text-transform: uppercase;
+}
+
+.muffin-hero h1 {
+    color: var(--muffin-ink);
+    font-size: clamp(2rem, 4.4vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 0.95;
+    margin-bottom: 1rem;
+}
+
+.muffin-hero h1 span {
+    color: var(--muffin-pink);
+}
+
+.muffin-hero-copy {
+    color: var(--muffin-muted);
+    font-size: 1.06rem;
+    line-height: 1.65;
+    max-width: 43rem;
+}
+
+.muffin-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.4rem;
+}
+
+.muffin-button {
+    align-items: center;
+    border-radius: 999px;
+    display: inline-flex;
+    font-weight: 800;
+    gap: 0.45rem;
+    padding: 0.72rem 1rem;
+    text-decoration: none !important;
+}
+
+.muffin-button-primary {
+    background: var(--muffin-teal-dark);
+    box-shadow: 0 7px 14px rgba(23, 109, 120, 0.2);
+    color: #fff !important;
+}
+
+.muffin-button-primary:hover {
+    background: #105b65;
+}
+
+.muffin-button-secondary {
+    background: rgba(255, 255, 255, 0.64);
+    border: 1px solid rgba(35, 156, 163, 0.25);
+    color: var(--muffin-teal-dark) !important;
+}
+
+.muffin-button-secondary:hover {
+    background: #fff;
+}
+
+.muffin-mascot-wrap {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.muffin-mascot {
+    filter: drop-shadow(0 14px 12px rgba(41, 76, 82, 0.18));
+    max-height: 245px;
+    object-fit: contain;
+    transform: rotate(3deg);
+    width: min(100%, 245px);
+}
+
+.muffin-section-heading {
+    align-items: end;
+    display: flex;
+    justify-content: space-between;
+    margin: 2.4rem 0 1rem;
+}
+
+.muffin-section-heading h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.muffin-section-heading p {
+    color: var(--muffin-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.muffin-module-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.muffin-module {
+    background: var(--muffin-surface);
+    border: 1px solid var(--muffin-line);
+    border-radius: 1.15rem;
+    color: var(--muffin-ink);
+    min-height: 195px;
+    padding: 1.2rem;
+    position: relative;
+    text-decoration: none !important;
+    transition: box-shadow 160ms ease, transform 160ms ease, background .3s;
+}
+
+.muffin-module:hover {
+    box-shadow: 0 12px 22px rgba(41, 76, 82, 0.12);
+    color: var(--muffin-ink);
+    transform: translateY(-3px);
+}
+
+.muffin-module-icon {
+    align-items: center;
+    border-radius: 0.85rem;
+    display: inline-flex;
+    font-size: 1.18rem;
+    height: 2.7rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    width: 2.7rem;
+}
+
+.muffin-module:nth-child(1) .muffin-module-icon { background: #d9f4ed; color: #187d80; }
+.muffin-module:nth-child(2) .muffin-module-icon { background: #ffe3d2; color: #be684d; }
+
+.muffin-nav .nav-link,
+.muffin-nav .dropdown-item {
+    font-size: 0.95rem;
+}
+
+.muffin-nav .nav-link i,
+.muffin-nav .dropdown-item i {
+    width: 1.1rem;
+}
+
+.muffin-nav .dropdown-toggle {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.35rem;
+    max-width: 28rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.muffin-session-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.muffin-session-name i {
+    flex: 0 0 auto;
+}
+
+.navbar-nav.ml-auto .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+.muffin-nav .nav-item > .dropdown-menu {
+    min-width: 100%;
+}
+
+.modal-content {
+    background: var(--muffin-surface);
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 20px 50px rgba(41, 76, 82, 0.18);
+}
+
+.modal-header {
+    border-bottom: 0;
+    padding: 0.85rem 1rem;
+}
+
+.modal-body {
+    padding: 1rem;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(35, 156, 163, 0.12);
+    padding: 0.85rem 1rem 1rem;
+}
+
+.modal .form-group {
+    margin-bottom: 0.8rem;
+}
+
+.modal .col-form-label {
+    color: var(--muffin-ink);
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.2rem;
+}
+
+.modal .form-control,
+.modal .custom-select {
+    border-color: rgba(35, 156, 163, 0.22);
+    border-radius: 0.72rem;
+    font-size: 0.94rem;
+    min-height: 2.35rem;
+}
+
+.modal .form-control:focus,
+.modal .custom-select:focus {
+    box-shadow: 0 0 0 0.18rem rgba(35, 156, 163, 0.14);
+}
+
+.modal .input-group-text {
+    border-color: rgba(35, 156, 163, 0.22);
+    border-radius: 0.72rem;
+    font-size: 0.9rem;
+}
+
+.modal table.table {
+    color: var(--muffin-ink);
+    font-size: 0.92rem;
+}
+
+.modal table.table th,
+.modal table.table td {
+    padding: 0.45rem 0.55rem;
+    vertical-align: middle;
+}
+
+.modal table.table thead th {
+    background: var(--muffin-cream-deep);
+    border-bottom: 0;
+}
+
+#FormModal .modal-dialog {
+    max-width: min(96vw, 1400px);
+    width: min(96vw, 1400px);
+}
+
+#FormModal .row {
+    row-gap: 0.65rem;
+}
+
+#FormModal .card,
+#FormModal .card-body,
+#FormModal .form-control,
+#FormModal .custom-select {
+    min-width: 0;
+}
+
+#FormModal .card {
+    border-radius: 0.95rem;
+}
+
+#FormModal .btn {
+    white-space: nowrap;
+}
+
+#FormModal .card-title {
+    font-weight: 800;
+}
+
+#FormModal .fa-bars {
+    color: var(--muffin-teal-dark);
+}
+
+[data-theme="dark"] body {
+    background: #09151d;
+    color: var(--muffin-ink);
+}
+
+[data-theme="dark"] .muffin-nav {
+    background: linear-gradient(100deg, #12353e, #1f5f71) !important;
+}
+
+[data-theme="dark"] .modal-content {
+    background: var(--muffin-surface);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.36);
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: rgba(106, 191, 208, 0.12);
+}
+
+[data-theme="dark"] .modal .form-control,
+[data-theme="dark"] .modal .custom-select,
+[data-theme="dark"] .modal .input-group-text {
+    background-color: #10242c;
+    border-color: #1f3f49;
+    color: #d4e8e2;
+}
+
+[data-theme="dark"] .modal .form-control::placeholder {
+    color: #7ea09a;
+}
+
+[data-theme="dark"] .modal table.table thead th {
+    background: #182f36;
+}
+
+[data-theme="dark"] .muffin-session-name {
+    color: inherit;
+}
+.muffin-module:nth-child(3) .muffin-module-icon { background: #ffe1ea; color: #ba5272; }
+.muffin-module:nth-child(4) .muffin-module-icon { background: #eee5ff; color: #7656a0; }
+
+.muffin-module h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 0.45rem;
+}
+
+.muffin-module p {
+    color: var(--muffin-muted);
+    font-size: 0.88rem;
+    line-height: 1.48;
+    margin: 0;
+}
+
+.muffin-workbench {
+    background: var(--muffin-surface);
+    border: 1px solid var(--muffin-line);
+    border-radius: 1.15rem;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1.15fr 0.85fr;
+    padding: 1.3rem;
+    transition: background .3s;
+}
+
+.muffin-workbench h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 0.8rem;
+}
+
+.muffin-empty-state {
+    align-items: center;
+    background: var(--muffin-surface-alt);
+    border: 1px dashed #acd9cc;
+    border-radius: 0.85rem;
+    color: var(--muffin-muted);
+    display: flex;
+    font-size: 0.92rem;
+    gap: 0.65rem;
+    min-height: 6.2rem;
+    padding: 1rem;
+}
+
+.muffin-empty-state i {
+    color: var(--muffin-teal);
+    font-size: 1.3rem;
+}
+
+.muffin-status {
+    background: #fff2df;
+    border-radius: 0.85rem;
+    padding: 1rem;
+}
+[data-theme="dark"] .muffin-status { background: #2a2520; }
+
+.muffin-status-label {
+    color: #986043;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin: 0 0 0.3rem;
+    text-transform: uppercase;
+}
+
+.muffin-status strong {
+    color: #704634;
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+[data-theme="dark"] .muffin-status strong { color: #cfa78b; }
+[data-theme="dark"] .muffin-status-label { color: #b8846a; }
+
+.muffin-status span {
+    color: #805a47;
+    font-size: 0.86rem;
+}
+[data-theme="dark"] .muffin-status span { color: #b89680; }
+
+/* ── Bootstrap dark overrides ── */
+[data-theme="dark"] .dropdown-menu { background: #152e33; border-color: #1e3e44; }
+[data-theme="dark"] .dropdown-menu .dropdown-item { color: #c4d8d2; }
+[data-theme="dark"] .dropdown-menu .dropdown-item:hover { background: #1e3e44; color: #d4e8e2; }
+[data-theme="dark"] .dropdown-divider { border-color: #1e3e44; }
+[data-theme="dark"] .table { color: #c4d8d2; }
+[data-theme="dark"] .table thead th { border-color: #1e3e44; }
+[data-theme="dark"] .table td { border-color: #1e3e44; }
+[data-theme="dark"] .modal-content { background: #152e33; border-color: #1e3e44; color: #d4e8e2; }
+[data-theme="dark"] .modal-header { border-color: #1e3e44; }
+[data-theme="dark"] .modal-footer { border-color: #1e3e44; }
+[data-theme="dark"] .close { color: #d4e8e2; }
+[data-theme="dark"] .bg-light { background-color: #152e33 !important; }
+[data-theme="dark"] .text-dark { color: #d4e8e2 !important; }
+[data-theme="dark"] .border { border-color: #1e3e44 !important; }
+[data-theme="dark"] .page-link { background: #152e33; border-color: #1e3e44; color: #48b8bf; }
+[data-theme="dark"] .page-item.active .page-link { background: #176d78; border-color: #176d78; }
+[data-theme="dark"] .card { background: #152e33; border-color: #1e3e44; color: #d4e8e2; }
+[data-theme="dark"] .form-control { background: #12282d; border-color: #1e3e44; color: #d4e8e2; }
+[data-theme="dark"] .form-control:focus { background: #1a3a40; border-color: #48b8bf; color: #d4e8e2; }
+[data-theme="dark"] .jumbotron { background: #152e33; }
+[data-theme="dark"] .badge-light { background: #1e3e44; color: #c4d8d2; }
+
+.muffin-footer {
+    color: var(--muffin-muted);
+    font-size: 0.82rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+@media (max-width: 991px) {
+    .muffin-module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 767px) {
+    .muffin-dashboard { padding: 1.25rem 0.85rem; }
+    .muffin-hero { grid-template-columns: 1fr; padding: 1.45rem; }
+    .muffin-mascot-wrap { display: none; }
+    .muffin-section-heading { align-items: start; flex-direction: column; gap: 0.3rem; }
+    .muffin-workbench { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 460px) {
+    .muffin-module-grid { grid-template-columns: 1fr; }
+    .muffin-hero-actions { flex-direction: column; }
+    .muffin-button { justify-content: center; }
+}
+
+/* ── MUFFIN shell over SIMCORE Bootstrap pages ── */
+.container, .container-fluid {
+    background: transparent !important;
+}
+
+.jumbotron {
+    background: var(--muffin-surface) !important;
+    border: 1px solid var(--muffin-line) !important;
+    border-radius: 1.15rem !important;
+    box-shadow: 0 6px 18px rgba(41,76,82,.06) !important;
+    padding: 1.8rem !important;
+}
+
+.card {
+    background: var(--muffin-surface) !important;
+    border: 1px solid var(--muffin-line) !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 4px 12px rgba(41,76,82,.05) !important;
+}
+.card-header {
+    background: transparent !important;
+    border-bottom: 1px solid var(--muffin-line) !important;
+    font-weight: 700 !important;
+    color: var(--muffin-ink) !important;
+}
+
+.table {
+    border-radius: .85rem;
+    overflow: hidden;
+}
+.table thead th {
+    background: var(--muffin-cream-deep) !important;
+    border-bottom: 2px solid var(--muffin-teal) !important;
+    color: var(--muffin-ink) !important;
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background: rgba(118,205,184,.08) !important;
+}
+
+.form-control, .custom-select, .dataTables_filter input {
+    border: 1.5px solid var(--muffin-line) !important;
+    border-radius: .7rem !important;
+    background: #fff !important;
+    color: var(--muffin-ink) !important;
+    padding: .55rem .85rem !important;
+    font-size: .88rem !important;
+}
+.form-control:focus, .custom-select:focus {
+    border-color: var(--muffin-teal) !important;
+    box-shadow: 0 0 0 3px rgba(35,156,163,.12) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(100deg, var(--muffin-teal-dark), var(--muffin-teal)) !important;
+    border: none !important;
+    border-radius: .7rem !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(23,109,120,.18) !important;
+}
+.btn-primary:hover {
+    background: linear-gradient(100deg, #105b65, var(--muffin-teal)) !important;
+    box-shadow: 0 6px 16px rgba(23,109,120,.28) !important;
+}
+
+.btn-secondary {
+    background: var(--muffin-surface) !important;
+    border: 1.5px solid var(--muffin-line) !important;
+    border-radius: .7rem !important;
+    color: var(--muffin-ink) !important;
+    font-weight: 600 !important;
+}
+
+.btn-success { background: #239ca3 !important; border: none !important; border-radius: .7rem !important; }
+.btn-danger { border-radius: .7rem !important; }
+.btn-warning { border-radius: .7rem !important; }
+.btn-info { background: #76cdb8 !important; border: none !important; border-radius: .7rem !important; color: #294c52 !important; }
+
+.page-item.active .page-link {
+    background: var(--muffin-teal) !important;
+    border-color: var(--muffin-teal) !important;
+}
+.page-link {
+    color: var(--muffin-teal-dark) !important;
+    border-radius: .5rem !important;
+    margin: 0 .15rem;
+}
+
+.badge {
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+    padding: .3em .7em !important;
+}
+
+hr, .dropdown-divider {
+    border-color: var(--muffin-line) !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--muffin-muted) !important;
+    font-size: .85rem !important;
+}
+
+h1, h2, h3, h4, h5, h6 { color: var(--muffin-ink) !important; }
+
+.muffin-results-card > .card-header {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+}
+
+.muffin-results-card > .card-header #cboArea {
+    flex: 0 0 min(100%, 18rem);
+    float: none !important;
+    min-width: 16rem;
+    text-align: left;
+}
+
+.muffin-results-card .card-body > .row:first-of-type {
+    align-items: flex-end;
+    column-gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    margin-left: 0;
+    margin-right: 0;
+    row-gap: 0.8rem;
+}
+
+.muffin-results-card .card-body > .row:first-of-type > [class*="col-"] {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+}
+
+.muffin-results-card .input-group,
+.muffin-results-card .input-group-sm {
+    flex-wrap: nowrap;
+}
+
+.muffin-results-card #cboFiltro {
+    min-width: 0;
+}
+
+.muffin-results-card .input-group-text {
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: #1a3a40 !important;
+    border-color: #1e3e44 !important;
+    color: #c4d8d2 !important;
+}
+[data-theme="dark"] .table thead th {
+    background: #1a2e33 !important;
+    border-color: #1e3e44 !important;
+}
+[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background: rgba(72,184,191,.06) !important;
+}
+[data-theme="dark"] .jumbotron { background: var(--muffin-surface) !important; }
+[data-theme="dark"] .dataTables_wrapper .dataTables_length,
+[data-theme="dark"] .dataTables_wrapper .dataTables_filter,
+[data-theme="dark"] .dataTables_wrapper .dataTables_info {
+    color: var(--muffin-muted) !important;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .custom-select,
+[data-theme="dark"] .dataTables_filter input {
+    background: #10242c !important;
+    border-color: #1f3f49 !important;
+    color: #d4e8e2 !important;
+}
+
+[data-theme="dark"] .form-control:disabled,
+[data-theme="dark"] .form-control[readonly],
+[data-theme="dark"] .custom-select:disabled {
+    background: #193238 !important;
+    color: #b8d1cb !important;
+    opacity: 1;
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .custom-select:focus,
+[data-theme="dark"] .dataTables_filter input:focus {
+    background: #17333a !important;
+    border-color: var(--muffin-teal) !important;
+    color: #eefbf7 !important;
+}
+
+[data-theme="dark"] .table-success,
+[data-theme="dark"] .table-success > th,
+[data-theme="dark"] .table-success > td {
+    background-color: rgba(85, 167, 116, 0.28) !important;
+    color: #e3f7e9 !important;
+}
+
+[data-theme="dark"] .table-warning,
+[data-theme="dark"] .table-warning > th,
+[data-theme="dark"] .table-warning > td {
+    background-color: rgba(214, 167, 54, 0.30) !important;
+    color: #fff2cf !important;
+}
+
+[data-theme="dark"] .table-danger,
+[data-theme="dark"] .table-danger > th,
+[data-theme="dark"] .table-danger > td {
+    background-color: rgba(198, 83, 94, 0.30) !important;
+    color: #ffe0e3 !important;
+}
+
+@media (min-width: 992px) {
+    body {
+        padding-left: 240px !important;
+        padding-top: 0 !important;
+        transition: padding-left 180ms ease;
+    }
+
+    body.muffin-sidebar-collapsed {
+        padding-left: 76px !important;
+    }
+
+    .muffin-nav {
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        inset: 0 auto 0 0;
+        align-items: stretch;
+        flex-direction: column;
+        min-height: 100vh;
+        padding: 1rem 0.8rem 1rem;
+        position: fixed !important;
+        overflow-y: auto;
+        transition: width 180ms ease;
+        width: 240px;
+        z-index: 1030;
+    }
+
+    .muffin-nav .navbar-brand {
+        margin: 0 0 0.75rem;
+        width: 100%;
+        justify-content: flex-start;
+        white-space: nowrap;
+    }
+
+    .muffin-nav .navbar-toggler {
+        display: inline-flex !important;
+        position: absolute;
+        right: 0.7rem;
+        top: 0.75rem;
+        z-index: 2;
+    }
+
+    .muffin-nav .navbar-collapse {
+        align-items: stretch;
+        display: flex !important;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+        padding-top: 0.75rem;
+        width: 100%;
+    }
+
+    .muffin-nav .navbar-nav {
+        flex-direction: column;
+        margin-right: 0 !important;
+        width: 100%;
+    }
+
+    .muffin-nav .navbar-nav.ml-auto {
+        margin-left: 0 !important;
+        margin-top: auto !important;
+        padding-top: 0.75rem;
+    }
+
+    .muffin-nav .nav-item,
+    .muffin-nav .nav-link,
+    .muffin-nav .dropdown-toggle {
+        width: 100%;
+    }
+
+    .muffin-nav .nav-link {
+        justify-content: flex-start;
+        margin: 0.1rem 0;
+        min-width: 0;
+        overflow: hidden;
+        padding: 0.65rem 0.8rem !important;
+        font-size: 0.9rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .muffin-nav .dropdown-toggle::after {
+        margin-left: auto;
+    }
+
+    .muffin-nav .dropdown-menu {
+        position: static;
+        float: none;
+        width: 100%;
+        margin-top: 0.25rem;
+        box-shadow: none;
+    }
+
+    .muffin-nav .navbar-nav.ml-auto .nav-item.dropdown {
+        position: relative;
+    }
+
+    .muffin-nav .navbar-nav.ml-auto .dropdown-menu {
+        bottom: calc(100% + 0.35rem);
+        left: 0;
+        margin-bottom: 0;
+        margin-top: 0;
+        max-height: min(18rem, calc(100vh - 7rem));
+        overflow-y: auto;
+        position: absolute;
+        right: auto;
+        top: auto !important;
+        transform: none !important;
+        width: 100%;
+        z-index: 1040;
+    }
+
+    .muffin-nav .dropdown-item {
+        white-space: normal;
+    }
+
+    .container,
+    .container-fluid {
+        max-width: none;
+    }
+
+    .container,
+    .container-fluid,
+    .muffin-dashboard {
+        padding-left: clamp(0.9rem, 2vw, 1.5rem) !important;
+        padding-right: clamp(0.9rem, 2vw, 1.5rem) !important;
+    }
+
+    .muffin-dashboard {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: none;
+    }
+
+    .muffin-module-grid {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    }
+
+    body.muffin-sidebar-collapsed .muffin-nav {
+        padding-left: 0.65rem;
+        padding-right: 0.65rem;
+        width: 76px;
+    }
+
+    body.muffin-sidebar-collapsed .muffin-nav .navbar-brand {
+        justify-content: center;
+        margin-top: 3.4rem;
+    }
+
+    body.muffin-sidebar-collapsed .muffin-nav .navbar-brand::after,
+    body.muffin-sidebar-collapsed .muffin-nav .nav-link::after,
+    body.muffin-sidebar-collapsed .muffin-nav .dropdown-menu {
+        display: none !important;
+    }
+
+    body.muffin-sidebar-collapsed .muffin-nav .nav-link {
+        color: transparent !important;
+        height: 44px;
+        justify-content: center;
+        padding: 0 !important;
+        width: 44px;
+    }
+
+    body.muffin-sidebar-collapsed .muffin-nav .nav-link i {
+        color: rgba(255, 255, 255, 0.72);
+        margin: 0;
+    }
+
+    body.muffin-sidebar-collapsed .muffin-session-name {
+        color: transparent;
+        justify-content: center;
+        width: 44px;
+    }
+
+    body.muffin-sidebar-collapsed .muffin-session-name i {
+        color: rgba(255, 255, 255, 0.72);
+    }
+}
+
+@media (max-width: 991.98px) {
+    body {
+        padding-left: 0 !important;
+    }
+}

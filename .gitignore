@@ -1,0 +1,20 @@
+# Local-only files and generated data.
+/local_data/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Secrets.
+.env
+.env.local
+*.local.json
+
+# Python/cache.
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Docker runtime data.
+/data/

@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Expires" content="0">
+	<meta http-equiv="Last-Modified" content="0">
+	<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+	<meta http-equiv="Pragma" content="no-cache">
+	<!--<META http-equiv=refresh content=30>-->
+
+	<title>Index - SIMCORE WEB - Sistema de Información de Microbiología - ASP.NET</title>
+	<link href="/SIMCORE_WEB/Content/css?v=ivzLv745bmnThkrYOWP2Oyh3EQaw__rxaWvN5bNa0zg1" rel="stylesheet"/>
+
+	<script src="/SIMCORE_WEB/bundles/modernizr?v=inCVuEFe6J4Q07A0AcRsbJic_UE5MwpRMNGcOtk94TE1"></script>
+
+	<link href="/SIMCORE_WEB/Content/PluginsCSS?v=LotVGen8pIxTKQj7GXfbE9JAs-QwmYADT5A-bRC0LkQ1" rel="stylesheet"/>
+
+	
+</head>
+<body>
+
+	<nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-info" style="font-weight:bold">
+		<a class="navbar-brand" href="/SIMCORE_WEB/">
+			<img src="/SIMCORE_WEB/Imagenes/simcorelogo.png" width="100" height="48" alt="logo">
+		</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item">
+					<a class="nav-link" name="Mantenedor_hom" href="/SIMCORE_WEB/"><i class="fas fa-home"></i> Inicio</a>
+				</li>
+				<li class="nav-item dropdown cl_permiso_proceso_configuracion" style="display: none">
+					<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-wrench"></i> Configuración</a>
+                    <div class="dropdown-menu drop-menu">
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_persona/'><i class='fa fa-wrench'></i> Pacientes</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_procedencia/'><i class='fa fa-wrench'></i> Procedencias</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_servicio/'><i class='fa fa-wrench'></i> Servicios</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_medico/'><i class='fa fa-wrench'></i> Médicos</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_res_comentarios_def/'><i class='fa fa-wrench'></i> Comentarios Definido</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_area/'><i class='fa fa-wrench'></i> Área</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_examen/'><i class='fa fa-wrench'></i> Exámenes</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_muestra/'><i class='fa fa-wrench'></i> Muestras</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_muestra_contenedor/'><i class='fa fa-wrench'></i> Muestras Contenedor</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_parametro/'><i class='fa fa-wrench'></i> Parámetros</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/mic_orga_panel/'><i class='fa fa-wrench'></i> Paneles ATB</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_res_panel_recuento/'><i class='fa fa-wrench'></i> Recuento de Colonias (Paneles +)</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_orga/'><i class='fa fa-wrench'></i> Micro Organismos</a>
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_antibiotico/'><i class='fa fa-wrench'></i> Antibiótico</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_usuario/'><i class='fa fa-wrench'></i> Usuarios</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_destinos/'><i class='fa fa-wrench'></i> Destinos</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_seccion/'><i class='fa fa-wrench'></i> Sección(CI)</a>
+
+                        <a class='dropdown-item cl_permiso_3
+' name='Mantenedor_con' href='/SIMCORE_WEB/Mic_configuracion_general/'><i class='fa fa-wrench'></i> Configuracion General</a>
+                    </div>
+				</li>
+				<li class="nav-item cl_permiso_proceso_ordenes" style="display: none">
+					<a class="nav-link" name="Mantenedor_orden" href="/SIMCORE_WEB/Mic_orden/"><i class="fa fa-id-card-alt"></i> Órdenes</a>
+				</li>
+				<li class="nav-item cl_permiso_proceso_verificacion" style="display: none">
+					<a class="nav-link" name="Mantenedor_verificacion" href="/SIMCORE_WEB/Mic_destinos_orden_detalle/"><i class="fa fa-id-card-alt"></i> Verificación</a>
+				</li>
+				<li class="nav-item cl_permiso_proceso_resultados" style="display: none">
+					<a class="nav-link" name="Mantenedor_resultado_micro" href="/SIMCORE_WEB/Mic_orden_detalle/Resultado_microbiologia"><i class="fa fa-id-card"></i> Resultados</a>
+				</li>
+				<li class="nav-item dropdown cl_permiso_consultas" style="display: none">
+					<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-database"></i> Consultas</a>
+					<div class="dropdown-menu drop-menu">
+						<a class="dropdown-item cl_permiso_conultas" name="Mantenedor_consultas" href="/SIMCORE_WEB/Trans_consultas/Microbiologia_pac_orden"><i class="fa fa-database"></i> Consulta - Paciente/Orden</a>
+						<!--<a class="dropdown-item cl_permiso_conultas" name="Mantenedor_consultas" href="#"><i class="fa fa-database"></i> Consulta - Procedencia/Servicio/Médico</a>-->
+						<!--<a class="dropdown-item cl_permiso_rep" name="Mantenedor_consultas" href="~/Trans_consultas/Microbiologia_proce_servi_medico"><i class="fa fa-database"></i> Consulta - Procedencia/Servicio/Médico</a>-->
+					</div>
+				</li>
+
+				<li class="nav-item dropdown cl_permiso_proceso_reportes" style="display: none">
+					<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-database"></i> Reportes</a>
+                    <div class="dropdown-menu drop-menu">
+                        <a class="dropdown-item cl_permiso_rep" name="Mantenedor_rep" href="/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_produccion"><i class="fa fa-database"></i> Reporte - Producción Resultados</a>
+                        <a class="dropdown-item cl_permiso_rep" name="Mantenedor_rep" href="/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_idt_ast"><i class="fa fa-database"></i> Reporte - Producción IDT/AST</a>
+                        <a class="dropdown-item cl_permiso_rep" name="Mantenedor_rep" href="/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_botellas"><i class="fa fa-database"></i> Reporte - Producción de Botellas</a>
+                        <a class="dropdown-item cl_permiso_rep" name="Mantenedor_rep" href="/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_etiquetas_gen"><i class="fa fa-database"></i> Reporte - Producción Impresión/Ticket</a>
+                        <hr />
+                        <a class="dropdown-item cl_permiso_rep" name="Mantenedor_rep" href="/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_hoja_trabajo"><i class="fa fa-database"></i> Reporte - Hoja de trabajo</a>
+                    </div>
+				</li>
+			</ul>
+
+			<ul class="nav navbar-nav ml-auto">
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fas fa-user-circle"></i>  BLGO. GALLARDO PAREDES, DENIS ROMARIO (CBP 15057)
+<input type='hidden' id='session_user_id' value='local_demo'/>
+<input type='hidden' id='session_user_rol' value='3'/>
+<input type='hidden' id='session_user_rol_validacion_preliminar' value='True'/>
+<input type='hidden' id='session_user_rol_validacion_final' value='True'/>
+</a>
+					<div class="dropdown-menu drop-menu">
+						<a class="dropdown-item" name="Mantenedor_Session" href="#" onclick="modal_cambiar_pass()"><i class="fas fa-passport"></i>  Cambiar Contraseña</a>
+						<a class="dropdown-item" name="Mantenedor_Session" href="/SIMCORE_WEB/Home/Salir"><i class="fas fa-window-close"></i>  Cerrar Sessión</a>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+
+
+
+
+
+
+
+	<!-- Modal -->
+	<div class="modal fade" id="FormModalCambiarPASS" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true" style="padding-top: 5%">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header bg-info text-white">
+					<h5 class="modal-title" id="exampleModalLabel">Cambiar Contraseña</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="formPass">
+						<div class="form-group">
+							<label for="txtPassAnterior" class="col-form-label">Contraseña Actual: <span class="error"></span></label>
+							<input type="password" class="form-control form-control-sm model required" id="txtPassAnterior" name="txtPassAnterior">
+						</div>
+						<div class="form-group">
+							<label for="txtPassNuevo1" class="col-form-label">Contraseña Nueva: <span class="error"></span></label>
+							<input type="password" class="form-control form-control-sm model required" id="txtPassNuevo1" name="txtPassNuevo1">
+						</div>
+						<div class="form-group">
+							<label for="txtPassNuevo2" class="col-form-label">Contraseña Nueva: (Repetir)<span class="error"></span></label>
+							<input type="password" class="form-control form-control-sm model required" id="txtPassNuevo2" name="txtPassNuevo2">
+						</div>
+
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cerrar</button>
+					<button onclick="modal_cambiar_pass_save();" id="btnCambiarPASS" type="button" class="btn btn-sm btn-secondary">Cambiar Contraseña</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<div class="container-fluid mt-4">
+		
+
+
+
+
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="card border-info">
+			<div class="card-header bg-info text-white">
+				Lista de Muestras
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-sm-4">
+						<button id="btnNuevoRol" type="button" class="btn btn-sm btn-success" onclick="abrirPopUpForm(null)"> <i class="fa fa-plus" aria-hidden="true"></i> Agregar Nuevo</button>
+					</div>
+				</div>
+				<hr />
+				<div class="row mt-3">
+					<div class="col-sm-12">
+						<table id="tbdata" class="table table-striped table-bordered nowrap compact" style="width:100%">
+							<thead>
+								<tr>
+									<th>Código Alfa WHONET</th>
+									<th>Descripción</th>
+									<th>Código Num WHONET</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="FormModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-info text-white">
+				<h5 class="modal-title" id="exampleModalLabel">Muestra</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="form">
+					<input id="txtid" class="model" value="0" type="hidden" />
+					<div class="form-group">
+						<label for="txtCod" class="col-form-label">Código Alfa WHONET: <span class="error"></span></label>
+						<input type="text" class="form-control form-control-sm model required" id="txtCod" name="txtCod">
+					</div>
+					<div class="form-group">
+						<label for="txtDesc" class="col-form-label">Descripción: <span class="error"></span></label>
+						<input type="text" class="form-control form-control-sm model required" id="txtDesc" name="txtDesc">
+					</div>
+					<div class="form-group">
+						<label for="txtCodHomo" class="col-form-label">Código Num WHONET: <span class="error"></span></label>
+						<input type="text" class="form-control form-control-sm model required" id="txtCodHomo" name="txtCodHomo">
+					</div>
+
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cerrar</button>
+				<button id="btnGuardarCambios" type="button" class="btn btn-sm btn-primary" onclick="Guardar()">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+		<hr />
+		<footer>
+			<p>Copyright &copy; SIMCORE V3.1.15<br />2015 - 2026, Todos los derechos reservados</p>
+		</footer>
+	</div>
+
+	<script src="/SIMCORE_WEB/bundles/jquery?v=8Oos0avDZyPg-cbyVzvkIfERIE1DGSe3sRQdCSYrgEQ1"></script>
+
+	<script src="/SIMCORE_WEB/bundles/bootstrap?v=Rc0g6GDBha0U2Ue5txisObdTUK1i4R1sOhOsbTe7GyM1"></script>
+
+	<script src="/SIMCORE_WEB/Content/PluginsJS?v=sQB6J2EBUgtBNkJ6uHK2oNSgdLTnVwcEwKIRWaMhYlM1"></script>
+
+<script type="text/javascript">
+
+        $.extend({ MisUrls: { url: {}, urls: function (a) { $.extend($.MisUrls.url, a); } } });
+
+		//CONTROLADOR LOGIN
+		$.MisUrls.urls({ _IndexLogin: '/SIMCORE_WEB/' });
+
+		//CONTROLADOR ORGANISMO
+		$.MisUrls.urls({ _ObtenerMic_orga: '/SIMCORE_WEB/Mic_orga/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_orga: '/SIMCORE_WEB/Mic_orga/Guardar' });
+
+		//CONTROLADOR ANTIBIOTICO
+		$.MisUrls.urls({ _ObtenerMic_antibiotico: '/SIMCORE_WEB/Mic_antibiotico/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_antibiotico: '/SIMCORE_WEB/Mic_antibiotico/Guardar' });
+
+        //CONTROLADOR PERSONA
+		$.MisUrls.urls({ _ObtenerPersona: '/SIMCORE_WEB/Mic_Persona/Obtener' });
+		$.MisUrls.urls({ _ExportarPersona: '/SIMCORE_WEB/Mic_Persona/Exportar' });
+		$.MisUrls.urls({ _ObtenerHC: '/SIMCORE_WEB/Mic_persona/ObtenerHC' });
+		$.MisUrls.urls({ _GuardarPersona: '/SIMCORE_WEB/Mic_Persona/Guardar' });
+
+		//ORDEN
+		$.MisUrls.urls({ _ObtenerMic_orden: '/SIMCORE_WEB/Mic_orden/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_orden: '/SIMCORE_WEB/Mic_orden/Guardar' });
+		$.MisUrls.urls({ _RegistrarPrinterCodebarMic_orden: '/SIMCORE_WEB/Mic_orden/RegistrarPrinterCodebar' });
+		$.MisUrls.urls({ _ObtenerMic_orden_seach_destinoMic_orden: '/SIMCORE_WEB/Mic_orden/ObtenerMic_orden_seach_destino' });
+    
+        //CONTROLADOR ORDEN DETALLE
+		$.MisUrls.urls({ _Obtener_Mic_orden_detalle_examen: '/SIMCORE_WEB/Mic_orden_detalle/Obtener_Mic_orden_detalle_examen' });
+		$.MisUrls.urls({ _ObtenerMic_orden_detalle_examen_muestra: '/SIMCORE_WEB/Mic_orden_detalle/ObtenerMic_orden_detalle_examen_muestra' });
+		$.MisUrls.urls({ _RegistrarExaMuestraMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/RegistrarExaMuestraMic_orden_detalle' });
+		$.MisUrls.urls({ _RegistrarEnviarInstrumentoMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/RegistrarEnviarInstrumentoMic_orden_detalle' });
+		$.MisUrls.urls({ _RegistrarDeleteEventosMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/RegistrarDeleteEventosMic_orden_detalle' });
+		$.MisUrls.urls({ _RegistrarEnviarAlarmaEmailMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/RegistrarEnviarAlarmaEmailMic_orden_detalle' });
+
+
+		$.MisUrls.urls({ _EliminarMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/EliminarMic_orden_detalle' });
+
+		$.MisUrls.urls({ _Obtener_resMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/Obtener_res' });
+		$.MisUrls.urls({ _GuardarMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/Guardar' });
+		$.MisUrls.urls({ _GuardarMoMuestraMic_orden_detalle: '/SIMCORE_WEB/Mic_orden_detalle/GuardarMoMuestra' });
+
+		//CONTROLADOR ORDEN DETALLE HEMO
+
+		$.MisUrls.urls({ _GuardarMic_orden_detalle_hemo: '/SIMCORE_WEB/Mic_orden_detalle_hemo/Guardar' });
+		$.MisUrls.urls({ _RegistrarValidarIconMic_orden_detalle_hemo: '/SIMCORE_WEB/Mic_orden_detalle_hemo/RegistrarValidarIcon' });
+
+		$.MisUrls.urls({ _Obtener_res_hemoMic_orden_detalle_hemo: '/SIMCORE_WEB/Mic_orden_detalle_hemo/Obtener_res_hemo' });
+
+
+		//TEMP
+		$.MisUrls.urls({ _DocumentoPDFMic_temp: '/SIMCORE_WEB/Mic_temp/DocumentoPDF' });
+
+		//CONTROLADOR ORDEN DETALLE RES
+		$.MisUrls.urls({ _ObtenerOrdenIdMic_orden_detalle_res: '/SIMCORE_WEB/Mic_orden_detalle_res/ObtenerOrdenId' });
+		$.MisUrls.urls({ _ObtenerMic_orden_pdf_examen_paramMic_orden_detalle_res: '/SIMCORE_WEB/Mic_orden_detalle_res/ObtenerMic_orden_pdf_examen_param' });
+		$.MisUrls.urls({ _GuardarMic_orden_detalle_res: '/SIMCORE_WEB/Mic_orden_detalle_res/Guardar' });
+
+		//CONTROLADOR PROCEDENCIA
+		$.MisUrls.urls({ _ObtenerMic_procedencia: '/SIMCORE_WEB/Mic_procedencia/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_procedencia: '/SIMCORE_WEB/Mic_procedencia/Guardar' });
+
+        //CONTROLADOR SERVICIO
+		$.MisUrls.urls({ _ObtenerMic_servicio: '/SIMCORE_WEB/Mic_servicio/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_servicio: '/SIMCORE_WEB/Mic_servicio/Guardar' });
+
+		//CONTROLADOR EXAMEN
+		$.MisUrls.urls({ _ObtenerMic_examen: '/SIMCORE_WEB/Mic_examen/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_examen: '/SIMCORE_WEB/Mic_examen/Guardar' });
+
+		//CONTROLADOR COMENTARIO DEFINIDO
+		$.MisUrls.urls({ _ObtenerMic_res_comentarios_def: '/SIMCORE_WEB/Mic_res_comentarios_def/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_res_comentarios_def: '/SIMCORE_WEB/Mic_res_comentarios_def/Guardar' });
+
+		//CONTROLADOR EXAMEN PARAMETRO
+		$.MisUrls.urls({ _ObtenerMic_examen_parametro: '/SIMCORE_WEB/Mic_examen_parametro/Obtener' });
+		$.MisUrls.urls({ _RegistrarMic_examen_parametro: '/SIMCORE_WEB/Mic_examen_parametro/Guardar' });
+		$.MisUrls.urls({ _EliminarMic_examen_parametro: '/SIMCORE_WEB/Mic_examen_parametro/Eliminar' });
+
+
+		//CONTROLADOR PARAMETRO
+		$.MisUrls.urls({ _ObtenerMic_parametro: '/SIMCORE_WEB/Mic_parametro/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_parametro: '/SIMCORE_WEB/Mic_parametro/Guardar' });
+
+		//CONTROLADOR MUESTRA EXAMEN
+		$.MisUrls.urls({ _ObtenerMic_muestra_examen: '/SIMCORE_WEB/Mic_muestra_examen/Obtener' });
+		$.MisUrls.urls({ _ObtenerMic_muestra_examenEXA: '/SIMCORE_WEB/Mic_muestra_examen/ObtenerEXA' });
+
+		$.MisUrls.urls({ _RegistrarMic_muestra_examen: '/SIMCORE_WEB/Mic_muestra_examen/Guardar' });
+		$.MisUrls.urls({ _EliminarMic_muestra_examen: '/SIMCORE_WEB/Mic_muestra_examen/Eliminar' });
+
+
+		//CONTROLADOR MUESTRA
+		$.MisUrls.urls({ _ObtenerMic_muestra: '/SIMCORE_WEB/Mic_muestra/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_muestra: '/SIMCORE_WEB/Mic_muestra/Guardar' });
+
+		//CONTROLADOR MUESTRA
+		$.MisUrls.urls({ _ObtenerMic_muestra_contenedor: '/SIMCORE_WEB/Mic_muestra_contenedor/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_muestra_contenedor: '/SIMCORE_WEB/Mic_muestra_contenedor/Guardar' });
+
+		//CONTROLADOR PANEL
+		$.MisUrls.urls({ _ObtenerCodebarMic_res_panel: '/SIMCORE_WEB/Mic_res_panel/ObtenerCodebar' });
+		$.MisUrls.urls({ _ObtenerCodebarOrgacodMic_res_panel: '/SIMCORE_WEB/Mic_res_panel/ObtenerCodebarOrgacod' });
+		$.MisUrls.urls({ _RegistrarMic_res_panel: '/SIMCORE_WEB/Mic_res_panel/Registrar' });
+		$.MisUrls.urls({ _EliminarMic_res_panel: '/SIMCORE_WEB/Mic_res_panel/Eliminar' });
+
+		//CONTROLADOR PANEL DETALLE
+		$.MisUrls.urls({ _ObtenerCodebarOrgaCodMic_res_panel_detalle: '/SIMCORE_WEB/Mic_res_panel_detalle/ObtenerCodebarOrgaCod' });
+		$.MisUrls.urls({ _GuardarMic_res_panel_detalle: '/SIMCORE_WEB/Mic_res_panel_detalle/Guardar' });
+		$.MisUrls.urls({ _GuardarManualMic_res_panel_detalle: '/SIMCORE_WEB/Mic_res_panel_detalle/GuardarManual' });
+
+		//CONTROLADOR VISTA MEDICO
+		$.MisUrls.urls({ _ObtenerMic_orden_pdf_panel: '/SIMCORE_WEB/Mic_res_panel/ObtenerMic_orden_pdf_panel' });
+		$.MisUrls.urls({ _ObtenerMic_orden_pdf_panel_atb: '/SIMCORE_WEB/Mic_res_panel_detalle/ObtenerMic_orden_pdf_panel_atb' });
+
+
+		//CONTROLADOR USUARIO
+		$.MisUrls.urls({ _ObtenerMic_usuario: '/SIMCORE_WEB/Mic_usuario/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_usuario: '/SIMCORE_WEB/Mic_usuario/Guardar' });
+		$.MisUrls.urls({ _Guardar_update_passMic_usuario: '/SIMCORE_WEB/Mic_usuario/Guardar_update_pass' });
+
+		//CONTROLADOR ORGA PANEL
+		$.MisUrls.urls({ _ObtenerMic_orga_panel: '/SIMCORE_WEB/Mic_orga_panel/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_orga_panel: '/SIMCORE_WEB/Mic_orga_panel/Guardar' });
+		$.MisUrls.urls({ _EliminarMic_orga_panel: '/SIMCORE_WEB/Mic_orga_panel/Eliminar' });
+
+		//CONTROLADOR ORGA PANEL DETALLE
+		$.MisUrls.urls({ _ObtenerMic_orga_panel_detalle: '/SIMCORE_WEB/Mic_orga_panel_detalle/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_orga_panel_detalle: '/SIMCORE_WEB/Mic_orga_panel_detalle/Guardar' });
+		$.MisUrls.urls({ _EliminarMic_orga_panel_detalle: '/SIMCORE_WEB/Mic_orga_panel_detalle/Eliminar' });
+
+		//CONTROLADOR AREA
+		$.MisUrls.urls({ _ObtenerMic_area: '/SIMCORE_WEB/Mic_area/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_area: '/SIMCORE_WEB/Mic_area/Guardar' });
+
+		//CONTROLADOR PANEL RECUENTO
+		$.MisUrls.urls({ _ObtenerMic_res_panel_recuento: '/SIMCORE_WEB/Mic_res_panel_recuento/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_res_panel_recuento: '/SIMCORE_WEB/Mic_res_panel_recuento/Guardar' });
+
+		//CONTROLADOR MEDICO
+		$.MisUrls.urls({ _ObtenerMic_medico: '/SIMCORE_WEB/Mic_medico/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_medico: '/SIMCORE_WEB/Mic_medico/Guardar' });
+
+        //CONTROLADOR Mic_seccion
+        $.MisUrls.urls({ _ObtenerMic_seccion: '/SIMCORE_WEB/Mic_seccion/Obtener' });
+        $.MisUrls.urls({ _ObtenerSecuenciaMic_seccion: '/SIMCORE_WEB/Mic_seccion/ObtenerSecuencia' });
+        $.MisUrls.urls({ _GuardarMic_seccion: '/SIMCORE_WEB/Mic_seccion/Guardar' });
+
+        //CONTROLADOR Mic_seccion_examen
+        $.MisUrls.urls({ _ObtenerMic_seccion_examen: '/SIMCORE_WEB/Mic_seccion_examen/Obtener' });
+        $.MisUrls.urls({ _GuardarMic_seccion_examen: '/SIMCORE_WEB/Mic_seccion_examen/Guardar' });
+        $.MisUrls.urls({ _EliminarMic_seccion_examen: '/SIMCORE_WEB/Mic_seccion_examen/Eliminar' });
+
+		//CONTROLADOR AREA PERMISO
+		$.MisUrls.urls({ _ObtenerMic_area_permiso: '/SIMCORE_WEB/Mic_area_permiso/Obtener' });
+		$.MisUrls.urls({ _Obtener_user_seccionMic_area_permiso: '/SIMCORE_WEB/Mic_area_permiso/Obtener_user_seccion' });
+
+		$.MisUrls.urls({ _GuardarMic_area_permiso: '/SIMCORE_WEB/Mic_area_permiso/Guardar' });
+		$.MisUrls.urls({ _EliminarMic_area_permiso: '/SIMCORE_WEB/Mic_area_permiso/Eliminar' });
+
+		//CONTROLADOR CONFIGURACION GENEREAL
+		$.MisUrls.urls({ _ObtenerMic_configuracion_general: '/SIMCORE_WEB/Mic_configuracion_general/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_configuracion_general: '/SIMCORE_WEB/Mic_configuracion_general/Guardar' });
+
+		//CONTROLADOR DESTINOS
+		$.MisUrls.urls({ _ObtenerMic_destinos: '/SIMCORE_WEB/Mic_destinos/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_destinos: '/SIMCORE_WEB/Mic_destinos/Guardar' });
+
+		//CONTROLADOR DESTINOS ORDEN DETALLE
+		$.MisUrls.urls({ _ObtenerMic_destinos_orden_detalle: '/SIMCORE_WEB/Mic_destinos_orden_detalle/Obtener' });
+		$.MisUrls.urls({ _GuardarMic_destinos_orden_detalle: '/SIMCORE_WEB/Mic_destinos_orden_detalle/Guardar' });
+		$.MisUrls.urls({ _VerifcarMic_destinos_orden_detalle: '/SIMCORE_WEB/Mic_destinos_orden_detalle/Verifcar' });
+
+		$.MisUrls.urls({ _EliminarMic_destinos_orden_detalle: '/SIMCORE_WEB/Mic_destinos_orden_detalle/Eliminar' });
+
+		//CONTROLADOR TRANS CONULTAS
+		$.MisUrls.urls({ _Obtener_pac_ordenTrans_consultas: '/SIMCORE_WEB/Trans_consultas/Obtener_pac_orden' });
+
+		//CONTROLADOR Trans_pdfController
+		$.MisUrls.urls({ _Download_res_es_Trans_pdf: '/SIMCORE_WEB/Trans_pdf/Download_res_es' });
+
+        //CONTROLADOR Trans_pdfController
+    $.MisUrls.urls({ _Microbiologia_rep_produccion_export: '/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_produccion_export' });
+    $.MisUrls.urls({ _Microbiologia_rep_idt_ast_export: '/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_idt_ast_export' });
+        $.MisUrls.urls({ _Microbiologia_rep_hoja_trabajo_export_Trans_reportes: '/SIMCORE_WEB/Trans_reportes/Microbiologia_rep_hoja_trabajo_export' });
+
+        //lenguaje español datatable
+        $.MisUrls.urls({ Url_datatable_spanish: '/SIMCORE_WEB/content/plugins/datatables/js/datatable_spanish.json' });
+
+</script>
+<script>
+
+	if ($(".dropdown-item").hasClass("cl_permiso_1")) {
+		//ALL TODOS
+		$('.cl_permiso_proceso_configuracion').show();
+		$('.cl_permiso_proceso_ordenes').show();
+		$('.cl_permiso_proceso_verificacion').show();
+		$('.cl_permiso_proceso_resultados').show();
+		$('.cl_permiso_consultas').show();
+		$('.cl_permiso_proceso_reportes').show();
+	}
+	if ($(".dropdown-item").hasClass("cl_permiso_2")) {
+		$('.cl_permiso_proceso_configuracion').show();
+		$('.cl_permiso_proceso_ordenes').show();
+		$('.cl_permiso_proceso_verificacion').show();
+		$('.cl_permiso_proceso_resultados').show();
+		$('.cl_permiso_consultas').show();
+		$('.cl_permiso_proceso_reportes').show();
+	}
+	if ($(".dropdown-item").hasClass("cl_permiso_3")) {
+		//$('.cl_permiso_proceso_configuracion').show();
+		$('.cl_permiso_proceso_ordenes').show();
+		$('.cl_permiso_proceso_verificacion').show();
+		$('.cl_permiso_proceso_resultados').show();
+		$('.cl_permiso_consultas').show();
+		$('.cl_permiso_proceso_reportes').show();
+	}
+	if ($(".dropdown-item").hasClass("cl_permiso_4")) {
+		//$('.cl_permiso_proceso_configuracion').show();
+		//$('.cl_permiso_proceso_ordenes').show();
+		$('.cl_permiso_proceso_verificacion').show();
+		$('.cl_permiso_proceso_resultados').show();
+		$('.cl_permiso_consultas').show();
+		$('.cl_permiso_proceso_reportes').show();
+	}
+	if ($(".dropdown-item").hasClass("cl_permiso_5")) {
+		//$('.cl_permiso_proceso_configuracion').show();
+		$('.cl_permiso_proceso_ordenes').show();
+		$('.cl_permiso_proceso_verificacion').show();
+		//$('.cl_permiso_proceso_resultados').show();
+		$('.cl_permiso_consultas').show();
+		//$('.cl_permiso_proceso_reportes').show();
+	}
+	if ($(".dropdown-item").hasClass("cl_permiso_6")) {
+		//$('.cl_permiso_proceso_configuracion').show();
+		//$('.cl_permiso_proceso_ordenes').show();
+		$('.cl_permiso_proceso_verificacion').show();
+		//$('.cl_permiso_proceso_resultados').show();
+		//$('.cl_permiso_consultas').show();
+		//$('.cl_permiso_proceso_reportes').show();
+	}
+	if ($(".dropdown-item").hasClass("cl_permiso_7")) {
+		//$('.cl_permiso_proceso_configuracion').show();
+		//$('.cl_permiso_proceso_ordenes').show();
+		//$('.cl_permiso_proceso_verificacion').show();
+		//$('.cl_permiso_proceso_resultados').show();
+		$('.cl_permiso_consultas').show();
+		//$('.cl_permiso_proceso_reportes').show();
+	}
+
+		function modal_cambiar_pass() {
+			$("#formPass").each(function () {
+				this.reset();
+			});
+			$('#FormModalCambiarPASS').modal('show');
+		}
+
+
+		function modal_cambiar_pass_save() {
+			user_user = $("#session_user_id").val();
+			user_pas_antes = $("#txtPassAnterior").val();
+			user_pas_nuevo1 = $("#txtPassNuevo1").val();
+			user_pas_nuevo2 = $("#txtPassNuevo2").val();
+
+			if ($("#formPass").valid() && (user_pas_nuevo1 == user_pas_nuevo2)) {
+				var request = {
+					objeto: {
+						usuario_id: user_user,
+						usuario_pass: user_pas_nuevo1
+					}
+				}
+				jQuery.ajax({
+					url: $.MisUrls.url._Guardar_update_passMic_usuario,
+					type: "POST",
+					data: JSON.stringify(request),
+					dataType: "json",
+					contentType: "application/json; charset=utf-8",
+					success: function (data) {
+						if (data.resultado) {
+							$('#FormModalCambiarPASS').modal('hide');
+							swal("Mensaje", "Se procedió con el cambio de contraseña", "success");
+						} else {
+							swal("Mensaje", "No se pudo guardar los cambios", "warning");
+						}
+					},
+					error: function (error) {
+						console.log(error)
+					},
+					beforeSend: function () {
+
+					},
+				});
+			} else {
+				swal("Mensaje", "No se pudo guardar los cambios", "warning")
+			}
+		}
+
+		function activarMenu(menuactivo) {
+
+			var ul = $("ul.navbar-nav");
+			ul.find("li.nav-item").each(function (i, li) {
+
+				var a;
+
+				if ($(li).find("div.dropdown-menu").length != 0) {
+
+					var div = $($(li).find("div.dropdown-menu"))
+
+					div.find("a.dropdown-item").each(function (x, tagA) {
+						if ($(tagA).attr("name") == menuactivo) {
+
+							$(li).addClass("active");
+							return false;
+						}
+					})
+				} else {
+
+					a = $(li).find("a.nav-link");
+
+					if ($(a).attr("name") == menuactivo) {
+						$(li).addClass("active");
+						return false;
+					}
+				}
+			});
+		}
+
+</script>
+	
+	<script src="/SIMCORE_WEB/Scripts/Views/Mic_muestra_Index.js" type="text/javascript"></script>
+
+</body>
+</html>

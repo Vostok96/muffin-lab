@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>MUFFIN | Ingreso</title>
+    <link rel="stylesheet" href="/MUFFIN/bundles/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/MUFFIN/Content/muffin.css">
+    <style>
+        :root {
+            --muffin-teal: #239ca3;
+            --muffin-teal-dark: #176d78;
+            --muffin-teal-deeper: #0f525a;
+            --muffin-mint: #76cdb8;
+            --muffin-cream: #fff8ec;
+            --muffin-ink: #294c52;
+            --muffin-muted: #62787b;
+        }
+        body {
+            background:
+                radial-gradient(circle at 15% 18%, rgba(118,205,184,.16) 0 12%, transparent 13%),
+                radial-gradient(circle at 85% 12%, rgba(244,173,131,.16) 0 10%, transparent 11%),
+                linear-gradient(145deg, #06121b 0%, #0b1f2d 45%, #173748 100%);
+            min-height: 100vh;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 1.4rem;
+            padding: 3rem 2.25rem 2.2rem;
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 24px 64px rgba(9, 32, 40, 0.36);
+        }
+        .login-card .brand {
+            text-align: center;
+            margin-bottom: 1.8rem;
+        }
+        .login-card .brand img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid var(--muffin-mint);
+            padding: 3px;
+            background: #fff;
+            margin-bottom: 0.6rem;
+        }
+        .login-card .brand h1 {
+            color: var(--muffin-ink);
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        .login-card .brand p {
+            color: var(--muffin-muted);
+            font-size: 0.7rem;
+            margin: 0.1rem 0 0;
+        }
+        .login-card form {
+            margin-top: 0.2rem;
+        }
+        .login-card .form-group {
+            display: block;
+            margin-bottom: 0.95rem;
+            width: 100%;
+        }
+        .login-card label {
+            color: var(--muffin-ink);
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.32rem;
+        }
+        .login-card .form-control {
+            background: #f8fbf9;
+            border: 1.5px solid #d8ebe5;
+            color: var(--muffin-ink);
+            border-radius: 0.7rem;
+            display: block;
+            padding: 0.65rem 0.9rem;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+        .login-card .form-control:focus {
+            background: #fff;
+            border-color: var(--muffin-teal);
+            box-shadow: 0 0 0 3px rgba(35, 156, 163, 0.12);
+            color: var(--muffin-ink);
+        }
+        .login-card .form-control::placeholder {
+            color: #bccac6;
+        }
+        .btn-muffin {
+            background: linear-gradient(100deg, var(--muffin-teal-dark), var(--muffin-teal));
+            border: none;
+            color: #fff;
+            display: block;
+            font-weight: 800;
+            font-size: 0.95rem;
+            padding: 0.65rem;
+            border-radius: 0.7rem;
+            letter-spacing: 0.04em;
+            box-shadow: 0 6px 16px rgba(23, 109, 120, 0.22);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .btn-muffin:hover {
+            background: linear-gradient(100deg, #105b65, var(--muffin-teal));
+            box-shadow: 0 8px 22px rgba(23, 109, 120, 0.32);
+            color: #fff;
+        }
+        .btn-muffin:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        /* ── dark mode overrides ── */
+        [data-theme="dark"] body { background:
+                radial-gradient(circle at 12% 18%, rgba(72,184,191,.14) 0 10%, transparent 11%),
+                radial-gradient(circle at 88% 12%, rgba(196,122,94,.12) 0 9%, transparent 10%),
+                linear-gradient(145deg, #061018 0%, #0a1b27 46%, #102c3d 100%); }
+        [data-theme="dark"] .login-card { background: rgba(16,32,42,.94); box-shadow: 0 24px 64px rgba(0,0,0,.56); }
+        [data-theme="dark"] .login-card .brand h1 { color: #d4e8e2; }
+        [data-theme="dark"] .login-card label { color: #b4c8c3; }
+        [data-theme="dark"] .login-card .form-control { background: #0f222b; border-color: #1e3e44; color: #d4e8e2; }
+        [data-theme="dark"] .login-card .form-control::placeholder { color: #5a7a72; }
+        [data-theme="dark"] .login-card .form-control:focus { background: #183542; border-color: #6abfd0; box-shadow: 0 0 0 3px rgba(106,191,208,.15); }
+        .alert {
+            border-radius: 0.7rem;
+            font-size: 0.8rem;
+            padding: 0.55rem 0.9rem;
+        }
+        .spinner-border {
+            width: 1.1rem;
+            height: 1.1rem;
+            border-width: 0.15rem;
+        }
+        /* ── theme toggle ── */
+        .theme-pill {
+            background: rgba(255,255,255,.14);
+            border: 1.5px solid rgba(255,255,255,.22);
+            border-radius: 999px;
+            cursor: pointer;
+            height: 2.2rem;
+            outline: none;
+            padding: 0;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            transition: background .25s, border .25s;
+            width: 4.2rem;
+            z-index: 10;
+        }
+        @media (max-width: 520px) {
+            .login-card {
+                padding: 2.5rem 1.35rem 1.9rem;
+            }
+            .theme-pill {
+                right: 0.75rem;
+                top: 0.75rem;
+            }
+        }
+        .theme-pill:hover { background: rgba(255,255,255,.24); }
+        .theme-pill .pill-track {
+            align-items: center;
+            display: flex;
+            height: 100%;
+            justify-content: space-between;
+            padding: 0 .5rem;
+            position: relative;
+            width: 100%;
+        }
+        .theme-pill .pill-thumb {
+            background: linear-gradient(135deg, #239ca3, #176d78);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,.2);
+            height: 1.55rem;
+            left: .3rem;
+            position: absolute;
+            transition: transform .3s cubic-bezier(.4,0,.2,1), background .3s;
+            width: 1.55rem;
+        }
+        [data-theme="dark"] .theme-pill .pill-thumb {
+            transform: translateX(2rem);
+            background: linear-gradient(135deg, #48b8bf, #c47a5e);
+        }
+        .theme-pill .pill-icon {
+            font-size: .85rem;
+            line-height: 1;
+            transition: opacity .2s;
+            user-select: none;
+            z-index: 1;
+        }
+        .theme-pill .pill-sun { color: #f4ad83; opacity: 1; }
+        .theme-pill .pill-moon { color: #b4d0e8; opacity: .5; }
+        [data-theme="dark"] .theme-pill .pill-sun { opacity: .5; }
+        [data-theme="dark"] .theme-pill .pill-moon { opacity: 1; }
+        [data-theme="dark"] .theme-pill { background: rgba(0,0,0,.3); border-color: rgba(255,255,255,.1); }
+        [data-theme="dark"] .theme-pill:hover { background: rgba(0,0,0,.45); }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <button class="theme-pill" id="theme-toggle" title="Alternar modo oscuro / claro" aria-label="Alternar modo">
+            <span class="pill-track">
+                <span class="pill-thumb"></span>
+                <span class="pill-icon pill-sun" aria-hidden="true">&#x2600;</span>
+                <span class="pill-icon pill-moon" aria-hidden="true">&#x263D;</span>
+            </span>
+        </button>
+        <div class="brand">
+            <img src="/MUFFIN_ICONO.jpg" alt="MUFFIN">
+            <h1>MUFFIN</h1>
+            <p>Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales</p>
+        </div>
+
+        <div id="error-box" class="alert alert-danger" style="display:none;"></div>
+
+        <form id="login-form">
+            <div class="form-group mb-3">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" class="form-control" placeholder="Nombre de usuario" autocomplete="username" required autofocus>
+            </div>
+            <div class="form-group mb-4">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" class="form-control" placeholder="Contraseña" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn btn-muffin btn-block w-100" id="login-btn">
+                <span id="btn-text">Ingresar</span>
+                <span id="btn-spinner" class="spinner-border spinner-border-sm" style="display:none;" role="status"></span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // ── Theme toggle ──
+        (function(){
+            var h = document.documentElement;
+            var saved = localStorage.getItem('muffin-theme');
+            if (saved === 'dark') h.setAttribute('data-theme', 'dark');
+            else if (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches) h.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-toggle').addEventListener('click', function(){
+                var cur = h.getAttribute('data-theme');
+                var next = cur === 'dark' ? 'light' : 'dark';
+                h.setAttribute('data-theme', next);
+                localStorage.setItem('muffin-theme', next);
+            });
+        })();
+
+        // ── Login ──
+        const API = window.location.protocol + '//' + window.location.hostname + ':8000/api/v1';
+
+        // Clear any stale session on login page load
+        localStorage.removeItem('muffin_token');
+
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const errorBox = document.getElementById('error-box');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            errorBox.style.display = 'none';
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline-block';
+
+            try {
+                const response = await fetch(API + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Credenciales inválidas.');
+                }
+
+                const data = await response.json();
+                localStorage.setItem('muffin_token', data.access_token);
+                localStorage.setItem('muffin_token_type', data.token_type);
+                localStorage.setItem('muffin_expires_in', data.expires_in.toString());
+
+                window.location.href = '/MUFFIN/';
+            } catch (error) {
+                errorBox.textContent = error.message;
+                errorBox.style.display = 'block';
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnSpinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

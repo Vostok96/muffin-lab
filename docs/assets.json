@@ -1,0 +1,167 @@
+[
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/PluginsCSS?v=LotVGen8pIxTKQj7GXfbE9JAs-QwmYADT5A-bRC0LkQ1",
+    "content_type": "text/css; charset=utf-8",
+    "bytes": 118940
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/PluginsJS?v=sQB6J2EBUgtBNkJ6uHK2oNSgdLTnVwcEwKIRWaMhYlM1",
+    "content_type": "text/css; charset=utf-8",
+    "bytes": 1794169
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Content/css?v=ivzLv745bmnThkrYOWP2Oyh3EQaw__rxaWvN5bNa0zg1",
+    "content_type": "text/css; charset=utf-8",
+    "bytes": 164977
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Imagenes/simcorelogo.png",
+    "content_type": "image/png",
+    "bytes": 93295
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_antibiotico_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 3560
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_area_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 3350
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_configuracion_general_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 4047
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_destinos_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 4358
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_destinos_orden_detalle_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 13676
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_examen_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 17781
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_medico_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 3442
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_muestra_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 2833
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_muestra_contenedor_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 3227
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orden_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 27013
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orden_detalle_resultado_microbiologia.js",
+    "content_type": "application/javascript",
+    "bytes": 44640
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orga_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 3017
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_orga_panel_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 9923
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_parametro_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 6879
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_persona_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 4060
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_procedencia_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 3187
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_res_comentarios_def_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 2889
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_res_panel_recuento_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 2931
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_seccion_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 8561
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_servicio_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 3129
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Mic_usuario_Index.js",
+    "content_type": "application/javascript",
+    "bytes": 10618
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_consultas_Microbiologia_pac_orden.js",
+    "content_type": "application/javascript",
+    "bytes": 18335
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_hoja_trabajo.js",
+    "content_type": "application/javascript",
+    "bytes": 1777
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_idt_ast.js",
+    "content_type": "application/javascript",
+    "bytes": 8355
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/Trans_reportes_Microbiologia_rep_produccion_export.js",
+    "content_type": "application/javascript",
+    "bytes": 4912
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/Scripts/Views/jquery.quicksearch.js",
+    "content_type": "application/javascript",
+    "bytes": 4715
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/bundles/bootstrap?v=Rc0g6GDBha0U2Ue5txisObdTUK1i4R1sOhOsbTe7GyM1",
+    "content_type": "text/javascript; charset=utf-8",
+    "bytes": 62795
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/bundles/jquery?v=8Oos0avDZyPg-cbyVzvkIfERIE1DGSe3sRQdCSYrgEQ1",
+    "content_type": "text/javascript; charset=utf-8",
+    "bytes": 88173
+  },
+  {
+    "url": "http://192.168.0.220/SIMCORE_WEB/bundles/modernizr?v=inCVuEFe6J4Q07A0AcRsbJic_UE5MwpRMNGcOtk94TE1",
+    "content_type": "text/javascript; charset=utf-8",
+    "bytes": 11095
+  }
+]

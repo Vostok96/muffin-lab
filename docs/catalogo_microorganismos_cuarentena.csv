@@ -1,0 +1,75 @@
+linea_origen,valor,motivo
+18,Acid fast bacilli,GENERAL_CATEGORY
+127,Anaerobic Gram negative cocci,GENERAL_CATEGORY
+128,Anaerobic Gram negative coccobacilli,GENERAL_CATEGORY
+129,Anaerobic Gram negative organisms,GENERAL_CATEGORY
+130,Anaerobic Gram negative rods,GENERAL_CATEGORY
+131,Anaerobic Gram positive cocci,GENERAL_CATEGORY
+132,Anaerobic Gram positive coccobacilli,GENERAL_CATEGORY
+133,Anaerobic Gram positive organisms,GENERAL_CATEGORY
+134,Anaerobic Gram positive rods,GENERAL_CATEGORY
+135,Anaerobic Gram variable cocci,GENERAL_CATEGORY
+136,Anaerobic Gram variable coccobacilli,GENERAL_CATEGORY
+137,Anaerobic Gram variable rods,GENERAL_CATEGORY
+138,Anaerobic organisms,GENERAL_CATEGORY
+139,Anaerobic streptococci,GENERAL_CATEGORY
+557,Cestode,GENERAL_CATEGORY
+663,Coagulase negative Staphylococcus,GENERAL_CATEGORY
+664,Coagulase positive Staphylococcus,GENERAL_CATEGORY
+674,Contaminated specimen,OPERATIONAL
+780,Dermatophyte,GENERAL_CATEGORY
+995,Fungus,GENERAL_CATEGORY
+1059,Gram negative bacteria,GENERAL_CATEGORY
+1060,Gram negative cocci,GENERAL_CATEGORY
+1061,Gram negative coccobacilli,GENERAL_CATEGORY
+1062,Gram negative enteric organism,GENERAL_CATEGORY
+1063,Gram negative rods,GENERAL_CATEGORY
+1064,Gram positive bacteria,GENERAL_CATEGORY
+1065,Gram positive cocci,GENERAL_CATEGORY
+1066,Gram positive coccobacilli,GENERAL_CATEGORY
+1067,Gram positive rods,GENERAL_CATEGORY
+1068,Gram variable cocci,GENERAL_CATEGORY
+1069,Gram variable coccobacilli,GENERAL_CATEGORY
+1070,Gram variable rods,GENERAL_CATEGORY
+1137,Hookworm,GENERAL_CATEGORY
+1152,Insect,GENERAL_CATEGORY
+1403,Mixed bacterial species present,OPERATIONAL
+1410,Mold,GENERAL_CATEGORY
+1439,Mycelia sterilia,GENERAL_CATEGORY
+1586,Nematode,GENERAL_CATEGORY
+1593,No acid-fast bacilli found,NEGATIVE_RESULT
+1594,No anaerobes found,NEGATIVE_RESULT
+1595,No C. difficile found,NEGATIVE_RESULT
+1596,No Campylobacter found,NEGATIVE_RESULT
+1597,No Chlamydia found,NEGATIVE_RESULT
+1598,No Coronavirus found,NEGATIVE_RESULT
+1599,No COVID-19 found,NEGATIVE_RESULT
+1600,No enteric pathogens found,NEGATIVE_RESULT
+1601,No fungi found,NEGATIVE_RESULT
+1602,No growth,NEGATIVE_RESULT
+1603,No Influenza A virus found,NEGATIVE_RESULT
+1604,No Influenza B virus found,NEGATIVE_RESULT
+1605,No Influenza C virus found,NEGATIVE_RESULT
+1606,No Influenza virus found,NEGATIVE_RESULT
+1607,No Legionalla found,NEGATIVE_RESULT
+1608,No MRSA found,NEGATIVE_RESULT
+1609,No mycobacteria found,NEGATIVE_RESULT
+1610,No N. gonorrhoeae found,NEGATIVE_RESULT
+1611,No N. gonorrhoeae or Chlamydia found,NEGATIVE_RESULT
+1612,No parasites found,NEGATIVE_RESULT
+1613,No pathogens found,NEGATIVE_RESULT
+1614,No Plasmodium found,NEGATIVE_RESULT
+1615,No Salmonella found,NEGATIVE_RESULT
+1616,No significant growth found,NEGATIVE_RESULT
+1617,No VRE were found,NEGATIVE_RESULT
+1631,Non-fermenting Gram negative rods,GENERAL_CATEGORY
+1632,Normal flora,OPERATIONAL
+1633,Normal oral flora,OPERATIONAL
+1634,Normal vaginal flora,OPERATIONAL
+1661,Other,OPERATIONAL
+1701,Parasite,GENERAL_CATEGORY
+1866,Rejected sample,OPERATIONAL
+2414,Trematode,GENERAL_CATEGORY
+2475,Unknown,OPERATIONAL
+2521,Yeast,GENERAL_CATEGORY
+2522,"Yeast, not C. albicans",GENERAL_CATEGORY
