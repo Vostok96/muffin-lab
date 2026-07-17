@@ -2,7 +2,7 @@
 
 MUFFIN se ejecuta en Docker sobre el NAS ARM64. La PC se usa solo para desarrollo.
 
-Tenant inicial: definir por institución mediante `.env`.
+Tenant inicial: `Hospital Sub Regional de Andahuaylas`.
 
 ## Servicios
 
@@ -23,7 +23,7 @@ El presupuesto inicial de MUFFIN es menor de 2.5 GB. Esto deja memoria para el s
 
 1. Copiar el proyecto al volumen donde Docker almacena sus aplicaciones.
 2. Crear `.env` a partir de `.env.example`.
-3. Reemplazar `POSTGRES_PASSWORD`, `JWT_SECRET` y `BOOTSTRAP_ADMIN_PASSWORD` por secretos unicos. `JWT_SECRET` debe tener al menos 32 caracteres. Ajustar `DEFAULT_INSTITUTION_NAME` y `DEFAULT_INSTITUTION_SLUG` para la institución objetivo.
+3. Reemplazar `POSTGRES_PASSWORD`, `JWT_SECRET` y `BOOTSTRAP_ADMIN_PASSWORD` por secretos unicos. `JWT_SECRET` debe tener al menos 32 caracteres. Esta variante ya define `DEFAULT_INSTITUTION_NAME` y `DEFAULT_INSTITUTION_SLUG` para Andahuaylas; ajustar solo si cambia el cliente.
 4. Ejecutar `docker compose up -d --build`.
 5. Verificar `http://IP_DEL_NAS:8000/api/v1/health`.
 6. Configurar el proxy reverso hacia `muffin-api:8000` o `IP_DEL_NAS:8000`, segun el proxy existente.

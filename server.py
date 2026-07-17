@@ -15,7 +15,9 @@ from urllib.error import URLError
 ROOT = Path(__file__).resolve().parent
 MIRROR = ROOT / "mirror"
 MANIFEST = ROOT / "docs" / "capture_manifest.json"
-BRAND_IMAGE = ROOT / "MUFFIN_ICONO.jpg"
+INSTITUTION_NAME = "Hospital Sub Regional de Andahuaylas"
+CLIENT_ROOT = ROOT / "CLIENTES" / "Hospital Sub Regional Andahuaylas"
+BRAND_IMAGE = CLIENT_ROOT / "logo andahuylas.png"
 FAVICON = ROOT / "MUFFIN_FAVICON.png"
 FAVICON_MARKUP = b'\n\t<link rel="icon" type="image/png" sizes="256x256" href="/MUFFIN_FAVICON.png?v=muffin-20260716-v2">\n'
 HOST = os.environ.get("SIMCORE_CLONE_HOST", "127.0.0.1")
@@ -145,16 +147,16 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 APP_FOOTER_MARKUP = """		<footer class="muffin-footer" role="contentinfo">
 			<div class="muffin-footer-brand">
 				<span class="muffin-footer-mark" aria-hidden="true">
-					<img src="/MUFFIN_FAVICON.png?v=muffin-20260716-v2" alt="">
+					<img src="/MUFFIN_ICONO.jpg?v=andahuaylas-20260717" alt="">
 				</span>
 				<span class="muffin-footer-title">
-					<strong>MUFFIN</strong>
-					<small>Microbiolog&iacute;a Hospitalaria</small>
+					<strong>Hospital Sub Regional de Andahuaylas</strong>
+					<small>MUFFIN Microbiolog&iacute;a Hospitalaria</small>
 				</span>
 			</div>
 			<div class="muffin-footer-legal">
-				<span>&copy; 2026 RyM SAC. Todos los derechos reservados.</span>
-				<span>Propiedad intelectual de RyM SAC.</span>
+				<span>&copy; 2026 Hospital Sub Regional de Andahuaylas.</span>
+				<span>Plataforma MUFFIN. Propiedad intelectual de RyM SAC.</span>
 			</div>
 			<span class="muffin-footer-version">v1.0</span>
 		</footer>""".encode("utf-8")
@@ -617,7 +619,7 @@ class Handler(BaseHTTPRequestHandler):
         if request_path in {"/favicon.ico", "/MUFFIN_FAVICON.png"}:
             self.serve_file(FAVICON, request_path)
             return
-        if request_path == "/MUFFIN_ICONO.jpg":
+        if request_path in {"/MUFFIN_ICONO.jpg", "/MUFFIN/Imagenes/MUFFIN_ICONO.jpg"}:
             self.serve_file(BRAND_IMAGE, request_path)
             return
         if request_path.rstrip("/") == "/MUFFIN/Home/Salir":
@@ -1858,10 +1860,10 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
 <body>
 <div class="sheet">
   <div class="topbar">
-    <img src="/MUFFIN_ICONO.jpg" alt="MUFFIN">
+    <img src="/MUFFIN_ICONO.jpg" alt="{e(INSTITUTION_NAME)}">
     <div class="brand">
-      <h1>MUFFIN</h1>
-      <p>Reporte de resultados microbiológicos</p>
+      <h1>{e(INSTITUTION_NAME)}</h1>
+      <p>MUFFIN - Reporte de resultados microbiológicos</p>
     </div>
     <div class="actions no-print"><button onclick="window.print()">Imprimir / guardar PDF</button></div>
   </div>

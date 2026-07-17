@@ -2,6 +2,8 @@
 
 MUFFIN es una plataforma base para microbiología hospitalaria. Este repositorio funciona como **MUFFIN padre**: el núcleo común desde el cual se derivan versiones institucionales con logos, nombres, colores, textos legales, branding y configuraciones propias.
 
+> Rama actual de producción institucional: **Hospital Sub Regional de Andahuaylas**. Ver [docs/CLIENTE_ANDAHUAYLAS.md](docs/CLIENTE_ANDAHUAYLAS.md).
+
 El objetivo del repositorio padre es conservar el flujo clínico, la API, el proxy de compatibilidad y la experiencia visual común sin acoplar el producto a una sola institución.
 
 ## Qué contiene

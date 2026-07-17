@@ -59,8 +59,9 @@ body {
 
 .muffin-nav .navbar-brand::after {
     color: #fff8ec;
-    content: "MUFFIN";
-    font-size: 1.1rem;
+    content: "H.S.R. ANDAHUAYLAS";
+    font-size: 0.96rem;
+    line-height: 1.08;
 }
 
 .muffin-nav .navbar-brand img {
@@ -68,7 +69,7 @@ body {
     border: 2px solid rgba(255, 255, 255, 0.7);
     border-radius: 50%;
     height: 44px;
-    object-fit: cover;
+    object-fit: contain;
     padding: 2px;
     width: 44px;
 }
@@ -608,7 +609,7 @@ body {
     border-radius: 0.35rem;
     display: block;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     width: 100%;
 }
 

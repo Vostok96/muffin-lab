@@ -31,6 +31,7 @@
         .login-card {
             background: rgba(255, 255, 255, 0.97);
             border-radius: 1.4rem;
+            box-sizing: border-box;
             padding: 3rem 2.25rem 2.2rem;
             position: relative;
             width: 100%;
@@ -49,13 +50,15 @@
             padding: 3px;
             background: #fff;
             margin-bottom: 0.6rem;
+            object-fit: contain;
         }
         .login-card .brand h1 {
             color: var(--muffin-ink);
-            font-size: 1.4rem;
+            font-size: 1.12rem;
             font-weight: 800;
             margin: 0;
-            letter-spacing: 1px;
+            letter-spacing: 0;
+            line-height: 1.18;
         }
         .login-card .brand p {
             color: var(--muffin-muted);
@@ -214,9 +217,9 @@
             </span>
         </button>
         <div class="brand">
-            <img src="/MUFFIN_ICONO.jpg" alt="MUFFIN">
-            <h1>MUFFIN</h1>
-            <p>Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales</p>
+            <img src="/MUFFIN_ICONO.jpg" alt="Hospital Sub Regional de Andahuaylas">
+            <h1>Hospital Sub Regional de Andahuaylas</h1>
+            <p>MUFFIN Microbiología Hospitalaria</p>
         </div>
 
         <div id="error-box" class="alert alert-danger" style="display:none;"></div>
