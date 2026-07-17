@@ -34,16 +34,16 @@ else if(!s&&window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").
 </script>
 <style>
 .theme-nav-item{display:flex;margin:.35rem 0 .55rem;width:100%}
-.theme-pill{align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:.75rem;color:#fff;cursor:pointer;display:grid;gap:.55rem;grid-template-columns:2rem minmax(0,1fr) auto;min-height:3rem;outline:none;padding:.45rem .55rem;text-align:left;transition:background .18s,border .18s,box-shadow .18s,color .18s;width:100%}
-.theme-pill:hover,.theme-pill:focus{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.34);box-shadow:0 10px 22px rgba(6,48,58,.18);color:#fff}
-.theme-pill-icon{align-items:center;background:#fff;border-radius:.55rem;box-shadow:0 6px 14px rgba(6,48,58,.16);color:#176d78;display:inline-flex;font-size:.92rem;height:2rem;justify-content:center;width:2rem}
+.theme-pill{align-items:center;background:rgba(233,244,239,.11);border:1px solid rgba(223,238,232,.20);border-radius:.75rem;color:#edf6f2;cursor:pointer;display:grid;gap:.55rem;grid-template-columns:2rem minmax(0,1fr) auto;min-height:3rem;outline:none;padding:.45rem .55rem;text-align:left;transition:background .18s,border .18s,box-shadow .18s,color .18s;width:100%}
+.theme-pill:hover,.theme-pill:focus{background:rgba(233,244,239,.16);border-color:rgba(223,238,232,.30);box-shadow:0 10px 22px rgba(6,48,58,.18);color:#edf6f2}
+.theme-pill-icon{align-items:center;background:#d8e6df;border-radius:.55rem;box-shadow:0 6px 14px rgba(6,48,58,.14);color:#2f7778;display:inline-flex;font-size:.92rem;height:2rem;justify-content:center;width:2rem}
 .theme-pill-copy{display:grid;gap:.06rem;line-height:1.1;min-width:0}
 .theme-pill-title{font-size:.82rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.theme-pill-state{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.20);border-radius:999px;color:#fff;font-size:.66rem;font-weight:800;line-height:1;padding:.27rem .5rem;white-space:nowrap}
-[data-theme=dark] .theme-pill{background:rgba(6,24,31,.38);border-color:rgba(72,184,191,.28)}
-[data-theme=dark] .theme-pill:hover,[data-theme=dark] .theme-pill:focus{background:rgba(13,42,49,.62);border-color:rgba(72,184,191,.42)}
-[data-theme=dark] .theme-pill-icon{background:#dff6ed;color:#12353e}
-[data-theme=dark] .theme-pill-state{background:rgba(72,184,191,.18);border-color:rgba(72,184,191,.26);color:#d4e8e2}
+.theme-pill-state{background:rgba(233,244,239,.14);border:1px solid rgba(223,238,232,.18);border-radius:999px;color:#edf6f2;font-size:.66rem;font-weight:800;line-height:1;padding:.27rem .5rem;white-space:nowrap}
+[data-theme=dark] .theme-pill{background:rgba(18,39,43,.68);border-color:rgba(92,174,169,.24);color:#d6e3de}
+[data-theme=dark] .theme-pill:hover,[data-theme=dark] .theme-pill:focus{background:rgba(28,55,59,.78);border-color:rgba(92,174,169,.34)}
+[data-theme=dark] .theme-pill-icon{background:#d6e3de;color:#274f52}
+[data-theme=dark] .theme-pill-state{background:rgba(92,174,169,.16);border-color:rgba(92,174,169,.24);color:#d6e3de}
 @media (min-width:992px){
 body.muffin-sidebar-collapsed .theme-nav-item{justify-content:center;margin:.25rem 0 .45rem}
 body.muffin-sidebar-collapsed .theme-pill{gap:0;grid-template-columns:1fr;height:44px;min-height:44px;padding:.35rem;width:44px}
@@ -524,13 +524,6 @@ def api_req(method: str, path: str, token: str = "", body: dict | None = None) -
         return 502, None
 
 
-def get_admin_token() -> tuple[str, str]:
-    status, data = api_req("POST", "/auth/login", body={"username": "admin", "password": "admin"})
-    if status == 200 and isinstance(data, dict):
-        return data.get("access_token", ""), ""
-    return "", "No se pudo autenticar con la API MUFFIN"
-
-
 def load_manifest() -> dict:
     if MANIFEST.exists():
         return json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -717,10 +710,8 @@ class Handler(BaseHTTPRequestHandler):
         authorization = self.headers.get("Authorization", "")
         token = authorization[7:].strip() if authorization.startswith("Bearer ") else ""
         if not token:
-            token, err = get_admin_token()
-            if err:
-                self.send_json({"resultado": False, "mensaje": err}, 502)
-                return
+            self.send_json({"resultado": False, "mensaje": "Sesion MUFFIN requerida."}, 401)
+            return
 
         dispatch = {
             "user_list": lambda: self._proxy_user_list(token),
@@ -856,11 +847,17 @@ class Handler(BaseHTTPRequestHandler):
         role_code = ROLE_MAP.get(rid, "ENTRY")
         username = obj.get("usuario_id", "")
         password = obj.get("usuario_pass", "")
+        if not username:
+            self.send_json({"resultado": False, "mensaje": "El usuario es obligatorio"})
+            return
         status, existing_list = api_req("GET", "/admin/users", token)
         existing = next((u for u in (existing_list or []) if u.get("username") == username), None) if status == 200 and isinstance(existing_list, list) else None
         if existing:
             update_payload = {"given_name": obj.get("usuario_nombres", existing.get("given_name", "")), "family_name": obj.get("usuario_apellidos", existing.get("family_name", "")), "role_codes": [role_code]}
             if password:
+                if len(password) < 8:
+                    self.send_json({"resultado": False, "mensaje": "La contraseña debe tener al menos 8 caracteres"})
+                    return
                 update_payload["password"] = password
             if "usuario_estado" in obj:
                 update_payload["is_active"] = obj["usuario_estado"]
@@ -870,7 +867,10 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self.send_json({"resultado": False, "mensaje": self._api_error(put_status, put_data) or f"Error al actualizar (HTTP {put_status})"})
             return
-        payload = {"username": username, "given_name": obj.get("usuario_nombres", ""), "family_name": obj.get("usuario_apellidos", ""), "password": password or "cambiar123456", "role_codes": [role_code], "area_permissions": []}
+        if len(password) < 8:
+            self.send_json({"resultado": False, "mensaje": "La contraseña es obligatoria y debe tener al menos 8 caracteres"})
+            return
+        payload = {"username": username, "given_name": obj.get("usuario_nombres", ""), "family_name": obj.get("usuario_apellidos", ""), "password": password, "role_codes": [role_code], "area_permissions": []}
         create_status, create_data = api_req("POST", "/admin/users", token, payload)
         if create_status in (200, 201):
             self.send_json({"resultado": True, "mensaje": "Usuario creado correctamente"})

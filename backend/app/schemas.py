@@ -30,7 +30,7 @@ class UserCreate(InputModel):
     username: str = Field(min_length=3, max_length=80, pattern=r"^[a-zA-Z0-9._-]+$")
     given_name: str = Field(min_length=1, max_length=120)
     family_name: str = Field(min_length=1, max_length=120)
-    password: str = Field(min_length=4, max_length=256)
+    password: str = Field(min_length=8, max_length=256)
     role_codes: list[str] = Field(min_length=1)
     area_permissions: list[AreaPermissionInput] = Field(default_factory=list)
 
@@ -38,7 +38,7 @@ class UserCreate(InputModel):
 class UserUpdate(InputModel):
     given_name: str | None = Field(default=None, min_length=1, max_length=120)
     family_name: str | None = Field(default=None, min_length=1, max_length=120)
-    password: str | None = Field(default=None, min_length=4, max_length=256)
+    password: str | None = Field(default=None, min_length=8, max_length=256)
     role_codes: list[str] | None = None
     is_active: bool | None = None
 

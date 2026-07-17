@@ -1060,10 +1060,8 @@ function _DocumentoPDFMic_temp(orden_id) {
 
     //OBTENER 
     var url = $.MisUrls.url._Download_res_es_Trans_pdf + "?orden_id=" + orden_id;
-    //$(location).attr('href', url);
-    //window.open(url);
-
-    popUpObj = window.open(url,
+    var token = localStorage.getItem("muffin_token") || "";
+    popUpObj = window.open("",
         "ModalPopUp",
         "fullscreen = yes," +
         "toolbar=no," +
@@ -1077,7 +1075,32 @@ function _DocumentoPDFMic_temp(orden_id) {
         "left = 0," +
         "top= 0"
     );
-    popUpObj.focus();
+    if (!popUpObj) {
+        swal("Mensaje", "No se pudo abrir la ventana del reporte", "warning");
+        return;
+    }
+    popUpObj.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Reporte MUFFIN</title></head><body style='font-family:Arial,sans-serif;padding:24px;color:#294c52'>Cargando reporte...</body></html>");
+    popUpObj.document.close();
+    fetch(url, {
+        headers: token ? { "Authorization": "Bearer " + token } : {}
+    })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error("No se pudo generar el reporte");
+            }
+            return response.text();
+        })
+        .then(function (html) {
+            popUpObj.document.open();
+            popUpObj.document.write(html);
+            popUpObj.document.close();
+            popUpObj.focus();
+        })
+        .catch(function (error) {
+            popUpObj.document.open();
+            popUpObj.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Reporte MUFFIN</title></head><body style='font-family:Arial,sans-serif;padding:24px;color:#294c52'><strong>" + error.message + "</strong></body></html>");
+            popUpObj.document.close();
+        });
     LoadModalDiv();
 }
 

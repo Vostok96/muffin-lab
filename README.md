@@ -1,30 +1,32 @@
-# MUFFIN para Hospital Sub Regional de Andahuaylas
+# MUFFIN padre
 
-MUFFIN es la plataforma institucional de microbiologia para el Hospital Sub Regional de Andahuaylas, con una base de codigo unica preparada para operar luego en otros hospitales.
+MUFFIN es una plataforma base para microbiología hospitalaria. Este repositorio funciona como **MUFFIN padre**: el núcleo común desde el cual se derivan versiones institucionales con logos, nombres, colores, textos legales, branding y configuraciones propias.
 
-Este repositorio contiene:
+El objetivo del repositorio padre es conservar el flujo clínico, la API, el proxy de compatibilidad y la experiencia visual común sin acoplar el producto a una sola institución.
 
-- HTML renderizado de las pantallas principales heredadas.
-- Bundles CSS/JS que entrega el servidor.
-- Scripts de vistas de `Scripts/Views`.
-- Imagenes y recursos publicos encontrados.
-- Mapa de rutas y endpoints usados por el frontend.
-- Servidor local para montar la captura bajo `/MUFFIN/`.
+## Qué contiene
 
-No contiene:
+- Frontend heredado capturado bajo `mirror/`, servido en rutas `/MUFFIN/...`.
+- Servidor local `server.py`, que monta el frontend, inyecta sesión, tema, footer corporativo y proxies de compatibilidad.
+- Backend FastAPI en `backend/` con JWT, roles, permisos por área, auditoría, catálogos, órdenes, resultados y reportes.
+- Documentación operativa y técnica en `docs/`.
+- Recursos base de identidad MUFFIN: `MUFFIN_ICONO.jpg` y `MUFFIN_FAVICON.png`.
+- Insumos por cliente en `CLIENTES/`; no se cargan automáticamente en el core.
 
-- Base de datos real.
-- Ordenes reales.
-- Resultados reales.
-- Nombres/DNI/HC de pacientes.
+## Qué no debe contener
+
+- Datos clínicos reales.
+- Pacientes, HC, DNI o resultados productivos.
 - Credenciales reales.
-- Codigo servidor C#/MVC, porque ese codigo no se entrega por HTTP.
+- Archivos `.env` productivos.
+- Cachés, logs, dumps temporales o bases locales.
 
-## Ejecutar
+## Ejecución local
 
-```powershell
-cd MUFFIN
-.\run_local.ps1
+Frontend local:
+
+```bash
+python3 server.py
 ```
 
 Abrir:
@@ -33,37 +35,57 @@ Abrir:
 http://127.0.0.1:8877/MUFFIN/
 ```
 
-El servidor local mantiene compatibilidad temporal con rutas heredadas cuando hace falta, pero el destino operativo es `/MUFFIN/...`.
+Backend/API:
 
-## Backend local/NAS
+```bash
+docker compose up -d --build
+```
 
-El frontend espera endpoints como:
+La API queda en:
 
 ```text
-/SIMCORE_WEB/Mic_orden/Obtener
-/SIMCORE_WEB/Mic_orden/Guardar
-/SIMCORE_WEB/Mic_parametro/Obtener
-/SIMCORE_WEB/Mic_orden_detalle_res/Guardar
+http://127.0.0.1:8000/api/v1
 ```
 
-El archivo `docs/endpoints.json` lista las rutas detectadas. El servidor incluido responde con stubs vacios para que la UI no se rompa. El backend real de MUFFIN se esta construyendo localmente en `backend/` y sustituira esos stubs de forma gradual despues de sus pruebas locales.
+## Seguridad de login
 
-## Estado de MUFFIN
+- El backend autentica en `POST /api/v1/auth/login`.
+- Las contraseñas se almacenan con `pwdlib.PasswordHash.recommended()`, no en texto plano.
+- La sesión usa JWT Bearer con expiración configurable por `ACCESS_TOKEN_MINUTES`.
+- Las rutas protegidas usan `HTTPBearer` y roles/permisos de área.
+- En producción, `APP_ENV=production` exige un `JWT_SECRET` no trivial de al menos 32 caracteres.
+- El frontend local guarda el JWT en `localStorage` para compatibilidad con el frontend heredado. En despliegue real debe ir detrás de HTTPS y con secretos rotados por institución.
 
-El avance, la politica de desarrollo local antes del NAS y el orden de construccion estan documentados en `docs/AVANCE_MUFFIN.md`. La direccion objetivo institucional esta en `docs/ARQUITECTURA_OBJETIVO_MUFFIN_ANDAHUAYLAS.md`.
+## Personalización por institución
 
-En Linux, el frontend heredado de referencia puede verse con `python3 server.py` en `http://127.0.0.1:8877/MUFFIN/`. Se mantiene separado de la API nueva para preservar su comportamiento hasta construir el adaptador correspondiente.
+Cada versión institucional debe partir del padre y modificar solo la capa de branding/configuración:
 
-La guia de continuacion para la proxima sesion Linux esta en `docs/HANDOFF_LINUX.md`.
+- Logo, favicon e imágenes institucionales.
+- Nombre legal y nombre corto de la institución.
+- Paleta de colores.
+- Footer, textos de propiedad intelectual y versión.
+- Variables `DEFAULT_INSTITUTION_NAME` y `DEFAULT_INSTITUTION_SLUG`.
+- Dominio, proxy HTTPS y secretos de producción.
 
-## Recapturar desde SIMCORE
+Evitar modificar flujos clínicos o contratos de API salvo que el cambio deba volver al padre.
 
-Usar solo para estructura/frontend, no para datos:
+## Documentos clave
 
-```powershell
-$env:SIMCORE_SOURCE_USER = "TU_USUARIO_SIMCORE"
-$env:SIMCORE_SOURCE_PASS = "TU_PASSWORD_SIMCORE"
-python .\tools\capture_simcore_frontend.py
-```
+- [docs/MUFFIN_PADRE.md](docs/MUFFIN_PADRE.md): guía para próximos agentes.
+- [docs/MANUAL_OPERATIVO.md](docs/MANUAL_OPERATIVO.md): operación y comandos.
+- [docs/DESPLIEGUE_NAS.md](docs/DESPLIEGUE_NAS.md): despliegue.
+- [docs/MODELO_DATOS_MUFFIN.md](docs/MODELO_DATOS_MUFFIN.md): modelo de datos.
+- [docs/MUFFIN_API_V1.yaml](docs/MUFFIN_API_V1.yaml): contrato OpenAPI.
+- [docs/IDENTIDAD_VISUAL_MUFFIN.md](docs/IDENTIDAD_VISUAL_MUFFIN.md): identidad visual base.
 
-La herramienta inicia sesion, descarga paginas de menu y assets publicos. No llama endpoints de listados de pacientes/ordenes.
+## Estado actual
+
+La pantalla de resultados de microbiología ya tiene:
+
+- Filtro por procedencia.
+- Filtro por estado de resultado/cultivo.
+- DataTables en español.
+- Modo claro/oscuro corporativo.
+- Responsive móvil validado en 360, 390 y 430 px.
+- Footer corporativo MUFFIN/RyM SAC con versión `v1.0`.
+- Reporte de resultados servido con JWT de sesión, sin credencial puente hardcodeada.
