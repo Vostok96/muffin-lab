@@ -1035,8 +1035,9 @@ class Handler(BaseHTTPRequestHandler):
         if not path.startswith("/MUFFIN/"):
             return None
         simcore_endpoint = path[len("/MUFFIN/"):]
+        simcore_endpoint_key = simcore_endpoint.casefold()
         for api_path, (api_method, api_url, handler) in API_PROXIES.items():
-            if simcore_endpoint == api_path and api_method == method:
+            if simcore_endpoint_key == api_path.casefold() and api_method == method:
                 return (api_method, api_url, handler)
         return None
 
