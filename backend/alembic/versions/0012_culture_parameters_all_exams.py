@@ -1,6 +1,6 @@
 """assign base culture parameters to all culture exams
 
-Revision ID: 0012_culture_parameters_all_exams
+Revision ID: 0012_culture_params_all_exams
 Revises: 0011_andahuaylas_catalog_cleanup
 Create Date: 2026-07-18
 """
@@ -13,7 +13,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = "0012_culture_parameters_all_exams"
+revision = "0012_culture_params_all_exams"
 down_revision = "0011_andahuaylas_catalog_cleanup"
 branch_labels = None
 depends_on = None
