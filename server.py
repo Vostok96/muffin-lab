@@ -760,16 +760,14 @@ def load_manifest() -> dict:
 
 
 def content_type(path: Path, request_path: str) -> str:
+    lowered = request_path.lower()
+    if path.suffix.lower() == ".js" or "/bundles/" in lowered or "/scripts/" in lowered or "/content/pluginsjs" in lowered:
+        return "application/javascript; charset=utf-8"
+    if path.suffix.lower() == ".css" or "/content/" in lowered:
+        return "text/css; charset=utf-8"
     guessed = mimetypes.guess_type(str(path))[0]
     if guessed:
         return guessed
-    lowered = request_path.lower()
-    if "/content/pluginsjs" in lowered:
-        return "application/javascript; charset=utf-8"
-    if "/content/" in lowered:
-        return "text/css; charset=utf-8"
-    if "/bundles/" in lowered or "/scripts/" in lowered:
-        return "application/javascript; charset=utf-8"
     if path.suffix.lower() in {".html", ".htm"}:
         return "text/html; charset=utf-8"
     return "application/octet-stream"
