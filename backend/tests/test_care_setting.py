@@ -12,6 +12,18 @@ def test_hospital_origin_with_hospital_service_is_inpatient() -> None:
     )
 
 
+def test_gineco_obstetricia_service_is_inpatient() -> None:
+    assert (
+        derive_care_setting(
+            "HOSPITALIZACION",
+            "HOSPITALIZACIÓN",
+            "HOSP_GINECO_OBSTETRICIA",
+            "HOSP. GINECO-OBSTETRICIA",
+        )
+        == "INTERNADO_NO_UCI"
+    )
+
+
 def test_icu_origin_overrides_general_inpatient_service() -> None:
     assert derive_care_setting("UCI", "UCI", "HOSP_MEDICINA", "HOSP. MEDICINA") == "UCI"
 

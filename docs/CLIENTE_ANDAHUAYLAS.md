@@ -51,8 +51,26 @@ La captura web se conserva solo como referencia visual. La primera personalizaci
 - `backend/app/config.py`
   - Defaults de institución apuntan al Hospital Sub Regional de Andahuaylas.
 
+- `backend/scripts/prepare_andahuaylas_production.py`
+  - Carga idempotente del catálogo institucional de Andahuaylas:
+    - 5 procedencias oficiales.
+    - 46 servicios oficiales.
+  - Los códigos se normalizan sin tildes para estabilidad técnica; los nombres visibles se conservan como catálogo institucional.
+
+- `backend/alembic/versions/0010_andahuaylas_catalogs.py`
+  - Aplica el mismo catálogo institucional durante `alembic upgrade head`.
+  - Deja solo `MEDICO_TURNO` como médico activo para nuevas órdenes.
+  - No elimina valores existentes; solo desactiva médicos distintos a `MEDICO_TURNO` para nuevas órdenes.
+
 - `.env.example` y `.env.local.example`
   - Defaults de institución alineados a la variante.
+
+## Catálogos Institucionales
+
+- Procedencias oficiales: `CONSULTA EXTERNA`, `EMERGENCIA`, `HOSPITALIZACIÓN`, `REFERIDO`, `UCI`.
+- Servicios oficiales: cargados desde `ANDAHUAYLAS_SERVICES` en `backend/scripts/prepare_andahuaylas_production.py`.
+- Médico activo para órdenes: `MEDICO DE TURNO`.
+- La carga no elimina valores existentes; en médicos desactiva valores distintos a `MEDICO_TURNO` para evitar opciones duplicadas.
 
 ## Límites
 

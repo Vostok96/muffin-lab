@@ -40,7 +40,7 @@ from app.models import (
     WorkflowEvent,
 )
 from app.security import hash_password
-from app.services import parameter_definition_snapshot, record_workflow_event
+from app.services import normalized_catalog_key, parameter_definition_snapshot, record_workflow_event
 
 
 CLIENT_USERS = (
@@ -69,6 +69,63 @@ CLIENT_USERS = (
         "password_env": "ANDAHUAYLAS_RCALDERON_PASSWORD",
         "can_validate": True,
     },
+)
+
+ANDAHUAYLAS_ORIGINS = (
+    "CONSULTA EXTERNA",
+    "EMERGENCIA",
+    "HOSPITALIZACIÓN",
+    "REFERIDO",
+    "UCI",
+)
+
+ANDAHUAYLAS_SERVICES = (
+    "ALOJAMIENTO CONJUNTO",
+    "CARDIOLOGIA",
+    "CENTRO OBSTETRICO",
+    "CIRUGIA GENERAL",
+    "CIRUGIA PEDIATRICA",
+    "DERMATOLOGIA",
+    "ENDOCRINOLOGIA",
+    "GASTROENTEROLOGIA",
+    "GINECOLOGIA",
+    "HOSP. CIRUGIA",
+    "HOSP. GINECO-OBSTETRICIA",
+    "HOSP. MEDICINA",
+    "HOSP. NEO I",
+    "HOSP. NEO II",
+    "HOSP. PEDIATRIA",
+    "MEDICINA FISICA Y REHABILITACION",
+    "MEDICINA INTERNA",
+    "NEUMOLOGIA",
+    "NEUROCIRUGIA",
+    "NEUROLOGIA",
+    "OBSTETRICIA",
+    "ODONTOLOGIA",
+    "ODONTO-PEDIATRIA",
+    "OFTALMOLOGIA",
+    "ONCOLOGIA",
+    "OTORRINOLARINGOLOGIA",
+    "PAGANTES",
+    "PEDIATRIA",
+    "PROGRAMA DE ETS/VIH-SIDA",
+    "PROGRAMA DE TUBERCULOSIS",
+    "PSICOLOGIA",
+    "PSIQUIATRIA",
+    "REFERENCIA",
+    "REPOSO EMERGENCIA",
+    "REUMATOLOGIA",
+    "SALA DE OPERACIONES",
+    "SALUD MENTAL",
+    "TOPICO CIRUGIA",
+    "TOPICO GINECO-OBSTETRICIA",
+    "TOPICO MEDICINA",
+    "TOPICO PEDIATRIA",
+    "TRAUMA SHOK",
+    "TRAUMATOLOGIA",
+    "UCI",
+    "UCIN",
+    "UROLOGIA",
 )
 
 
@@ -152,6 +209,36 @@ def ensure_catalog(db, model, code: str, **values):
     return entity
 
 
+def ensure_institution_catalogs(db) -> None:
+    for origin_name in ANDAHUAYLAS_ORIGINS:
+        ensure_catalog(
+            db,
+            Origin,
+            normalized_catalog_key(origin_name),
+            name=origin_name,
+            is_active=True,
+        )
+    for service_name in ANDAHUAYLAS_SERVICES:
+        ensure_catalog(
+            db,
+            Service,
+            normalized_catalog_key(service_name),
+            name=service_name,
+            is_active=True,
+        )
+    on_call = ensure_catalog(
+        db,
+        Clinician,
+        "MEDICO_TURNO",
+        family_name="MEDICO",
+        given_name="DE TURNO",
+        email=None,
+        is_active=True,
+    )
+    for clinician in db.scalars(select(Clinician).where(Clinician.id != on_call.id)):
+        clinician.is_active = False
+
+
 def normalize_microbiology_catalogs(db) -> None:
     area = db.scalar(select(LaboratoryArea).where(LaboratoryArea.code == "MICROBIOLOGY"))
     if not area:
@@ -189,8 +276,7 @@ def normalize_microbiology_catalogs(db) -> None:
     for link in db.scalars(select(AstPanelAntibiotic)):
         link.default_method = "DISCO"
 
-    ensure_catalog(db, Origin, "UCI", name="UCI", is_active=True)
-    ensure_catalog(db, Service, "UCI", name="UCI", is_active=True)
+    ensure_institution_catalogs(db)
 
 
 def delete_result_graph(db, result: Result) -> None:
@@ -233,15 +319,7 @@ def ensure_example_order(db) -> None:
 
     origin = ensure_catalog(db, Origin, "HOSPITALIZACION", name="HOSPITALIZACION", is_active=True)
     service = ensure_catalog(db, Service, "EMERGENCIA", name="EMERGENCIA", is_active=True)
-    clinician = ensure_catalog(
-        db,
-        Clinician,
-        "MEDICO_TURNO",
-        family_name="MEDICO",
-        given_name="DE TURNO",
-        email=None,
-        is_active=True,
-    )
+    clinician = ensure_catalog(db, Clinician, "MEDICO_TURNO", family_name="MEDICO", given_name="DE TURNO", email=None, is_active=True)
     destination = ensure_catalog(db, Destination, "MICROBIOLOGY_BENCH", name="MESA DE MICROBIOLOGIA", is_active=True)
     exam = db.scalar(select(Exam).where(Exam.code == "URINE_CULTURE"))
     specimen_type = db.scalar(select(SpecimenType).where(SpecimenType.code == "URO_CHORRO_MEDIO"))
