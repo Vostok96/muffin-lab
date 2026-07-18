@@ -435,34 +435,35 @@ def seed() -> None:
                 parameter_values["methodology"] = methodology
             parameter = get_or_create_catalog(db, ParameterDefinition, code, **parameter_values)
             result_parameters[code] = parameter
-            relation = db.get(ExamParameter, (exam.id, parameter.id))
-            if not relation:
-                db.add(
-                    ExamParameter(
-                        exam_id=exam.id,
-                        parameter_definition_id=parameter.id,
-                        display_order=display_order,
-                        external_code=f"DEV-{code}",
-                        is_required=is_required,
+            for culture_exam in exams.values():
+                relation = db.get(ExamParameter, (culture_exam.id, parameter.id))
+                if not relation:
+                    db.add(
+                        ExamParameter(
+                            exam_id=culture_exam.id,
+                            parameter_definition_id=parameter.id,
+                            display_order=display_order,
+                            external_code=f"DEV-{code}",
+                            is_required=is_required,
+                        )
                     )
-                )
-                record_audit(
-                    db,
-                    actor_user_id=None,
-                    entity_type="exam_parameter",
-                    entity_id=exam.id,
-                    action="DEVELOPMENT_SEED",
-                    after_data={
-                        "exam_id": exam.id,
-                        "parameter_definition_id": parameter.id,
-                        "display_order": display_order,
-                        "is_required": is_required,
-                    },
-                )
-            else:
-                relation.display_order = display_order
-                relation.external_code = f"DEV-{code}"
-                relation.is_required = is_required
+                    record_audit(
+                        db,
+                        actor_user_id=None,
+                        entity_type="exam_parameter",
+                        entity_id=culture_exam.id,
+                        action="DEVELOPMENT_SEED",
+                        after_data={
+                            "exam_id": culture_exam.id,
+                            "parameter_definition_id": parameter.id,
+                            "display_order": display_order,
+                            "is_required": is_required,
+                        },
+                    )
+                else:
+                    relation.display_order = display_order
+                    relation.external_code = f"DEV-{code}"
+                    relation.is_required = is_required
 
         antimicrobial_activity = result_parameters.get("CULTURE_ANTIMICROBIAL_ACTIVITY")
         if antimicrobial_activity:

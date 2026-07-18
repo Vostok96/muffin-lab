@@ -128,6 +128,22 @@ ANDAHUAYLAS_SERVICES = (
     "UROLOGIA",
 )
 
+CULTURE_EXAM_CODES = (
+    "URINE_CULTURE",
+    "COPROCULTIVO",
+    "HEMOCULTIVO",
+    "CULTIVO_SECRECIONES",
+    "OTROS_CULTIVOS",
+)
+
+CULTURE_PARAMETER_RELATIONS = (
+    ("CULTURE_RESULT", 1, True),
+    ("CULTURE_OBSERVATION", 2, False),
+    ("CULTURE_GRAM", 3, False),
+    ("CULTURE_NITRITE", 4, False),
+    ("CULTURE_COLONY_COUNT", 5, False),
+)
+
 
 def env_password(name: str, fallback_name: str | None = None) -> str:
     password = os.getenv(name) or (os.getenv(fallback_name) if fallback_name else None) or ""
@@ -247,6 +263,37 @@ def ensure_institution_catalogs(db) -> None:
         clinician.is_active = False
 
 
+def ensure_culture_result_parameters(db) -> None:
+    parameter_codes = [code for code, _order, _required in CULTURE_PARAMETER_RELATIONS]
+    parameters = {
+        parameter.code: parameter
+        for parameter in db.scalars(
+            select(ParameterDefinition).where(ParameterDefinition.code.in_(parameter_codes))
+        )
+    }
+    exams = list(db.scalars(select(Exam).where(Exam.code.in_(CULTURE_EXAM_CODES))))
+    for exam in exams:
+        for parameter_code, display_order, is_required in CULTURE_PARAMETER_RELATIONS:
+            parameter = parameters.get(parameter_code)
+            if not parameter:
+                continue
+            relation = db.get(ExamParameter, (exam.id, parameter.id))
+            if relation:
+                relation.display_order = display_order
+                relation.external_code = f"BASE-{parameter_code}"
+                relation.is_required = is_required
+            else:
+                db.add(
+                    ExamParameter(
+                        exam_id=exam.id,
+                        parameter_definition_id=parameter.id,
+                        display_order=display_order,
+                        external_code=f"BASE-{parameter_code}",
+                        is_required=is_required,
+                    )
+                )
+
+
 def normalize_microbiology_catalogs(db) -> None:
     area = db.scalar(select(LaboratoryArea).where(LaboratoryArea.code == "MICROBIOLOGY"))
     if not area:
@@ -278,6 +325,8 @@ def normalize_microbiology_catalogs(db) -> None:
             select(ExamParameter).where(ExamParameter.parameter_definition_id == antimicrobial_activity.id)
         ):
             db.delete(relation)
+
+    ensure_culture_result_parameters(db)
 
     for antibiotic in db.scalars(select(Antibiotic)):
         antibiotic.name = antibiotic.name.upper()
