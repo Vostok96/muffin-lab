@@ -211,6 +211,17 @@ class LaboratoryAreaResponse(CatalogResponse):
     section: str
 
 
+class AppSettingInput(InputModel):
+    value: dict
+
+
+class AppSettingResponse(BaseModel):
+    key: str
+    value: dict
+    updated_by: str | None
+    updated_at: datetime
+
+
 class ClinicianResponse(TimestampedResponse):
     code: str
     family_name: str

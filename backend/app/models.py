@@ -50,6 +50,14 @@ class Role(Base):
     name: Mapped[str] = mapped_column(String(120), nullable=False)
 
 
+class AppSetting(TimestampedEntity, Base):
+    __tablename__ = "app_setting"
+
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    value: Mapped[dict] = mapped_column(JSON, nullable=False)
+    updated_by: Mapped[str | None] = mapped_column(String(36), ForeignKey("user.id", ondelete="SET NULL"))
+
+
 class LaboratoryArea(TimestampedEntity, Base):
     __tablename__ = "laboratory_area"
 

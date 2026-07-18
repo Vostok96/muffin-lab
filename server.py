@@ -74,6 +74,17 @@ RESULT_PARAMETER_OPTION_OVERRIDES = {
     "CULTURE_COLONY_COUNT": COLONY_COUNT_RESULT_OPTIONS,
 }
 SUPPRESSED_RESULT_PARAMETERS = {"CULTURE_ANTIMICROBIAL_ACTIVITY"}
+CODE39_PATTERNS = {
+    "0": "nnnwwnwnn", "1": "wnnwnnnnw", "2": "nnwwnnnnw", "3": "wnwwnnnnn", "4": "nnnwwnnnw",
+    "5": "wnnwwnnnn", "6": "nnwwwnnnn", "7": "nnnwnnwnw", "8": "wnnwnnwnn", "9": "nnwwnnwnn",
+    "A": "wnnnnwnnw", "B": "nnwnnwnnw", "C": "wnwnnwnnn", "D": "nnnnwwnnw", "E": "wnnnwwnnn",
+    "F": "nnwnwwnnn", "G": "nnnnnwwnw", "H": "wnnnnwwnn", "I": "nnwnnwwnn", "J": "nnnnwwwnn",
+    "K": "wnnnnnnww", "L": "nnwnnnnww", "M": "wnwnnnnwn", "N": "nnnnwnnww", "O": "wnnnwnnwn",
+    "P": "nnwnwnnwn", "Q": "nnnnnnwww", "R": "wnnnnnwwn", "S": "nnwnnnwwn", "T": "nnnnwnwwn",
+    "U": "wwnnnnnnw", "V": "nwwnnnnnw", "W": "wwwnnnnnn", "X": "nwnnwnnnw", "Y": "wwnnwnnnn",
+    "Z": "nwwnwnnnn", "-": "nwnnnnwnw", ".": "wwnnnnwnn", " ": "nwwnnnwnn", "$": "nwnwnwnnn",
+    "/": "nwnwnnnwn", "+": "nwnnnwnwn", "%": "nnnwnwnwn", "*": "nwnnwnwnn",
+}
 FAVICON = ROOT / "MUFFIN_FAVICON.png"
 FAVICON_MARKUP = b'\n\t<link rel="icon" type="image/png" sizes="256x256" href="/MUFFIN_FAVICON.png?v=muffin-20260716-v2">\n'
 HOST = os.environ.get("SIMCORE_CLONE_HOST", "127.0.0.1")
@@ -653,6 +664,15 @@ API_PROXIES = {
     "Mic_res_comentarios_def/Guardar": ("POST", "/catalogs/defined-comments", "catalog_mapped_create"),
     "Mic_res_panel_recuento/Obtener": ("GET", "/catalogs/colony-count-options", "catalog_list"),
     "Mic_res_panel_recuento/Guardar": ("POST", "/catalogs/colony-count-options", "catalog_mapped_create"),
+    # ── Legacy sections/configuration ──
+    "Mic_seccion/Obtener": ("GET", "/catalogs/areas", "section_list"),
+    "Mic_seccion/Guardar": ("POST", "/catalogs/areas", "section_save"),
+    "Mic_seccion/ObtenerSecuencia": ("GET", "/catalogs/exams", "section_sequence"),
+    "Mic_seccion_examen/Obtener": ("GET", "/catalogs/exams", "section_exam_list"),
+    "Mic_seccion_examen/Guardar": ("POST", "/catalogs/exams", "section_exam_save"),
+    "Mic_seccion_examen/Eliminar": ("GET", "/catalogs/exams", "section_exam_remove"),
+    "Mic_configuracion_general/Obtener": ("GET", "/admin/settings", "general_config_get"),
+    "Mic_configuracion_general/Guardar": ("POST", "/admin/settings", "general_config_save"),
     # ── Exam relationships ──
     "Mic_muestra_examen/ObtenerEXA": ("GET", "/catalogs/exams", "exam_specimen_list"),
     "Mic_muestra_examen/Guardar": ("POST", "/catalogs/exams", "exam_specimen_add"),
@@ -668,6 +688,8 @@ API_PROXIES = {
     # ── Orders ──
     "Mic_orden/Obtener": ("GET", "/orders", "order_list"),
     "Mic_orden/Guardar": ("POST", "/orders", "order_save"),
+    "Mic_orden/ObtenerMic_orden_seach_destino": ("GET", "/orders", "destination_order_search"),
+    "Mic_orden/RegistrarPrinterCodebar": ("GET", "/print-jobs", "barcode_print"),
     # ── Order items ──
     "Mic_orden_detalle/Obtener_Mic_orden_detalle_examen": ("GET", "/orders", "order_detail_exams"),
     "Mic_orden_detalle/RegistrarExaMuestraMic_orden_detalle": ("POST", "/orders", "order_item_add"),
@@ -676,12 +698,13 @@ API_PROXIES = {
     "Mic_orden_detalle/ObtenerMic_orden_detalle_examen_muestra": ("GET", "/result-worklist", "result_item_sample"),
     "Mic_orden_detalle/GuardarMoMuestra": ("POST", "/orders", "order_item_sample_save"),
     # ── Clinical events ──
-    "Mic_orden_detalle/RegistrarEnviarInstrumentoMic_orden_detalle": ("POST", "/orders", "order_item_instrument"),
+    "Mic_orden_detalle/RegistrarEnviarInstrumentoMic_orden_detalle": ("GET", "/orders", "order_item_instrument"),
     "Mic_orden_detalle/RegistrarDeleteEventosMic_orden_detalle": ("POST", "/orders", "order_item_delete_events"),
-    "Mic_orden_detalle/RegistrarEnviarAlarmaEmailMic_orden_detalle": ("POST", "/orders", "order_item_email_alarm"),
+    "Mic_orden_detalle/RegistrarEnviarAlarmaEmailMic_orden_detalle": ("GET", "/orders", "order_item_email_alarm"),
     # ── Results ──
     "Mic_orden_detalle_res/Guardar": ("POST", "/orders", "result_save"),
     "Mic_orden_detalle_res/ObtenerOrdenId": ("GET", "/orders", "result_get_by_order"),
+    "Mic_orden_detalle_res/ObtenerMic_orden_pdf_examen_param": ("GET", "/orders", "legacy_report_params"),
     "Trans_pdf/Download_res_es": ("GET", "/orders", "result_report"),
     "Mic_temp/DocumentoPDF": ("GET", "/orders", "result_report"),
     # ── AST Panels (microbiology) ──
@@ -689,9 +712,11 @@ API_PROXIES = {
     "Mic_res_panel/Eliminar": ("GET", "/orders", "ast_panel_delete"),
     "Mic_res_panel/ObtenerCodebar": ("GET", "/orders", "ast_panel_by_codebar"),
     "Mic_res_panel/ObtenerCodebarOrgacod": ("GET", "/orders", "ast_panel_by_org"),
+    "Mic_res_panel/ObtenerMic_orden_pdf_panel": ("GET", "/orders", "legacy_report_panels"),
     "Mic_res_panel_detalle/Guardar": ("POST", "/orders", "ast_detail_save"),
     "Mic_res_panel_detalle/GuardarManual": ("POST", "/orders", "ast_detail_manual"),
     "Mic_res_panel_detalle/ObtenerCodebarOrgaCod": ("GET", "/orders", "ast_detail_by_org"),
+    "Mic_res_panel_detalle/ObtenerMic_orden_pdf_panel_atb": ("GET", "/orders", "legacy_report_panel_atb"),
     # ── Organism panels ──
     "Mic_orga_panel/Obtener": ("GET", "/catalogs/ast-panels", "catalog_list"),
     "Mic_orga_panel/Guardar": ("POST", "/catalogs/ast-panels", "ast_panel_create"),
@@ -704,6 +729,16 @@ API_PROXIES = {
     "Mic_area_permiso/Obtener_user_seccion": ("GET", "/auth/me/areas", "area_permission_list"),
     "Mic_area_permiso/Guardar": ("POST", "/admin/users", "area_permission_save"),
     "Mic_area_permiso/Eliminar": ("GET", "/admin/users", "area_permission_delete"),
+    # ── Verification / consultations / exports ──
+    "Mic_destinos_orden_detalle/Obtener": ("GET", "/orders", "destination_order_detail_list"),
+    "Mic_destinos_orden_detalle/Guardar": ("POST", "/orders", "destination_order_detail_save"),
+    "Mic_destinos_orden_detalle/Verifcar": ("POST", "/orders", "destination_order_verify"),
+    "Mic_destinos_orden_detalle/Eliminar": ("GET", "/orders", "destination_order_detail_delete"),
+    "Trans_consultas/Obtener_pac_orden": ("GET", "/orders", "consult_patient_orders"),
+    "Trans_reportes/Microbiologia_rep_hoja_trabajo_export": ("GET", "/result-worklist", "worksheet_report_export"),
+    "Trans_reportes/Microbiologia_rep_idt_ast_export": ("GET", "/result-worklist", "idt_ast_report_export"),
+    "Trans_reportes/Microbiologia_rep_produccion_export": ("GET", "/result-worklist", "production_report_export"),
+    "Mic_Persona/Exportar": ("GET", "/patients", "patient_export"),
 }
 
 
@@ -1056,6 +1091,14 @@ class Handler(BaseHTTPRequestHandler):
             "dashboard_summary": lambda: self._proxy_dashboard_summary(token),
             "catalog_list": lambda: self._proxy_catalog_list(token, api_url),
             "catalog_mapped_create": lambda: self._proxy_catalog_mapped_create(token, api_url),
+            "section_list": lambda: self._proxy_section_list(token),
+            "section_save": lambda: self._proxy_section_save(token),
+            "section_sequence": lambda: self._proxy_section_sequence(token, path),
+            "section_exam_list": lambda: self._proxy_section_exam_list(token, path),
+            "section_exam_save": lambda: self._proxy_section_exam_save(token),
+            "section_exam_remove": lambda: self._proxy_section_exam_remove(token),
+            "general_config_get": lambda: self._proxy_general_config_get(token),
+            "general_config_save": lambda: self._proxy_general_config_save(token),
             "area_permission_list": lambda: self._proxy_area_permission_list(token),
             "area_permission_save": lambda: self._proxy_area_permission_save(token),
             "area_permission_delete": lambda: self._proxy_area_permission_delete(token),
@@ -1070,6 +1113,8 @@ class Handler(BaseHTTPRequestHandler):
             "patient_delete": lambda: self._proxy_patient_delete(token),
             "order_list": lambda: self._proxy_order_list(token),
             "order_save": lambda: self._proxy_order_save(token),
+            "destination_order_search": lambda: self._proxy_destination_order_search(token, path),
+            "barcode_print": lambda: self._proxy_barcode_print(token, path),
             "order_detail_exams": lambda: self._proxy_order_detail_exams(token, path),
             "order_item_add": lambda: self._proxy_order_item_add(token),
             "order_item_delete": lambda: self._proxy_order_item_delete(token),
@@ -1077,24 +1122,36 @@ class Handler(BaseHTTPRequestHandler):
             "result_worklist": lambda: self._proxy_result_worklist(token),
             "result_item_sample": lambda: self._proxy_result_item_sample(token),
             "order_item_sample_save": lambda: self._proxy_order_item_sample_save(token),
-            "order_item_instrument": lambda: self._proxy_stub_ok("Instrumento enviado"),
+            "order_item_instrument": lambda: self._proxy_disabled("Interfaz con instrumento deshabilitada temporalmente"),
             "order_item_delete_events": lambda: self._proxy_result_delete(token),
-            "order_item_email_alarm": lambda: self._proxy_stub_ok("Alarma de email enviada"),
+            "order_item_email_alarm": lambda: self._proxy_disabled("Envio de alarmas por email deshabilitado temporalmente"),
             "result_save": lambda: self._proxy_result_save(token),
             "result_get_by_order": lambda: self._proxy_result_get_by_order(token, path),
+            "legacy_report_params": lambda: self._proxy_legacy_report_params(token, path),
             "result_report": lambda: self._proxy_result_report(token, path),
             "ast_panel_register": lambda: self._proxy_ast_panel_register(token),
             "ast_panel_delete": lambda: self._proxy_ast_panel_delete(token),
             "ast_panel_by_codebar": lambda: self._proxy_ast_panel_by_codebar(token, path),
             "ast_panel_by_org": lambda: self._proxy_ast_panel_by_org(token, path),
+            "legacy_report_panels": lambda: self._proxy_legacy_report_panels(token, path),
             "ast_detail_save": lambda: self._proxy_ast_detail_save(token),
             "ast_detail_manual": lambda: self._proxy_ast_detail_manual(token),
             "ast_detail_by_org": lambda: self._proxy_ast_detail_by_org(token, path),
+            "legacy_report_panel_atb": lambda: self._proxy_legacy_report_panel_atb(token, path),
             "ast_panel_create": lambda: self._proxy_ast_panel_create(token),
             "ast_panel_delete_api": lambda: self._proxy_ast_panel_delete_api(token, path),
             "ast_panel_antibiotics": lambda: self._proxy_ast_panel_antibiotics(token, path),
             "ast_panel_antibiotic_add": lambda: self._proxy_ast_panel_antibiotic_add(token),
             "ast_panel_antibiotic_remove": lambda: self._proxy_ast_panel_antibiotic_remove(token, path),
+            "destination_order_detail_list": lambda: self._proxy_destination_order_detail_list(token, path),
+            "destination_order_detail_save": lambda: self._proxy_destination_order_detail_save(token),
+            "destination_order_verify": lambda: self._proxy_destination_order_verify(token),
+            "destination_order_detail_delete": lambda: self._proxy_destination_order_detail_delete(token),
+            "consult_patient_orders": lambda: self._proxy_consult_patient_orders(token),
+            "worksheet_report_export": lambda: self._proxy_worksheet_report_export(token, path),
+            "idt_ast_report_export": lambda: self._proxy_idt_ast_report_export(token, path),
+            "production_report_export": lambda: self._proxy_production_report_export(token, path),
+            "patient_export": lambda: self._proxy_patient_export(token),
         }
 
         fn = dispatch.get(handler)
@@ -1120,6 +1177,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def _proxy_stub_ok(self, msg: str) -> None:
         self.send_json({"resultado": True, "mensaje": msg})
+
+    def _proxy_disabled(self, msg: str) -> None:
+        self.send_json({"resultado": False, "mensaje": msg}, 409)
 
     # ── DASHBOARD HANDLERS ──
 
@@ -1493,6 +1553,150 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
 
+    # ── LEGACY SECTION / CONFIGURATION HANDLERS ──
+
+    def _legacy_section_row(self, area: dict, index: int = 1) -> dict:
+        code = str(area.get("code", "")).upper()
+        return {
+            "seccion_id": area.get("id", ""),
+            "seccion_nombre": area.get("name", ""),
+            "seccion_nomenplatura": code,
+            "seccion_codigo": code,
+            "seccion_anio": str(datetime.now(LOCAL_TIMEZONE).year),
+            "seccion_numero": index,
+            "seccion_estado": area.get("is_active", True),
+        }
+
+    def _proxy_section_list(self, token: str) -> None:
+        status, data = api_req("GET", "/catalogs/areas?active_only=false&page_size=100", token)
+        if status == 200 and isinstance(data, dict):
+            rows = [self._legacy_section_row(area, i + 1) for i, area in enumerate(data.get("data", []))]
+            self.send_json({"data": rows, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudieron cargar las secciones"})
+
+    def _proxy_section_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        area_id = str(obj.get("seccion_id", "")).strip()
+        code = str(obj.get("seccion_codigo") or obj.get("seccion_nomenplatura") or obj.get("seccion_nombre") or "").strip().upper().replace(" ", "_")
+        name = str(obj.get("seccion_nombre", "")).strip().upper()
+        if not code or not name:
+            self.send_json({"resultado": False, "mensaje": "Codigo y nombre de seccion requeridos"})
+            return
+        payload = {"code": code, "name": name, "section": "MICROBIOLOGY", "is_active": True}
+        if area_id and area_id != "0":
+            status, data = api_req("PATCH", f"/catalogs/areas/{quote(area_id, safe='')}", token, payload)
+        else:
+            status, data = api_req("POST", "/catalogs/areas", token, payload)
+        if status in (200, 201):
+            self.send_json({"resultado": True, "mensaje": "Seccion guardada correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"No se pudo guardar la seccion (HTTP {status})"})
+
+    def _proxy_section_sequence(self, token: str, path: str) -> None:
+        exam_id = self._extract_query_param(path, "examen_id")
+        if not exam_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, exam_page = api_req("GET", "/catalogs/exams?active_only=false&page_size=100", token)
+        area_id = ""
+        if status == 200 and isinstance(exam_page, dict):
+            for exam in exam_page.get("data", []):
+                if str(exam.get("id", "")) == exam_id or str(exam.get("code", "")) == exam_id:
+                    area_id = exam.get("laboratory_area_id", "")
+                    break
+        area_row = {}
+        if area_id:
+            area_status, area_page = api_req("GET", "/catalogs/areas?active_only=false&page_size=100", token)
+            if area_status == 200 and isinstance(area_page, dict):
+                area_row = next((area for area in area_page.get("data", []) if area.get("id") == area_id), {})
+        self.send_json({"data": [self._legacy_section_row(area_row or {"code": "", "name": ""})], "resultado": True})
+
+    def _proxy_section_exam_list(self, token: str, path: str) -> None:
+        section_id = self._extract_query_param(path, "seccion_id")
+        status, data = api_req("GET", "/catalogs/exams?active_only=false&page_size=100", token)
+        if status == 200 and isinstance(data, dict):
+            rows = []
+            for exam in data.get("data", []):
+                if not section_id or exam.get("laboratory_area_id") == section_id:
+                    rows.append(
+                        {
+                            "secciondet_id": f"{section_id}:{exam.get('id', '')}",
+                            "seccion_id": section_id,
+                            "examen_id": exam.get("id", ""),
+                            "examen_desc": exam.get("name", ""),
+                        }
+                    )
+            self.send_json({"data": rows, "resultado": True})
+        else:
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudieron cargar los examenes de la seccion"})
+
+    def _proxy_section_exam_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        section_id = str(obj.get("seccion_id", "")).strip()
+        exam_id = str(obj.get("examen_id", "")).strip()
+        if not section_id or not exam_id:
+            self.send_json({"resultado": False, "mensaje": "Seccion y examen requeridos"})
+            return
+        status, data = api_req("PATCH", f"/catalogs/exams/{quote(exam_id, safe='')}", token, {"laboratory_area_id": section_id})
+        if status == 200:
+            self.send_json({"resultado": True, "mensaje": "Examen asociado a la seccion"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"No se pudo asociar examen (HTTP {status})"})
+
+    def _proxy_section_exam_remove(self, token: str) -> None:
+        self.send_json({"resultado": False, "mensaje": "Un examen no puede quedar sin seccion. Asocielo a otra seccion para corregirlo."}, 409)
+
+    def _general_config_default(self) -> dict:
+        return {
+            "confi_centro_cod": "HSRA",
+            "confi_centro_desc": INSTITUTION_NAME,
+            "confi_impresora_nombre": "",
+            "confi_impresora_cantidad": "1",
+            "confi_impresora_etiqueta_adicional": False,
+            "confi_reporte_muestra_toma": True,
+            "confi_reporte_muestra_recepcion": True,
+            "confi_reporte_codebar": True,
+            "confi_analizador_lista_trabajo": "",
+        }
+
+    def _proxy_general_config_get(self, token: str) -> None:
+        status, data = api_req("GET", "/admin/settings", token)
+        value = self._general_config_default()
+        if status == 200 and isinstance(data, list):
+            saved = next((item.get("value") for item in data if item.get("key") == "general"), None)
+            if isinstance(saved, dict):
+                value.update(saved)
+        self.send_json({"data": [value], "resultado": True})
+
+    def _proxy_general_config_save(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        value = self._general_config_default()
+        value.update(
+            {
+                "confi_centro_cod": str(obj.get("confi_centro_cod", "")).strip().upper(),
+                "confi_centro_desc": str(obj.get("confi_centro_desc", "")).strip(),
+                "confi_impresora_nombre": str(obj.get("confi_impresora_nombre", "")).strip(),
+                "confi_impresora_cantidad": str(obj.get("confi_impresora_cantidad", "1")).strip() or "1",
+                "confi_impresora_etiqueta_adicional": bool(obj.get("confi_impresora_etiqueta_adicional")),
+                "confi_reporte_muestra_toma": bool(obj.get("confi_reporte_muestra_toma")),
+                "confi_reporte_muestra_recepcion": bool(obj.get("confi_reporte_muestra_recepcion")),
+                "confi_reporte_codebar": bool(obj.get("confi_reporte_codebar")),
+                "confi_analizador_lista_trabajo": str(obj.get("confi_analizador_lista_trabajo", "")).strip(),
+            }
+        )
+        if not value["confi_centro_cod"] or not value["confi_centro_desc"]:
+            self.send_json({"resultado": False, "mensaje": "Codigo y descripcion del centro requeridos"})
+            return
+        status, data = api_req("PUT", "/admin/settings/general", token, {"value": value})
+        if status == 200:
+            self.send_json({"resultado": True, "mensaje": "Configuracion guardada correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"No se pudo guardar configuracion (HTTP {status})"})
+
     # ── PATIENT HANDLERS ──
 
     def _proxy_patient_list(self, token: str) -> None:
@@ -1672,6 +1876,107 @@ class Handler(BaseHTTPRequestHandler):
             )
         self.send_json({"data": translated, "resultado": True})
 
+    def _load_catalog_maps(self, token: str, *, include_exams: bool = False, include_specimens: bool = False) -> dict:
+        _, patient_page = api_req("GET", "/patients?page_size=100", token)
+        _, origin_page = api_req("GET", "/catalogs/origins?page_size=100", token)
+        _, service_page = api_req("GET", "/catalogs/services?page_size=100", token)
+        _, clinician_page = api_req("GET", "/catalogs/clinicians?page_size=100", token)
+        maps = {
+            "patients": {item["id"]: item for item in (patient_page or {}).get("data", [])},
+            "origins": {item["id"]: item for item in (origin_page or {}).get("data", [])},
+            "services": {item["id"]: item for item in (service_page or {}).get("data", [])},
+            "clinicians": {item["id"]: item for item in (clinician_page or {}).get("data", [])},
+            "exams": {},
+            "specimens": {},
+        }
+        if include_exams:
+            _, exam_page = api_req("GET", "/catalogs/exams?active_only=false&page_size=100", token)
+            maps["exams"] = {item["id"]: item for item in (exam_page or {}).get("data", [])}
+        if include_specimens:
+            _, specimen_page = api_req("GET", "/catalogs/specimen-types?active_only=false&page_size=100", token)
+            maps["specimens"] = {item["id"]: item for item in (specimen_page or {}).get("data", [])}
+        return maps
+
+    def _legacy_order_row(self, order: dict, maps: dict) -> dict:
+        patient = maps["patients"].get(order.get("patient_id"), {})
+        origin = maps["origins"].get(order.get("origin_id"), {})
+        service = maps["services"].get(order.get("service_id"), {})
+        clinician = maps["clinicians"].get(order.get("clinician_id"), {})
+        birth_date = patient.get("birth_date", "")
+        age = ""
+        if birth_date:
+            try:
+                born = date.fromisoformat(birth_date)
+                today = date.today()
+                age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+            except ValueError:
+                pass
+        items = order.get("items", [])
+        exam_names = []
+        for item in items:
+            exam = maps.get("exams", {}).get(item.get("exam_id"), {})
+            exam_names.append(exam.get("name") or item.get("exam_id", ""))
+        result_count = sum(1 for item in items if item.get("status") in {"IN_PROCESS", "RESULT_SAVED", "PRELIMINARY_VALIDATED", "FINAL_VALIDATED"})
+        preliminary_count = sum(1 for item in items if item.get("status") in {"PRELIMINARY_VALIDATED", "FINAL_VALIDATED"})
+        final_count = sum(1 for item in items if item.get("status") == "FINAL_VALIDATED")
+        return {
+            "orden_id": order.get("id", ""),
+            "orden_numero": order.get("order_number", ""),
+            "orden_estado": order.get("status") != "CANCELLED",
+            "orden_fecha": str(order.get("ordered_at", ""))[:10],
+            "orden_comentarios": order.get("clinical_notes") or "",
+            "orden_temp1": "|".join(exam_names),
+            "orden_temp2": len(items),
+            "orden_temp3": preliminary_count,
+            "orden_temp4": final_count,
+            "concat_temp_numero_examenes": len(items),
+            "concat_temp_res_resultado": result_count,
+            "concat_temp_res_priliminar": preliminary_count,
+            "concat_temp_res_final": final_count,
+            "oMic_persona": {
+                "persona_id": patient.get("id", ""),
+                "persona_hc": patient.get("medical_record_number", ""),
+                "persona_apellidos": patient.get("family_name", ""),
+                "persona_nombres": patient.get("given_name", ""),
+                "persona_fecha_nac": birth_date,
+                "persona_genero": patient.get("sex", ""),
+                "persona_edad": age,
+            },
+            "oMic_procedencia": {
+                "procedencia_id": origin.get("id", ""),
+                "procedencia_desc": origin.get("name", ""),
+            },
+            "oMic_servicio": {
+                "servicio_id": service.get("id", ""),
+                "servicio_desc": service.get("name", ""),
+            },
+            "oMic_medico": {
+                "medico_id": clinician.get("id", ""),
+                "medico_apellidos": clinician.get("family_name", ""),
+                "medico_nombres": clinician.get("given_name", ""),
+            },
+        }
+
+    def _proxy_consult_patient_orders(self, token: str) -> None:
+        request_path = self.path if hasattr(self, "path") else ""
+        date_from = self._extract_query_param(request_path, "orden_fecha_ini")
+        date_to = self._extract_query_param(request_path, "orden_fecha_fin")
+        search = self._extract_query_param(request_path, "orden_buscar")
+        query = ["page_size=100"]
+        if date_from:
+            query.append(f"from={quote(date_from, safe='')}")
+        if date_to:
+            query.append(f"to={quote(date_to, safe='')}")
+        if search:
+            query.append(f"search={quote(search, safe='')}")
+        status, data = api_req("GET", f"/orders?{'&'.join(query)}", token)
+        if status != 200 or not isinstance(data, dict):
+            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudieron cargar las ordenes"})
+            return
+        maps = self._load_catalog_maps(token, include_exams=True)
+        rows = [self._legacy_order_row(order, maps) for order in data.get("data", [])]
+        self.send_json({"data": rows, "resultado": True})
+
     def _proxy_order_save(self, token: str) -> None:
         body = self._read_body()
         obj = (body or {}).get("objeto", body or {})
@@ -1823,6 +2128,295 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"data": translated, "resultado": True})
         else:
             self.send_json({"data": [], "resultado": True})
+
+    def _find_order_and_items(self, token: str, *, order_id: str = "", item_id: str = "", barcode: str = "") -> list[tuple[dict, dict]]:
+        order_id = "" if order_id in {"0", "ALL"} else order_id
+        matches: list[tuple[dict, dict]] = []
+        if order_id:
+            status, order = api_req("GET", f"/orders/{quote(order_id, safe='')}", token)
+            if status == 200 and isinstance(order, dict):
+                for item in order.get("items", []):
+                    if item_id and item.get("id") != item_id:
+                        continue
+                    if barcode and item.get("barcode") != barcode:
+                        continue
+                    matches.append((order, item))
+                if matches or not item_id:
+                    return matches
+        if barcode:
+            status, rows = api_req("GET", f"/result-worklist?search={quote(barcode, safe='')}", token)
+            if status == 200 and isinstance(rows, list):
+                for row in rows:
+                    item = row.get("item") or {}
+                    if item.get("barcode") == barcode:
+                        order = row.get("order") or {}
+                        if order.get("id"):
+                            order_status, full_order = api_req("GET", f"/orders/{quote(order['id'], safe='')}", token)
+                            if order_status == 200 and isinstance(full_order, dict):
+                                return [(full_order, next((candidate for candidate in full_order.get("items", []) if candidate.get("id") == item.get("id")), item))]
+        query = "page_size=100"
+        if barcode:
+            query += f"&search={quote(barcode, safe='')}"
+        status, data = api_req("GET", f"/orders?{query}", token)
+        if status == 200 and isinstance(data, dict):
+            for order in data.get("data", []):
+                for item in order.get("items", []):
+                    if item_id and item.get("id") != item_id:
+                        continue
+                    if barcode and item.get("barcode") != barcode:
+                        continue
+                    if item_id or barcode:
+                        return [(order, item)]
+                    matches.append((order, item))
+        return matches
+
+    def _catalog_lookup_bundle(self, token: str) -> dict:
+        maps = self._load_catalog_maps(token, include_exams=True, include_specimens=True)
+        return maps
+
+    def _barcode_label_contexts(self, token: str, path: str) -> list[dict]:
+        request_path = self.path if hasattr(self, "path") else path
+        order_id = self._extract_query_param(request_path, "orden_id") or self._extract_query_param(request_path, "order_id")
+        item_id = self._extract_query_param(request_path, "orden_det_id") or self._extract_query_param(request_path, "item_id")
+        barcode = self._extract_query_param(request_path, "orden_det_codebar") or self._extract_query_param(request_path, "barcode")
+        if item_id == "ALL":
+            item_id = ""
+        pairs = self._find_order_and_items(token, order_id=order_id, item_id=item_id, barcode=barcode)
+        maps = self._catalog_lookup_bundle(token)
+        labels = []
+        for order, item in pairs:
+            patient = maps["patients"].get(order.get("patient_id"), {})
+            exam = maps["exams"].get(item.get("exam_id"), {})
+            specimen = maps["specimens"].get(item.get("specimen_type_id"), {})
+            labels.append(
+                {
+                    "order": order,
+                    "item": item,
+                    "patient": patient,
+                    "exam": exam,
+                    "specimen": specimen,
+                    "barcode": str(item.get("barcode", "")).upper(),
+                }
+            )
+        return labels
+
+    def _code39_svg(self, value: str) -> str:
+        clean = "".join(ch if ch in CODE39_PATTERNS and ch != "*" else "-" for ch in uppercase_report_value(value))
+        encoded = f"*{clean}*"
+        narrow = 2
+        wide = 5
+        gap = 2
+        height = 56
+        x = 0
+        rects = []
+        for char in encoded:
+            pattern = CODE39_PATTERNS.get(char, CODE39_PATTERNS["-"])
+            for index, width_code in enumerate(pattern):
+                width = wide if width_code == "w" else narrow
+                if index % 2 == 0:
+                    rects.append(f'<rect x="{x}" y="0" width="{width}" height="{height}" />')
+                x += width
+            x += gap
+        return f'<svg class="barcode-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {x} {height}" role="img" aria-label="{html.escape(clean)}">{"".join(rects)}</svg>'
+
+    def _barcode_labels_html(self, labels: list[dict]) -> str:
+        generated_at = datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M")
+
+        def e(value: object) -> str:
+            return html.escape(str(value or ""))
+
+        label_html = []
+        for label in labels:
+            order = label["order"]
+            item = label["item"]
+            patient = label["patient"]
+            exam = label["exam"]
+            specimen = label["specimen"]
+            barcode = label["barcode"]
+            label_html.append(
+                f"""
+<section class="label">
+  <div class="label-head">
+    <strong>{e(INSTITUTION_NAME)}</strong>
+    <span>{e(str(order.get('ordered_at', ''))[:10])}</span>
+  </div>
+  <div class="barcode">{self._code39_svg(barcode)}</div>
+  <div class="barcode-text">{e(barcode)}</div>
+  <div class="meta">
+    <div><b>Orden</b><span>{e(order.get('order_number'))}</span></div>
+    <div><b>HC</b><span>{e(patient.get('medical_record_number'))}</span></div>
+    <div><b>Paciente</b><span>{e(patient.get('family_name'))}, {e(patient.get('given_name'))}</span></div>
+    <div><b>Examen</b><span>{e(exam.get('name') or item.get('exam_id'))}</span></div>
+    <div><b>Muestra</b><span>{e(specimen.get('name') or item.get('specimen_type_id'))}</span></div>
+  </div>
+</section>"""
+            )
+        return f"""<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etiquetas de codigo de barras - MUFFIN</title>
+<style>
+body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;margin:0;padding:18px}}
+.toolbar{{align-items:center;display:flex;gap:10px;justify-content:space-between;margin:0 auto 14px;max-width:720px}}
+.toolbar h1{{font-size:18px;margin:0}}button{{background:#167d86;border:0;border-radius:5px;color:#fff;font-weight:700;padding:8px 12px}}
+.sheet{{display:grid;gap:14px;margin:0 auto;max-width:720px}}
+.label{{background:#fff;border:1px solid #b8d0cc;border-radius:6px;break-inside:avoid;padding:12px;page-break-inside:avoid}}
+.label-head{{display:flex;font-size:12px;justify-content:space-between;margin-bottom:8px;text-transform:uppercase}}
+.barcode{{display:flex;justify-content:center;margin:5px 0}}.barcode-svg{{height:56px;max-width:100%;width:100%}}
+.barcode-text{{font-size:16px;font-weight:700;letter-spacing:.08em;text-align:center}}
+.meta{{display:grid;font-size:11px;gap:4px;grid-template-columns:repeat(2,1fr);margin-top:8px}}
+.meta div{{border-top:1px solid #d5e5e2;padding-top:4px}}.meta b{{color:#607477;display:block;font-size:9px;text-transform:uppercase}}
+.meta span{{font-weight:700}}.foot{{color:#607477;font-size:10px;margin:10px auto 0;max-width:720px;text-align:right}}
+@media print{{body{{background:#fff;padding:0}}.toolbar,.foot{{display:none}}.sheet{{display:block;max-width:none}}.label{{border:0;border-radius:0;margin:0;padding:6mm;width:88mm}}}}
+</style>
+</head>
+<body>
+<div class="toolbar"><h1>Etiquetas de codigo de barras</h1><button onclick="window.print()">Imprimir</button></div>
+<main class="sheet">{''.join(label_html)}</main>
+<div class="foot">Generado por MUFFIN {e(generated_at)}</div>
+</body>
+</html>"""
+
+    def _proxy_barcode_print(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        labels = self._barcode_label_contexts(token, request_path)
+        if not labels:
+            if self._extract_query_param(request_path, "formato") == "html":
+                self._send_html_message("Codigo de barras", "No se encontro la orden o muestra solicitada.")
+            else:
+                self.send_json({"resultado": False, "mensaje": "No se encontro la orden o muestra solicitada"})
+            return
+        if self._extract_query_param(request_path, "formato") == "html":
+            for label in labels:
+                item_id = label["item"].get("id", "")
+                if item_id:
+                    api_req("POST", "/print-jobs", token, {"order_item_id": item_id, "kind": "LABEL", "details": f"Etiqueta {label['barcode']}"})
+            self.send_bytes(self._barcode_labels_html(labels).encode("utf-8"), 200, "text/html; charset=utf-8", cache_control="no-store")
+            return
+        self.send_json({"resultado": True, "mensaje": "Etiqueta lista para imprimir"})
+
+    def _proxy_destination_order_search(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        search = self._extract_query_param(request_path, "orden_numero").strip()
+        if not search:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/orders?search={quote(search, safe='')}&page_size=100", token)
+        orders = data.get("data", []) if status == 200 and isinstance(data, dict) else []
+        normalized = normalize_match_key(search)
+        if not orders:
+            status, data = api_req("GET", "/orders?page_size=100", token)
+            if status == 200 and isinstance(data, dict):
+                orders = [
+                    order
+                    for order in data.get("data", [])
+                    if normalize_match_key(order.get("order_number", "")) == normalized
+                    or any(normalize_match_key(item.get("barcode", "")) == normalized for item in order.get("items", []))
+                ]
+        if not orders:
+            self.send_json({"data": [], "resultado": True})
+            return
+        maps = self._load_catalog_maps(token, include_exams=True)
+        rows = []
+        for order in orders:
+            row = self._legacy_order_row(order, maps)
+            row["orden_seach_busqueda_verificar"] = (
+                "bus_codebar"
+                if any(normalize_match_key(item.get("barcode", "")) == normalized for item in order.get("items", []))
+                else "bus_orden"
+            )
+            rows.append(row)
+        self.send_json({"data": rows, "resultado": True})
+
+    def _destination_map(self, token: str) -> dict:
+        status, data = api_req("GET", "/catalogs/destinations?active_only=false&page_size=100", token)
+        return {item["id"]: item for item in (data or {}).get("data", [])} if status == 200 and isinstance(data, dict) else {}
+
+    def _microbiology_destination_id(self, token: str) -> str:
+        destinations = self._destination_map(token)
+        for item in destinations.values():
+            if str(item.get("code", "")).upper() == "MICROBIOLOGY_BENCH":
+                return item.get("id", "")
+        return next((item.get("id", "") for item in destinations.values() if item.get("is_active", True)), "")
+
+    def _proxy_destination_order_detail_list(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        order_id = self._extract_query_param(request_path, "orden_id")
+        barcode = self._extract_query_param(request_path, "orden_det_codebar")
+        labels = self._barcode_label_contexts(
+            token,
+            f"/MUFFIN/Mic_orden/RegistrarPrinterCodebar?orden_id={quote(order_id, safe='')}&orden_det_id={'ALL' if barcode == 'ALL' else ''}&orden_det_codebar={quote('' if barcode == 'ALL' else barcode, safe='')}",
+        )
+        if not labels and barcode and barcode != "ALL":
+            labels = self._barcode_label_contexts(token, f"/MUFFIN/Mic_orden/RegistrarPrinterCodebar?orden_det_codebar={quote(barcode, safe='')}")
+        destinations = self._destination_map(token)
+        rows = []
+        for label in labels:
+            item = label["item"]
+            barcode_value = item.get("barcode", "")
+            status, events = api_req("GET", f"/order-items/{quote(item.get('id', ''), safe='')}/events", token)
+            if status != 200 or not isinstance(events, list):
+                events = []
+            for event in events:
+                details = event.get("details") or {}
+                destination = destinations.get(details.get("destination_id") or item.get("destination_id"), {})
+                rows.append(
+                    {
+                        "desti_orden_det_id": event.get("id", ""),
+                        "desti_orden_det_fecha": local_datetime_value(event.get("occurred_at")).replace("T", " "),
+                        "desti_orden_det_user": event.get("performed_by") or "",
+                        "desti_orden_det_comentarios": details.get("reason") or details.get("location") or details.get("restored_status") or "",
+                        "oMic_orden_detalle": {"orden_det_id": item.get("id", ""), "orden_det_codebar": barcode_value},
+                        "oMic_destinos": {
+                            "destinos_desc": destination.get("name") or event.get("event_type", ""),
+                            "destinos_orden_verificacion_orden": event.get("event_type", ""),
+                            "destinos_orden_verificacion_requiere": "0",
+                        },
+                    }
+                )
+        self.send_json({"data": rows, "resultado": True})
+
+    def _proxy_destination_order_verify(self, token: str) -> None:
+        body = self._read_body()
+        obj = (body or {}).get("objeto", body or {})
+        item_data = obj.get("oMic_orden_detalle") or {}
+        barcode = str(item_data.get("orden_det_codebar", "")).strip()
+        order_data = item_data.get("oMic_orden") or {}
+        order_id = str(order_data.get("orden_id", "")).strip()
+        labels = self._barcode_label_contexts(token, f"/MUFFIN/Mic_orden/RegistrarPrinterCodebar?orden_id={quote(order_id, safe='')}&orden_det_codebar={quote(barcode, safe='')}")
+        if not labels:
+            labels = self._barcode_label_contexts(token, f"/MUFFIN/Mic_orden/RegistrarPrinterCodebar?orden_det_codebar={quote(barcode, safe='')}")
+        if not labels:
+            self.send_json({"resultado": False, "mensaje": "No se encontro la muestra para verificar"})
+            return
+        item = labels[0]["item"]
+        if item.get("status") in {"RECEIVED", "IN_PROCESS", "RESULT_SAVED", "PRELIMINARY_VALIDATED", "FINAL_VALIDATED"}:
+            self.send_json({"resultado": True, "mensaje": "Muestra ya verificada"})
+            return
+        destination_id = self._microbiology_destination_id(token)
+        if not destination_id:
+            self.send_json({"resultado": False, "mensaje": "No existe destino activo para microbiologia"})
+            return
+        now = datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%dT%H:%M:%S-05:00")
+        payload = {
+            "destination_id": destination_id,
+            "collection_at": item.get("collection_at") or now,
+            "received_at": now,
+            "specimen_notes": str(obj.get("desti_orden_det_comentarios", "")).strip() or item.get("specimen_notes"),
+        }
+        status, data = api_req("POST", f"/order-items/{quote(item.get('id', ''), safe='')}/receive", token, payload)
+        if status == 200:
+            self.send_json({"resultado": True, "mensaje": "Muestra verificada correctamente"})
+        else:
+            self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"No se pudo verificar la muestra (HTTP {status})"})
+
+    def _proxy_destination_order_detail_save(self, token: str) -> None:
+        self.send_json({"resultado": False, "mensaje": "El historial de verificacion es trazable y no se edita. Registre una nueva verificacion si corresponde."}, 409)
+
+    def _proxy_destination_order_detail_delete(self, token: str) -> None:
+        self.send_json({"resultado": False, "mensaje": "El historial de verificacion no se elimina por trazabilidad."}, 409)
 
     def _proxy_order_item_add(self, token: str) -> None:
         body = self._read_body()
@@ -2235,6 +2829,81 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"data": parameters, "resultado": True, "estado": data.get("status", "NOT_STARTED")})
         else:
             self.send_json({"data": [], "resultado": True})
+
+    def _proxy_legacy_report_params(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        item_id = (
+            self._extract_query_param(request_path, "IdMic_orden_detalle")
+            or self._extract_query_param(request_path, "orden_det_id")
+            or self._extract_query_param(request_path, "item_id")
+        )
+        if not item_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, data = api_req("GET", f"/order-items/{quote(item_id, safe='')}/result", token)
+        rows = []
+        if status == 200 and isinstance(data, dict):
+            for parameter in data.get("values", []):
+                if parameter.get("code") in SUPPRESSED_RESULT_PARAMETERS:
+                    continue
+                value = parameter.get("value_text") if parameter.get("value_text") is not None else parameter.get("value_code")
+                if value in (None, ""):
+                    continue
+                rows.append({"param_desc": uppercase_report_value(parameter.get("name")), "param_value1": uppercase_report_value(value)})
+        self.send_json({"data": rows, "resultado": True})
+
+    def _proxy_legacy_report_panels(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        barcode = self._extract_query_param(request_path, "orden_det_codebar") or self._extract_query_param(request_path, "codebar")
+        context = self._result_context(token, barcode=barcode) if barcode else None
+        item_id = ((context or {}).get("item") or {}).get("id", "")
+        if not item_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        result_status, result = api_req("GET", f"/order-items/{quote(item_id, safe='')}/result", token)
+        if result_status != 200 or not isinstance(result, dict) or not result.get("id"):
+            self.send_json({"data": [], "resultado": True})
+            return
+        isolate_status, isolates = api_req("GET", f"/results/{quote(result['id'], safe='')}/isolates", token)
+        rows = []
+        if isolate_status == 200 and isinstance(isolates, list):
+            for isolate in isolates:
+                organism = isolate.get("organism") or {}
+                colony = isolate.get("colony_count_option") or {}
+                rows.append(
+                    {
+                        "respanel_id": isolate.get("id", ""),
+                        "respanel_organismo_desc": uppercase_report_value(organism.get("name") or isolate.get("organism_id")),
+                        "respanel_recuento": uppercase_report_value(colony.get("name") or isolate.get("colony_count_option_id")),
+                        "respanel_organismo_fenotipo": uppercase_report_value(isolate.get("phenotype")),
+                        "respanel_organismo_comentario": uppercase_report_value(isolate.get("comment")),
+                    }
+                )
+        self.send_json({"data": rows, "resultado": True})
+
+    def _proxy_legacy_report_panel_atb(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        isolate_id = self._extract_query_param(request_path, "respanel_id") or self._extract_query_param(request_path, "isolate_id")
+        if not isolate_id:
+            self.send_json({"data": [], "resultado": True})
+            return
+        status, rows = api_req("GET", f"/isolates/{quote(isolate_id, safe='')}/antimicrobial-results", token)
+        translated = []
+        if status == 200 and isinstance(rows, list):
+            for row in rows:
+                if not row.get("is_reportable", True):
+                    continue
+                antibiotic = row.get("antibiotic") or {}
+                translated.append(
+                    {
+                        "respaneldet_anti_desc": uppercase_report_value(antibiotic.get("name") or row.get("antibiotic_id")),
+                        "respaneldet_anti_valor": report_ast_value(row.get("method"), row.get("mic_value")),
+                        "respaneldet_anti_inter": uppercase_report_value(row.get("interpretation")),
+                        "respaneldet_anti_metodo": report_ast_method_label(row.get("method")),
+                        "respaneldet_anti_macanismo": 1 if row.get("mechanism") else 0,
+                    }
+                )
+        self.send_json({"data": translated, "resultado": True})
 
     def _proxy_result_report(self, token: str, path: str) -> None:
         request_path = self.path if hasattr(self, "path") else path
@@ -2891,7 +3560,176 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         else:
             self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
 
+    # ── EXPORT / REPORT HANDLERS ──
+
+    def _selected_id_set(self, raw: str) -> set[str]:
+        cleaned = raw.strip()
+        if not cleaned or cleaned.upper() == "ALL":
+            return set()
+        return {item.strip().strip("'\"") for item in cleaned.split(",") if item.strip().strip("'\"")}
+
+    def _worklist_rows_for_path(self, token: str, path: str) -> list[dict]:
+        request_path = self.path if hasattr(self, "path") else path
+        date_from = self._extract_query_param(request_path, "orden_fecha_ini")
+        date_to = self._extract_query_param(request_path, "orden_fecha_fin")
+        search = self._extract_query_param(request_path, "orden_buscar")
+        query = []
+        if date_from:
+            query.append(f"from={quote(date_from, safe='')}")
+        if date_to:
+            query.append(f"to={quote(date_to, safe='')}")
+        if search:
+            query.append(f"search={quote(search, safe='')}")
+        status, rows = api_req("GET", f"/result-worklist?{'&'.join(query)}", token)
+        return rows if status == 200 and isinstance(rows, list) else []
+
+    def _send_export_table(self, title: str, columns: list[str], rows: list[list[object]]) -> None:
+        def e(value: object) -> str:
+            return html.escape(str(value or ""))
+
+        body_rows = "".join("<tr>" + "".join(f"<td>{e(value)}</td>" for value in row) + "</tr>" for row in rows)
+        empty = "<tr><td colspan='%d' class='empty'>Sin datos para el rango seleccionado.</td></tr>" % max(len(columns), 1)
+        page = f"""<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{e(title)} - MUFFIN</title>
+<style>
+body{{color:#1f3438;font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:0;padding:22px}}
+.top{{align-items:center;border-bottom:3px solid #167d86;display:flex;gap:12px;margin-bottom:16px;padding-bottom:10px}}
+.top img{{border-radius:50%;height:44px;width:44px}}h1{{font-size:18px;margin:0}}p{{color:#607477;margin:2px 0 0}}
+button{{background:#167d86;border:0;border-radius:5px;color:white;font-weight:700;margin-left:auto;padding:8px 12px}}
+table{{border-collapse:collapse;width:100%}}th,td{{border:1px solid #b9cdca;padding:6px 7px;text-align:left;vertical-align:top}}
+th{{background:#eef6f3;font-size:10px;text-transform:uppercase}}.empty{{color:#607477;font-style:italic;text-align:center}}
+@media print{{body{{padding:0}}button{{display:none}}}}
+</style>
+</head>
+<body>
+<div class="top"><img src="/MUFFIN_ICONO.jpg" alt="MUFFIN"><div><h1>{e(title)}</h1><p>{e(INSTITUTION_NAME)} · Generado {e(datetime.now(LOCAL_TIMEZONE).strftime('%Y-%m-%d %H:%M'))}</p></div><button onclick="window.print()">Imprimir / guardar PDF</button></div>
+<table><thead><tr>{''.join(f'<th>{e(col)}</th>' for col in columns)}</tr></thead><tbody>{body_rows or empty}</tbody></table>
+</body>
+</html>"""
+        self.send_bytes(page.encode("utf-8"), 200, "text/html; charset=utf-8", cache_control="no-store")
+
+    def _proxy_production_report_export(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        exam_ids = self._selected_id_set(self._extract_query_param(request_path, "examen_id"))
+        result_filter = (self._extract_query_param(request_path, "orden_filtro") or "ALL").upper()
+        rows = []
+        for row in self._worklist_rows_for_path(token, request_path):
+            item = row.get("item") or {}
+            order = row.get("order") or {}
+            patient = row.get("patient") or {}
+            exam = row.get("exam") or {}
+            origin = row.get("origin") or {}
+            service = row.get("service") or {}
+            result = row.get("result") or {}
+            if exam_ids and exam.get("id") not in exam_ids:
+                continue
+            if result_filter not in {"ALL", "0"} and str(result.get("status") or item.get("status") or "").upper() != result_filter:
+                continue
+            rows.append(
+                [
+                    str(order.get("ordered_at", ""))[:10],
+                    order.get("order_number", ""),
+                    patient.get("medical_record_number", ""),
+                    f"{patient.get('family_name', '')}, {patient.get('given_name', '')}",
+                    exam.get("name", ""),
+                    origin.get("name", ""),
+                    service.get("name", ""),
+                    report_status_label(result.get("status") or item.get("status")),
+                ]
+            )
+        self._send_export_table("Reporte de produccion microbiologica", ["Fecha", "Orden", "HC", "Paciente", "Examen", "Procedencia", "Servicio", "Estado"], rows)
+
+    def _proxy_worksheet_report_export(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        section_id = self._extract_query_param(request_path, "seccion_id")
+        section_name = self._extract_query_param(request_path, "seccion_nombre") or "Microbiologia"
+        rows = []
+        for row in self._worklist_rows_for_path(token, request_path):
+            item = row.get("item") or {}
+            order = row.get("order") or {}
+            patient = row.get("patient") or {}
+            exam = row.get("exam") or {}
+            specimen = row.get("specimen") or {}
+            if section_id and exam.get("laboratory_area_id") != section_id:
+                continue
+            rows.append(
+                [
+                    str(order.get("ordered_at", ""))[:10],
+                    order.get("order_number", ""),
+                    item.get("barcode", ""),
+                    patient.get("medical_record_number", ""),
+                    f"{patient.get('family_name', '')}, {patient.get('given_name', '')}",
+                    exam.get("name", ""),
+                    specimen.get("name", ""),
+                    item.get("status", ""),
+                ]
+            )
+        self._send_export_table(f"Hoja de trabajo - {section_name}", ["Fecha", "Orden", "Codigo barras", "HC", "Paciente", "Examen", "Muestra", "Estado"], rows)
+
+    def _proxy_idt_ast_report_export(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        organism_ids = self._selected_id_set(self._extract_query_param(request_path, "orga_id"))
+        antibiotic_ids = self._selected_id_set(self._extract_query_param(request_path, "atb_id"))
+        rows = []
+        for row in self._worklist_rows_for_path(token, request_path):
+            item = row.get("item") or {}
+            order = row.get("order") or {}
+            patient = row.get("patient") or {}
+            result_status, result = api_req("GET", f"/order-items/{quote(item.get('id', ''), safe='')}/result", token)
+            if result_status != 200 or not isinstance(result, dict) or not result.get("id"):
+                continue
+            isolate_status, isolates = api_req("GET", f"/results/{quote(result['id'], safe='')}/isolates", token)
+            if isolate_status != 200 or not isinstance(isolates, list):
+                continue
+            for isolate in isolates:
+                if organism_ids and isolate.get("organism_id") not in organism_ids:
+                    continue
+                organism = isolate.get("organism") or {}
+                ast_status, ast_rows = api_req("GET", f"/isolates/{quote(isolate.get('id', ''), safe='')}/antimicrobial-results", token)
+                if ast_status != 200 or not isinstance(ast_rows, list):
+                    continue
+                for ast_row in ast_rows:
+                    if antibiotic_ids and ast_row.get("antibiotic_id") not in antibiotic_ids:
+                        continue
+                    if not ast_row.get("is_reportable", True):
+                        continue
+                    antibiotic = ast_row.get("antibiotic") or {}
+                    rows.append(
+                        [
+                            str(order.get("ordered_at", ""))[:10],
+                            order.get("order_number", ""),
+                            patient.get("medical_record_number", ""),
+                            f"{patient.get('family_name', '')}, {patient.get('given_name', '')}",
+                            organism.get("name") or isolate.get("organism_id", ""),
+                            antibiotic.get("name") or ast_row.get("antibiotic_id", ""),
+                            ast_row.get("interpretation", ""),
+                            report_ast_method_label(ast_row.get("method")),
+                        ]
+                    )
+        self._send_export_table("Reporte de identificacion y antibiograma", ["Fecha", "Orden", "HC", "Paciente", "Microorganismo", "Antibiotico", "Interpretacion", "Metodo"], rows)
+
+    def _proxy_patient_export(self, token: str) -> None:
+        status, data = api_req("GET", "/patients?page_size=100", token)
+        patients = data.get("data", []) if status == 200 and isinstance(data, dict) else []
+        rows = [
+            [patient.get("medical_record_number", ""), patient.get("family_name", ""), patient.get("given_name", ""), patient.get("sex", ""), patient.get("birth_date", "")]
+            for patient in patients
+        ]
+        self._send_export_table("Exportacion de pacientes", ["HC", "Apellidos", "Nombres", "Sexo", "Fecha nacimiento"], rows)
+
     # ── HELPERS ──
+
+    def _send_html_message(self, title: str, message: str, status: int = 200) -> None:
+        page = f"""<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{html.escape(title)}</title>
+<style>body{{color:#294c52;font-family:Arial,sans-serif;margin:32px}}.box{{border:1px solid #d8ebe5;border-radius:8px;max-width:680px;padding:18px}}</style>
+</head><body><div class="box"><h1>{html.escape(title)}</h1><p>{html.escape(message)}</p></div></body></html>"""
+        self.send_bytes(page.encode("utf-8"), status, "text/html; charset=utf-8", cache_control="no-store")
 
     def _extract_query_param(self, path: str, param: str) -> str:
         if "?" in path:

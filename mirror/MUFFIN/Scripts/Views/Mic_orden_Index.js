@@ -713,24 +713,7 @@ function _RegistrarPrinterCodebarMic_orden($orden_id) {
     },
 
         function () {
-            jQuery.ajax({
-                url: $.MisUrls.url._RegistrarPrinterCodebarMic_orden + "?orden_id=" + $orden_id + "&orden_det_id=ALL",
-                type: "GET",
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
-                success: function (data) {
-                    if (data.resultado) {
-                        //_Obtener_Mic_orden_detalle_examen($("#txtOrdenExamen_orden_id").val());
-                    } else {
-                        swal("Mensaje", "No se pudo enviar a imprimir", "warning")
-                    }
-                },
-                error: function (error) {
-                    console.log(error)
-                },
-                beforeSend: function () {
-                },
-            });
+            _AbrirCodigoBarras($.MisUrls.url._RegistrarPrinterCodebarMic_orden + "?orden_id=" + encodeURIComponent($orden_id) + "&orden_det_id=ALL&formato=html");
         });
 }
 
@@ -749,23 +732,35 @@ function _RegistrarPrinterCodebarMic_orden_detalle($orden_det_id) {
     },
 
         function () {
-            jQuery.ajax({
-                url: $.MisUrls.url._RegistrarPrinterCodebarMic_orden + "?orden_id=" + 0 + "&orden_det_id=" + $orden_det_id,
-                type: "GET",
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
-                success: function (data) {
-                    if (data.resultado) {
-                        //_Obtener_Mic_orden_detalle_examen($("#txtOrdenExamen_orden_id").val());
-                    } else {
-                        swal("Mensaje", "No se pudo enviar a imprimir", "warning")
-                    }
-                },
-                error: function (error) {
-                    console.log(error)
-                },
-                beforeSend: function () {
-                },
-            });
+            _AbrirCodigoBarras($.MisUrls.url._RegistrarPrinterCodebarMic_orden + "?orden_id=0&orden_det_id=" + encodeURIComponent($orden_det_id) + "&formato=html");
+        });
+}
+
+function _AbrirCodigoBarras(url) {
+    var token = localStorage.getItem("muffin_token") || "";
+    var popUpObj = window.open("", "CodigoBarrasMUFFIN", "toolbar=no,scrollbars=yes,location=yes,statusbar=no,menubar=no,resizable=yes,width=860,height=620,left=20,top=20");
+    if (!popUpObj) {
+        swal("Mensaje", "No se pudo abrir la ventana de etiquetas", "warning");
+        return;
+    }
+    popUpObj.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Etiquetas MUFFIN</title></head><body style='font-family:Arial,sans-serif;padding:24px;color:#294c52'>Generando etiquetas...</body></html>");
+    popUpObj.document.close();
+    fetch(url, { headers: token ? { "Authorization": "Bearer " + token } : {} })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error("No se pudieron generar las etiquetas");
+            }
+            return response.text();
+        })
+        .then(function (html) {
+            popUpObj.document.open();
+            popUpObj.document.write(html);
+            popUpObj.document.close();
+            popUpObj.focus();
+        })
+        .catch(function (error) {
+            popUpObj.document.open();
+            popUpObj.document.write("<!doctype html><html><head><meta charset='utf-8'><title>Etiquetas MUFFIN</title></head><body style='font-family:Arial,sans-serif;padding:24px;color:#294c52'><strong>" + error.message + "</strong></body></html>");
+            popUpObj.document.close();
         });
 }

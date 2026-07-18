@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
 from app.dependencies import require_role
-from app.models import AuditEvent, LaboratoryArea, Role, User, UserAreaPermission, user_roles
+from app.models import AppSetting, AuditEvent, LaboratoryArea, Role, User, UserAreaPermission, user_roles
 from app.routers.auth import serialize_user
-from app.schemas import AreaPermissionUpdate, AuditEventResponse, LaboratoryAreaCreate, RoleUpdate, UserCreate, UserResponse, UserUpdate
+from app.schemas import AppSettingInput, AppSettingResponse, AreaPermissionUpdate, AuditEventResponse, LaboratoryAreaCreate, RoleUpdate, UserCreate, UserResponse, UserUpdate
 from app.security import hash_password
 from app.services import get_roles, record_audit
 
@@ -157,6 +157,45 @@ def reactivate_user(user_id: str, admin: User = Depends(require_admin), db: Sess
     record_audit(db, actor_user_id=admin.id, entity_type="user", entity_id=user.id, action="REACTIVATE", after_data={"username": user.username})
     db.commit()
     return serialize_user(user)
+
+
+@router.get("/settings", response_model=list[AppSettingResponse])
+def list_settings(_: User = Depends(require_admin), db: Session = Depends(get_db)) -> list[AppSettingResponse]:
+    settings = list(db.scalars(select(AppSetting).order_by(AppSetting.key)))
+    return [AppSettingResponse.model_validate(setting, from_attributes=True) for setting in settings]
+
+
+@router.put("/settings/{setting_key}", response_model=AppSettingResponse)
+def upsert_setting(
+    setting_key: str,
+    payload: AppSettingInput,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> AppSettingResponse:
+    key = setting_key.strip().lower()
+    if not key:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Setting key is required.")
+    setting = db.get(AppSetting, key)
+    before = {"value": setting.value} if setting else None
+    if setting:
+        setting.value = payload.value
+        setting.updated_by = admin.id
+    else:
+        setting = AppSetting(key=key, value=payload.value, updated_by=admin.id)
+        db.add(setting)
+    db.flush()
+    record_audit(
+        db,
+        actor_user_id=admin.id,
+        entity_type="app_setting",
+        entity_id=key,
+        action="UPSERT",
+        before_data=before,
+        after_data={"value": setting.value},
+    )
+    db.commit()
+    db.refresh(setting)
+    return AppSettingResponse.model_validate(setting, from_attributes=True)
 
 
 @router.post("/areas", status_code=status.HTTP_201_CREATED)

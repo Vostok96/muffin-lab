@@ -105,19 +105,17 @@ function _Microbiologia_rep_produccion_export() {
     orden_filtro = $('#orden_filtro').val();
 
     var url = $.MisUrls.url._Microbiologia_rep_produccion_export + "?orden_fecha_ini=" + orden_fecha_ini + "&orden_fecha_fin=" + orden_fecha_fin + "&examen_id=" + examen_id + "&orden_filtro=" + orden_filtro;
-    popUpObj = window.open(url,
-        "ModalPopUp",
-        "fullscreen = yes," +
-        "toolbar=no," +
-        "scrollbars=no," +
-        "location=yes," +
-        "statusbar=no," +
-        "menubar=no," +
-        "resizable=yes," +
-        "width=100," +
-        "height=100," +
-        "left = 0," +
-        "top= 0"
-    );
-    popUpObj.focus();
+    _AbrirVentanaAutorizada(url, "Reporte de produccion", 1000, 700);
+}
+
+function _AbrirVentanaAutorizada(url, titulo, ancho, alto) {
+    var token = localStorage.getItem("muffin_token") || "";
+    var popUpObj = window.open("", "ModalPopUp", "toolbar=no,scrollbars=yes,location=yes,statusbar=no,menubar=no,resizable=yes,width=" + ancho + ",height=" + alto + ",left=0,top=0");
+    if (!popUpObj) { return; }
+    popUpObj.document.write("<!doctype html><html><head><meta charset='utf-8'><title>" + titulo + "</title></head><body style='font-family:Arial,sans-serif;padding:24px;color:#294c52'>Generando reporte...</body></html>");
+    popUpObj.document.close();
+    fetch(url, { headers: token ? { "Authorization": "Bearer " + token } : {} })
+        .then(function (response) { if (!response.ok) { throw new Error("No se pudo generar el reporte"); } return response.text(); })
+        .then(function (html) { popUpObj.document.open(); popUpObj.document.write(html); popUpObj.document.close(); popUpObj.focus(); })
+        .catch(function (error) { popUpObj.document.open(); popUpObj.document.write("<strong>" + error.message + "</strong>"); popUpObj.document.close(); });
 }
