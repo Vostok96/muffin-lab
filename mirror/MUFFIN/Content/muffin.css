@@ -1134,6 +1134,89 @@ h1, h2, h3, h4, h5, h6 { color: var(--muffin-ink) !important; }
     white-space: nowrap;
 }
 
+.muffin-results-card .dataTables_scroll {
+    border: 1px solid var(--muffin-line);
+    border-radius: .85rem;
+    overflow: hidden;
+}
+
+.muffin-results-card .dataTables_scrollBody {
+    border-bottom: 0 !important;
+}
+
+.muffin-results-card .dataTables_scrollBody::-webkit-scrollbar {
+    height: 0.72rem;
+}
+
+.muffin-results-card .dataTables_scrollBody::-webkit-scrollbar-track {
+    background: rgba(118, 205, 184, 0.14);
+    border-radius: 999px;
+}
+
+.muffin-results-card .dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background: rgba(35, 156, 163, 0.62);
+    border-radius: 999px;
+}
+
+.muffin-results-table-wrap {
+    min-width: 0;
+    width: 100%;
+}
+
+.muffin-results-table {
+    min-width: 1588px;
+}
+
+.muffin-results-table th,
+.muffin-results-table td {
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+
+.muffin-results-table td {
+    font-size: .9rem;
+    line-height: 1.25;
+    padding-bottom: .38rem !important;
+    padding-top: .38rem !important;
+}
+
+.muffin-results-table .muffin-result-text {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.muffin-results-table .muffin-col-actions {
+    min-width: 238px;
+    width: 238px !important;
+}
+
+.muffin-result-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: .32rem;
+    justify-content: flex-start;
+    min-width: 224px;
+}
+
+.muffin-result-actions .btn,
+.muffin-result-actions .badge {
+    align-items: center;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 1.72rem;
+    justify-content: center;
+    min-width: 1.72rem;
+    padding: 0 .48rem !important;
+}
+
+.muffin-result-actions .muffin-result-action {
+    width: 1.85rem;
+}
+
 @media (max-width: 575.98px) {
     .muffin-results-card > .card-header {
         align-items: stretch;

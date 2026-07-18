@@ -35,6 +35,15 @@ function muffinTextUpper(value) {
     return String(value || "").trim().toUpperCase();
 }
 
+function muffinEscapeHtml(value) {
+    return $("<div>").text(value == null ? "" : String(value)).html();
+}
+
+function muffinResultTextCell(value) {
+    var text = value == null ? "" : String(value);
+    return "<span class='muffin-result-text' title='" + muffinEscapeHtml(text) + "'>" + muffinEscapeHtml(text) + "</span>";
+}
+
 function muffinSyncAstRow(row) {
     var method = muffinAstMethod(row.find("select.clMetodol").val());
     var valueInput = row.find("input:text").first();
@@ -412,22 +421,25 @@ function _ObtenerSecuenciaMic_seccion(examen_id) {
 } 
 function listarRistros(orden_fecha_ini, orden_fecha_fin, orden_buscar, orden_area, orden_filtro, orden_usuario) {
     tabladata = $('#tbdata').DataTable({
+        "autoWidth": false,
+        "scrollX": true,
+        "scrollCollapse": true,
         "ajax": {
             "url": $.MisUrls.url._Obtener_resMic_orden_detalle + "?orden_fecha_ini=" + orden_fecha_ini + "&orden_fecha_fin=" + orden_fecha_fin + "&orden_buscar=" + orden_buscar + "&orden_area=" + orden_area + "&orden_filtro=" + orden_filtro + "&orden_usuario=" + orden_usuario,
             "type": "GET",
             "datatype": "json"
         },
         "columns": [
-            { "data": "oMic_orden", render: function (data) { return data.orden_fecha; } },
-            { "data": "oMic_orden", render: function (data) { return data.orden_numero; } },
+            { "data": "oMic_orden", render: function (data) { return muffinResultTextCell(data.orden_fecha); } },
+            { "data": "oMic_orden", render: function (data) { return muffinResultTextCell(data.orden_numero); } },
 
-            { "data": "oMic_orden", render: function (data) { return data.oMic_persona["persona_hc"]; } },
-            { "data": "oMic_orden", render: function (data) { return data.oMic_persona["persona_apellidos"] + ", " + data.oMic_persona["persona_nombres"]; } },
+            { "data": "oMic_orden", render: function (data) { return muffinResultTextCell(data.oMic_persona["persona_hc"]); } },
+            { "data": "oMic_orden", render: function (data) { return muffinResultTextCell(data.oMic_persona["persona_apellidos"] + ", " + data.oMic_persona["persona_nombres"]); } },
 
-            { "data": "oMic_examen", render: function (data) { return data.examen_desc } },
+            { "data": "oMic_examen", render: function (data) { return muffinResultTextCell(data.examen_desc); } },
 
-            { "data": "oMic_orden", render: function (data) { return data.oMic_procedencia["procedencia_desc"]; } },
-            { "data": "oMic_orden", render: function (data) { return data.oMic_servicio["servicio_desc"]; } },
+            { "data": "oMic_orden", render: function (data) { return muffinResultTextCell(data.oMic_procedencia["procedencia_desc"]); } },
+            { "data": "oMic_orden", render: function (data) { return muffinResultTextCell(data.oMic_servicio["servicio_desc"]); } },
 
 
             {
@@ -435,24 +447,36 @@ function listarRistros(orden_fecha_ini, orden_fecha_fin, orden_buscar, orden_are
 
                     posicion_frame_data[meta.row] = (JSON.stringify(row));
 
-                    btn_rev = "<button class='btn btn-primary btn-sm' type='button' onclick='rec_abrirPopUpForm_ini(" + JSON.stringify(row.orden_det_id) + ")'><i class='fa fa-user-plus'></i></button>"
-                        + " <button class='btn btn-warning btn-sm' type='button' onclick='_RegistrarPrinterCodebarMic_orden(" + JSON.stringify(row.orden_det_id) + ")'><i class='fas fa-barcode'></i></button> ";
+                    var btn_rev = "<button class='btn btn-primary btn-sm muffin-result-action' type='button' title='Cargar resultado' onclick='rec_abrirPopUpForm_ini(" + JSON.stringify(row.orden_det_id) + ")'><i class='fa fa-user-plus'></i></button>"
+                        + "<button class='btn btn-warning btn-sm muffin-result-action' type='button' title='Generar código de barras' onclick='_RegistrarPrinterCodebarMic_orden(" + JSON.stringify(row.orden_det_id) + ")'><i class='fas fa-barcode'></i></button>";
                     if (session_user_rol == "4" || session_user_rol == "5" || session_user_rol == "6" || session_user_rol == "7") {
                         btn_rev = "";
                     }
 
-                    return btn_rev +
-                        (row.orden_det_muestra_recepcion_estado == false ? "" : " <span class='badge badge-success'><i class='fa fa-vials'></i></span>") +
-                        (row.fecha_proc_resultado == "" ? "" : " <span class='badge badge-primary'>GU</span>") +
-                        (row.fecha_proc_preliminar == "" ? "" : " <span class='badge badge-warning'>VP</span>") +
-                        (row.fecha_proc_final == "" ? "" : " <span class='badge badge-success'>VF</span>") +
-                        (row.fecha_proc_preliminar == "" ? "" : " <button class='btn btn-info btn-sm' type='button' onclick='_DocumentoPDFMic_temp(" + JSON.stringify(row.oMic_orden.orden_id) + ")'><i class='fa fa-download'></i></button>")
+                    var estado =
+                        (row.orden_det_muestra_recepcion_estado == false ? "" : "<span class='badge badge-success' title='Muestra recibida'><i class='fa fa-vials'></i></span>") +
+                        (row.fecha_proc_resultado == "" ? "" : "<span class='badge badge-primary' title='Resultado guardado'>GU</span>") +
+                        (row.fecha_proc_preliminar == "" ? "" : "<span class='badge badge-warning' title='Validación preliminar'>VP</span>") +
+                        (row.fecha_proc_final == "" ? "" : "<span class='badge badge-success' title='Validación final'>VF</span>") +
+                        (row.fecha_proc_preliminar == "" ? "" : "<button class='btn btn-info btn-sm muffin-result-action' type='button' title='Imprimir / guardar PDF' onclick='_DocumentoPDFMic_temp(" + JSON.stringify(row.oMic_orden.orden_id) + ")'><i class='fa fa-download'></i></button>");
+
+                    return "<div class='muffin-result-actions'>" + btn_rev + estado + "</div>";
                 },
                 "orderable": false,
                 "searchable": false,
-                "width": "90px"
+                "width": "238px"
             }
 
+        ],
+        "columnDefs": [
+            { "targets": 0, "width": "110px", "className": "muffin-col-date" },
+            { "targets": 1, "width": "150px", "className": "muffin-col-order" },
+            { "targets": 2, "width": "150px", "className": "muffin-col-hc" },
+            { "targets": 3, "width": "300px", "className": "muffin-col-patient" },
+            { "targets": 4, "width": "290px", "className": "muffin-col-exam" },
+            { "targets": 5, "width": "170px", "className": "muffin-col-origin" },
+            { "targets": 6, "width": "180px", "className": "muffin-col-service" },
+            { "targets": 7, "width": "238px", "className": "muffin-col-actions" }
         ],
         "language": {
             "decimal": "",
@@ -477,7 +501,7 @@ function listarRistros(orden_fecha_ini, orden_fecha_fin, orden_buscar, orden_are
             }
         },
         "order": [[0, "desc"]],
-        responsive: true
+        responsive: false
     });//});
 }
 
