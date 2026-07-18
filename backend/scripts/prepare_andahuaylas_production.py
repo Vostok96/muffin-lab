@@ -210,6 +210,7 @@ def ensure_catalog(db, model, code: str, **values):
 
 
 def ensure_institution_catalogs(db) -> None:
+    official_origin_codes = {normalized_catalog_key(name) for name in ANDAHUAYLAS_ORIGINS}
     for origin_name in ANDAHUAYLAS_ORIGINS:
         ensure_catalog(
             db,
@@ -218,6 +219,10 @@ def ensure_institution_catalogs(db) -> None:
             name=origin_name,
             is_active=True,
         )
+    for origin in db.scalars(select(Origin).where(Origin.code.notin_(official_origin_codes))):
+        origin.is_active = False
+
+    official_service_codes = {normalized_catalog_key(name) for name in ANDAHUAYLAS_SERVICES}
     for service_name in ANDAHUAYLAS_SERVICES:
         ensure_catalog(
             db,
@@ -226,6 +231,9 @@ def ensure_institution_catalogs(db) -> None:
             name=service_name,
             is_active=True,
         )
+    for service in db.scalars(select(Service).where(Service.code.notin_(official_service_codes))):
+        service.is_active = False
+
     on_call = ensure_catalog(
         db,
         Clinician,

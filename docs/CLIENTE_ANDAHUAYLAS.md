@@ -60,7 +60,10 @@ La captura web se conserva solo como referencia visual. La primera personalizaci
 - `backend/alembic/versions/0010_andahuaylas_catalogs.py`
   - Aplica el mismo catálogo institucional durante `alembic upgrade head`.
   - Deja solo `MEDICO_TURNO` como médico activo para nuevas órdenes.
-  - No elimina valores existentes; solo desactiva médicos distintos a `MEDICO_TURNO` para nuevas órdenes.
+
+- `backend/alembic/versions/0011_andahuaylas_catalog_cleanup.py`
+  - Desactiva procedencias y servicios fuera del catálogo oficial de Andahuaylas para nuevas órdenes.
+  - No elimina registros, por lo que las órdenes históricas siguen conservando sus referencias.
 
 - `.env.example` y `.env.local.example`
   - Defaults de institución alineados a la variante.
@@ -70,7 +73,7 @@ La captura web se conserva solo como referencia visual. La primera personalizaci
 - Procedencias oficiales: `CONSULTA EXTERNA`, `EMERGENCIA`, `HOSPITALIZACIÓN`, `REFERIDO`, `UCI`.
 - Servicios oficiales: cargados desde `ANDAHUAYLAS_SERVICES` en `backend/scripts/prepare_andahuaylas_production.py`.
 - Médico activo para órdenes: `MEDICO DE TURNO`.
-- La carga no elimina valores existentes; en médicos desactiva valores distintos a `MEDICO_TURNO` para evitar opciones duplicadas.
+- La carga no elimina valores existentes; desactiva opciones no oficiales para que las nuevas órdenes usen solo el catálogo aprobado.
 
 ## Límites
 
