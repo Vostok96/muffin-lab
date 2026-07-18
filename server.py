@@ -234,7 +234,7 @@ def apply_corporate_footer(body: bytes) -> bytes:
 
 SESSION_SCRIPT = b"""<script>
 (function(){
-var API='http://127.0.0.1:8000/api/v1';
+var API='/api/v1';
 var token=localStorage.getItem('muffin_token');
 if(!token){window.location.href='/MUFFIN/Login/Index';return;}
 if(window.jQuery){jQuery.ajaxPrefilter(function(options,originalOptions,jqXHR){if(options.url&&options.url.indexOf('/MUFFIN/')===0)jqXHR.setRequestHeader('Authorization','Bearer '+token);});}
@@ -741,6 +741,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path.rstrip("/")
+        if parsed.path.startswith("/api/v1/"):
+            self.proxy_api_request(parsed)
+            return
         if path == "/MUFFIN/Login/Index":
             self.serve_page("/MUFFIN/Home/Index")
             return
@@ -752,6 +755,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path.startswith("/api/v1/"):
+            self.proxy_api_request(parsed)
+            return
         proxy = self._find_proxy(parsed.path.rstrip("/"), "PUT")
         if proxy:
             self._handle_proxy(proxy, parsed.path)
@@ -760,6 +766,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_DELETE(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path.startswith("/api/v1/"):
+            self.proxy_api_request(parsed)
+            return
         proxy = self._find_proxy(parsed.path.rstrip("/"), "DELETE")
         if proxy:
             self._handle_proxy(proxy, parsed.path)
@@ -769,6 +778,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         request_path = unquote(parsed.path)
+        if request_path.startswith("/api/v1/"):
+            self.proxy_api_request(parsed)
+            return
         if request_path in {"/", "/MUFFIN", "/MUFFIN/"}:
             self.serve_page("/MUFFIN/Home/Index")
             return
@@ -870,6 +882,35 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json({"data": [], "recordsTotal": 0, "recordsFiltered": 0, "resultado": True, "mensaje": "Modo local: endpoint sin datos."})
 
     # ── API proxy ──
+
+    def proxy_api_request(self, parsed) -> None:
+        api_path = parsed.path[len("/api/v1"):] or "/"
+        target = f"{API_BASE}{api_path}"
+        if parsed.query:
+            target = f"{target}?{parsed.query}"
+        length = int(self.headers.get("Content-Length", "0") or 0)
+        body = self.rfile.read(length) if length else None
+        headers = {"Content-Type": self.headers.get("Content-Type", "application/json")}
+        authorization = self.headers.get("Authorization")
+        if authorization:
+            headers["Authorization"] = authorization
+        try:
+            request = URLRequest(target, data=body, headers=headers, method=self.command)
+            with urlopen(request, timeout=30) as response:
+                response_body = response.read()
+                self.send_bytes(
+                    response_body,
+                    response.status,
+                    response.headers.get("Content-Type", "application/json; charset=utf-8"),
+                )
+        except URLError as error:
+            status = error.code if hasattr(error, "code") else 502
+            response_body = error.read() if hasattr(error, "read") else b""
+            self.send_bytes(
+                response_body or b'{"detail":"Backend MUFFIN no disponible"}',
+                status,
+                getattr(error, "headers", {}).get("Content-Type", "application/json; charset=utf-8"),
+            )
 
     def _find_proxy(self, path: str, method: str) -> tuple | None:
         if not path.startswith("/MUFFIN/"):
