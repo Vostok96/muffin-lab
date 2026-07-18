@@ -4,8 +4,11 @@ import html
 import json
 import mimetypes
 import os
+import copy
+import time
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
+from email.utils import formatdate
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -76,6 +79,38 @@ FAVICON_MARKUP = b'\n\t<link rel="icon" type="image/png" sizes="256x256" href="/
 HOST = os.environ.get("SIMCORE_CLONE_HOST", "127.0.0.1")
 PORT = int(os.environ.get("SIMCORE_CLONE_PORT", "8877"))
 API_BASE = os.environ.get("MUFFIN_API_URL", "http://127.0.0.1:8000/api/v1")
+API_CACHE_TTL_SECONDS = int(os.environ.get("MUFFIN_API_CACHE_TTL_SECONDS", "300"))
+STATIC_CACHE_VERSIONED_SECONDS = int(os.environ.get("MUFFIN_STATIC_CACHE_VERSIONED_SECONDS", "2592000"))
+STATIC_CACHE_UNVERSIONED_SECONDS = int(os.environ.get("MUFFIN_STATIC_CACHE_UNVERSIONED_SECONDS", "3600"))
+API_GET_CACHE: dict[tuple[str, str, str], tuple[float, int, dict | list | None]] = {}
+STATIC_CACHEABLE_PREFIXES = (
+    "/MUFFIN/Content/",
+    "/MUFFIN/Scripts/",
+    "/MUFFIN/bundles/",
+    "/MUFFIN/Imagenes/",
+)
+STATIC_CACHEABLE_SUFFIXES = {
+    ".css",
+    ".js",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".svg",
+    ".webp",
+    ".ico",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".eot",
+}
+STATIC_CACHEABLE_DIRECT_PATHS = {
+    "/favicon.ico",
+    "/MUFFIN_FAVICON.png",
+    "/MUFFIN_ICONO.jpg",
+    "/MUFFIN_PRODUCTO.jpg",
+    "/MUFFIN_MASCOTA.png",
+}
 
 LOGIN_PAGE = ROOT / "docs" / "login.html"
 LOGOUT_REDIRECT = b"""<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/MUFFIN/Login/Index"><title>Cerrando sesion...</title></head><body><script>localStorage.clear();window.location.href='/MUFFIN/Login/Index';</script></body></html>"""
@@ -668,7 +703,24 @@ API_PROXIES = {
 }
 
 
+def _is_cacheable_api_get(method: str, path: str) -> bool:
+    return method == "GET" and path.startswith("/catalogs/")
+
+
+def _clear_api_cache(prefix: str) -> None:
+    stale_keys = [key for key in API_GET_CACHE if key[2].startswith(prefix)]
+    for key in stale_keys:
+        API_GET_CACHE.pop(key, None)
+
+
 def api_req(method: str, path: str, token: str = "", body: dict | None = None) -> tuple[int, dict | list | None]:
+    if method != "GET" and path.startswith("/catalogs/"):
+        _clear_api_cache("/catalogs/")
+    cache_key = (API_BASE, token, path)
+    if API_CACHE_TTL_SECONDS > 0 and _is_cacheable_api_get(method, path):
+        cached = API_GET_CACHE.get(cache_key)
+        if cached and cached[0] > time.monotonic():
+            return cached[1], copy.deepcopy(cached[2])
     try:
         data = json.dumps(body).encode("utf-8") if body else None
         headers = {"Content-Type": "application/json"}
@@ -677,7 +729,14 @@ def api_req(method: str, path: str, token: str = "", body: dict | None = None) -
         req = URLRequest(f"{API_BASE}{path}", data=data, headers=headers, method=method)
         with urlopen(req, timeout=10) as resp:
             content = resp.read()
-            return resp.status, json.loads(content.decode("utf-8")) if content else None
+            payload = json.loads(content.decode("utf-8")) if content else None
+            if resp.status == 200 and API_CACHE_TTL_SECONDS > 0 and _is_cacheable_api_get(method, path):
+                API_GET_CACHE[cache_key] = (
+                    time.monotonic() + API_CACHE_TTL_SECONDS,
+                    resp.status,
+                    copy.deepcopy(payload),
+                )
+            return resp.status, payload
     except URLError as e:
         code = e.code if hasattr(e, "code") else 502
         try:
@@ -710,6 +769,23 @@ def content_type(path: Path, request_path: str) -> str:
     return "application/octet-stream"
 
 
+def is_static_asset(path: Path, request_path: str) -> bool:
+    if path.suffix.lower() in {".html", ".htm"}:
+        return False
+    if request_path in STATIC_CACHEABLE_DIRECT_PATHS or request_path in SIGNATURE_IMAGE_ROUTES:
+        return True
+    if path.suffix.lower() in STATIC_CACHEABLE_SUFFIXES:
+        return True
+    return request_path.startswith(STATIC_CACHEABLE_PREFIXES)
+
+
+def static_cache_control(full_request_path: str) -> str:
+    query = urlparse(full_request_path).query
+    if "v=" in query:
+        return f"public, max-age={STATIC_CACHE_VERSIONED_SECONDS}, immutable"
+    return f"public, max-age={STATIC_CACHE_UNVERSIONED_SECONDS}, stale-while-revalidate=604800"
+
+
 def safe_mirror_path(request_path: str) -> Path | None:
     rel = request_path.lstrip("/")
     candidate = (MIRROR / rel).resolve()
@@ -726,11 +802,23 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args) -> None:
         print(f"{self.address_string()} - {fmt % args}")
 
-    def send_bytes(self, body: bytes, status: int, ctype: str) -> None:
+    def send_bytes(
+        self,
+        body: bytes,
+        status: int,
+        ctype: str,
+        cache_control: str = "no-store",
+        extra_headers: dict[str, str] | None = None,
+    ) -> None:
         self.send_response(status)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", cache_control)
+        self.send_header("X-Content-Type-Options", "nosniff")
+        if cache_control == "no-store":
+            self.send_header("Pragma", "no-cache")
+        for key, value in (extra_headers or {}).items():
+            self.send_header(key, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -848,6 +936,22 @@ class Handler(BaseHTTPRequestHandler):
         if not path.exists():
             self.send_error(HTTPStatus.NOT_FOUND, "Archivo no encontrado")
             return
+        cacheable = is_static_asset(path, request_path) and not inject_favicon and not inject_toggle
+        cache_control = static_cache_control(self.path) if cacheable else "no-store"
+        headers: dict[str, str] = {}
+        if cacheable:
+            stat = path.stat()
+            etag = f'W/"{stat.st_mtime_ns:x}-{stat.st_size:x}"'
+            headers["ETag"] = etag
+            headers["Last-Modified"] = formatdate(stat.st_mtime, usegmt=True)
+            if self.headers.get("If-None-Match") == etag:
+                self.send_response(HTTPStatus.NOT_MODIFIED)
+                self.send_header("Cache-Control", cache_control)
+                self.send_header("ETag", etag)
+                self.send_header("Last-Modified", headers["Last-Modified"])
+                self.send_header("X-Content-Type-Options", "nosniff")
+                self.end_headers()
+                return
         body = path.read_bytes()
         if inject_favicon:
             closing_head = body.lower().find(b"</head>")
@@ -869,7 +973,7 @@ class Handler(BaseHTTPRequestHandler):
             closing_body = body.lower().rfind(b"</body>")
             if closing_body >= 0:
                 body = body[:closing_body] + UPPERCASE_SCRIPT + body[closing_body:]
-        self.send_bytes(body, 200, content_type(path, request_path))
+        self.send_bytes(body, 200, content_type(path, request_path), cache_control=cache_control, extra_headers=headers)
 
     def stub_response(self, request_path: str) -> None:
         lowered = request_path.lower()
