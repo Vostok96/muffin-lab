@@ -422,6 +422,7 @@ function _ObtenerSecuenciaMic_seccion(examen_id) {
 function listarRistros(orden_fecha_ini, orden_fecha_fin, orden_buscar, orden_area, orden_filtro, orden_usuario) {
     tabladata = $('#tbdata').DataTable({
         "autoWidth": false,
+        "deferRender": true,
         "scrollX": true,
         "scrollCollapse": true,
         "ajax": {

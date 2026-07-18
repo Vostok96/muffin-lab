@@ -122,7 +122,18 @@ STATIC_CACHEABLE_DIRECT_PATHS = {
     "/MUFFIN_PRODUCTO.jpg",
     "/MUFFIN_MASCOTA.png",
 }
-FRONTEND_ASSET_VERSION = "andahuaylas-20260718-1"
+STATIC_ASSET_ALIASES = {
+    "/MUFFIN/Content/css.css": "/MUFFIN/Content/css",
+    "/MUFFIN/bundles/jquery.js": "/MUFFIN/bundles/jquery",
+    "/MUFFIN/Content/PluginsJS.js": "/MUFFIN/Content/PluginsJS",
+}
+FRONTEND_ASSET_VERSION = "andahuaylas-20260718-2"
+LEGACY_CSS_VERSIONED_URL = (
+    b"/MUFFIN/Content/css?v=ivzLv745bmnThkrYOWP2Oyh3EQaw__rxaWvN5bNa0zg1"
+)
+LEGACY_JQUERY_VERSIONED_URL = (
+    b"/MUFFIN/bundles/jquery?v=8Oos0avDZyPg-cbyVzvkIfERIE1DGSe3sRQdCSYrgEQ1"
+)
 LEGACY_PLUGIN_JS_VERSIONED_URL = (
     b"/MUFFIN/Content/PluginsJS?v=sQB6J2EBUgtBNkJ6uHK2oNSgdLTnVwcEwKIRWaMhYlM1"
 )
@@ -826,14 +837,18 @@ def static_cache_control(full_request_path: str) -> str:
 
 
 def refresh_frontend_asset_versions(body: bytes) -> bytes:
-    return body.replace(
-        LEGACY_PLUGIN_JS_VERSIONED_URL,
-        f"/MUFFIN/Content/PluginsJS?v={FRONTEND_ASSET_VERSION}".encode("ascii"),
+    replacements = (
+        (LEGACY_CSS_VERSIONED_URL, f"/MUFFIN/Content/css.css?v={FRONTEND_ASSET_VERSION}".encode("ascii")),
+        (LEGACY_JQUERY_VERSIONED_URL, f"/MUFFIN/bundles/jquery.js?v={FRONTEND_ASSET_VERSION}".encode("ascii")),
+        (LEGACY_PLUGIN_JS_VERSIONED_URL, f"/MUFFIN/Content/PluginsJS.js?v={FRONTEND_ASSET_VERSION}".encode("ascii")),
     )
+    for old, new in replacements:
+        body = body.replace(old, new)
+    return body
 
 
 def safe_mirror_path(request_path: str) -> Path | None:
-    rel = request_path.lstrip("/")
+    rel = STATIC_ASSET_ALIASES.get(request_path, request_path).lstrip("/")
     candidate = (MIRROR / rel).resolve()
     try:
         candidate.relative_to(MIRROR.resolve())
