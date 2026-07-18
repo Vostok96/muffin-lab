@@ -111,6 +111,10 @@ STATIC_CACHEABLE_DIRECT_PATHS = {
     "/MUFFIN_PRODUCTO.jpg",
     "/MUFFIN_MASCOTA.png",
 }
+FRONTEND_ASSET_VERSION = "andahuaylas-20260718-1"
+LEGACY_PLUGIN_JS_VERSIONED_URL = (
+    b"/MUFFIN/Content/PluginsJS?v=sQB6J2EBUgtBNkJ6uHK2oNSgdLTnVwcEwKIRWaMhYlM1"
+)
 
 LOGIN_PAGE = ROOT / "docs" / "login.html"
 LOGOUT_REDIRECT = b"""<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/MUFFIN/Login/Index"><title>Cerrando sesion...</title></head><body><script>localStorage.clear();window.location.href='/MUFFIN/Login/Index';</script></body></html>"""
@@ -760,6 +764,8 @@ def content_type(path: Path, request_path: str) -> str:
     if guessed:
         return guessed
     lowered = request_path.lower()
+    if "/content/pluginsjs" in lowered:
+        return "application/javascript; charset=utf-8"
     if "/content/" in lowered:
         return "text/css; charset=utf-8"
     if "/bundles/" in lowered or "/scripts/" in lowered:
@@ -784,6 +790,13 @@ def static_cache_control(full_request_path: str) -> str:
     if "v=" in query:
         return f"public, max-age={STATIC_CACHE_VERSIONED_SECONDS}, immutable"
     return f"public, max-age={STATIC_CACHE_UNVERSIONED_SECONDS}, stale-while-revalidate=604800"
+
+
+def refresh_frontend_asset_versions(body: bytes) -> bytes:
+    return body.replace(
+        LEGACY_PLUGIN_JS_VERSIONED_URL,
+        f"/MUFFIN/Content/PluginsJS?v={FRONTEND_ASSET_VERSION}".encode("ascii"),
+    )
 
 
 def safe_mirror_path(request_path: str) -> Path | None:
@@ -953,6 +966,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 return
         body = path.read_bytes()
+        if path.suffix.lower() in {".html", ".htm"}:
+            body = refresh_frontend_asset_versions(body)
         if inject_favicon:
             closing_head = body.lower().find(b"</head>")
             if closing_head >= 0:
