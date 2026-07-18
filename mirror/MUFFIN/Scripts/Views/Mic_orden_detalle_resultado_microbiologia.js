@@ -7,6 +7,11 @@ var catalogo_microorganismos_busqueda = null;
 var catalogo_microorganismos_ultimo_filtro = "";
 var catalogo_microorganismos_request = null;
 var catalogo_microorganismos_limite_inicial = 120;
+var catalogo_antibioticos = [];
+var catalogo_antibioticos_busqueda = null;
+var catalogo_antibioticos_ultimo_filtro = "";
+var catalogo_antibioticos_request = null;
+var catalogo_antibioticos_limite_inicial = 25;
 var filtros_resultado_cultivo = [
     { value: "ALL", text: "TODOS LOS RESULTADOS" },
     { value: "POSITIVO", text: "POSITIVO" },
@@ -198,13 +203,45 @@ $(document).ready(function () {
         }
     });
 
+    $('#txtBuscarATBLista').on('input', function () {
+        var filtro = $(this).val();
+        clearTimeout(catalogo_antibioticos_busqueda);
+        catalogo_antibioticos_busqueda = setTimeout(function () {
+            cboObtenerMic_antibiotico(filtro);
+        }, 250);
+    });
+
+    $('#txtBuscarATBLista').on('keydown', function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            _GuardarManualPanel();
+        }
+    });
+
+    $('#cboATBNombre').on('dblclick', function () {
+        _GuardarManualPanel();
+    });
+
+    $('#cboATBNombre').on('keydown', function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            _GuardarManualPanel();
+        }
+    });
 
     $("#btnAddATB").click(function () {
+        if (!$("#IDEN_PANEL_ID").val()) {
+            swal("Seleccione un microorganismo", "Primero agregue una identificación para poder asociar antibióticos.", "warning");
+            return;
+        }
         $("#formSeg").each(function () {
             this.reset();
         });
+        catalogo_antibioticos_ultimo_filtro = "";
+        $("#txtBuscarATBLista").val("");
+        renderAntibioticos([], "Mostrando opciones iniciales. Escriba para buscar en todo el catálogo.");
         $('#FormModalSeg').modal('show');
-        cboObtenerMic_antibiotico();
+        cboObtenerMic_antibiotico("");
     });
     $("#btnOPAdpanel").click(function () {
         $("#formTer").each(function () {
@@ -771,6 +808,9 @@ function tlb_ObtenerCodebarOrgaCod_lista_atb(codebar, organismo_cod) {
                         "</tr>";
 
                 })
+                if (!html) {
+                    html = "<tr class='table-light'><td colspan='5' class='text-muted text-center'>Sin antibiograma. Puede validar solo la identificación o agregar antibióticos manualmente.</td></tr>";
+                }
                 $("#tlbtbody_atb").html(html);
                 muffinSyncAstTable();
             }
@@ -1068,25 +1108,68 @@ function renderMicroorganismos(items, mensaje) {
     }
 }
 
-function cboObtenerMic_antibiotico() {
-    jQuery.ajax({
-        url: $.MisUrls.url._ObtenerMic_antibiotico,
+function renderAntibioticos(items, mensaje) {
+    var combo = $("#cboATBNombre");
+    var estado = $("#txtATBListaEstado");
+    var esBusqueda = (catalogo_antibioticos_ultimo_filtro || "").length >= 2;
+    combo.empty();
+    combo.removeAttr("size");
+    if ($.isArray(items)) {
+        catalogo_antibioticos = items;
+    }
+    if (!catalogo_antibioticos.length) {
+        $("<option>").attr({ "value": "" }).text(mensaje || "Sin resultados").appendTo(combo);
+        combo.val("");
+        estado.text(mensaje || "Sin resultados.");
+        return;
+    }
+    catalogo_antibioticos.sort(function (a, b) {
+        return String(a.atb_desc || "").localeCompare(String(b.atb_desc || ""), "es", { sensitivity: "base" });
+    });
+    $.each(catalogo_antibioticos, function (_i, item) {
+        $("<option>").attr({ "value": item.atb_id_id }).text(muffinTextUpper(item.atb_desc)).appendTo(combo);
+    });
+    combo.val(combo.find("option:first").val());
+    if (esBusqueda) {
+        combo.attr("size", Math.min(Math.max(catalogo_antibioticos.length, 3), 8));
+        estado.text(catalogo_antibioticos.length + " coincidencia(s). Seleccione una opción de la lista.");
+    } else {
+        estado.text("Mostrando opciones iniciales. Escriba para buscar en todo el catálogo.");
+    }
+}
+
+function cboObtenerMic_antibiotico(filtro) {
+    filtro = $.trim(filtro || "");
+    catalogo_antibioticos_ultimo_filtro = filtro;
+    if (catalogo_antibioticos_request && catalogo_antibioticos_request.readyState !== 4) {
+        catalogo_antibioticos_request.abort();
+    }
+    if (filtro.length > 0 && filtro.length < 2) {
+        renderAntibioticos([], "Escriba al menos 2 caracteres para buscar.");
+        return;
+    }
+    var pageSize = filtro.length >= 2 ? 50 : catalogo_antibioticos_limite_inicial;
+    var url = $.MisUrls.url._ObtenerMic_antibiotico + "?page_size=" + pageSize;
+    if (filtro.length >= 2) {
+        url += "&search=" + encodeURIComponent(filtro);
+    }
+    catalogo_antibioticos_request = jQuery.ajax({
+        url: url,
         type: "GET",
         dataType: "json",
         contentType: "application/json; charset=utf-8",
         success: function (data) {
-            $("#cboATBNombre").html("");
-            if (data.data != null) {
-                $.each(data.data, function (i, item) {
-                    $("<option>").attr({ "value": item.atb_id_id }).text(item.atb_desc).appendTo("#cboATBNombre");
-                })
-                $("#cboATBNombre").val($("#cboATBNombre option:first").val());
-            }
+            renderAntibioticos(data.data || [], data.data && data.data.length ? "" : "Sin coincidencias.");
         },
         error: function (error) {
+            if (error && error.statusText === "abort") {
+                return;
+            }
+            $("#txtATBListaEstado").text("No se pudo cargar el catálogo de antibióticos.");
             console.log(error)
         },
         beforeSend: function () {
+            $("#txtATBListaEstado").text("Buscando antibióticos...");
         },
     });
 }
@@ -1136,6 +1219,14 @@ function _RegistrarPanel() {
 
 function _GuardarManualPanel() {
     if ($("#formSeg").valid()) {
+        if (!$("#IDEN_PANEL_ID").val()) {
+            swal("Seleccione un microorganismo", "Primero agregue una identificación para poder asociar antibióticos.", "warning");
+            return;
+        }
+        if (!$("#cboATBNombre").val()) {
+            swal("Seleccione un antibiótico", "Busque por nombre y seleccione una opción válida de la lista.", "warning");
+            return;
+        }
         var request = {
             objeto: {
                 isolate_id: $("#IDEN_PANEL_ID").val(),

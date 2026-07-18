@@ -10,6 +10,7 @@ from app.database import get_db
 from app.dependencies import get_current_user, require_area_validation, require_role
 from app.models import (
     AntimicrobialResult,
+    AstPanelAntibiotic,
     Clinician,
     Exam,
     ExamParameter,
@@ -396,9 +397,14 @@ def incomplete_ast_isolates(db: Session, result: Result) -> list[str]:
     incomplete = []
     isolates = list(db.scalars(select(Isolate).where(Isolate.result_id == result.id, Isolate.ast_panel_id.is_not(None))))
     for isolate in isolates:
+        expected_panel_antibiotic = db.scalar(
+            select(AstPanelAntibiotic).where(AstPanelAntibiotic.ast_panel_id == isolate.ast_panel_id).limit(1)
+        )
         ast_rows = list(
             db.scalars(select(AntimicrobialResult).where(AntimicrobialResult.isolate_id == isolate.id))
         )
+        if not ast_rows and expected_panel_antibiotic is None:
+            continue
         if not ast_rows or any(row.interpretation == "NA" for row in ast_rows):
             incomplete.append(isolate.id)
     return incomplete
