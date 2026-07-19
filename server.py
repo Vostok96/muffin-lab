@@ -19,29 +19,96 @@ from urllib.error import URLError
 ROOT = Path(__file__).resolve().parent
 MIRROR = ROOT / "mirror"
 MANIFEST = ROOT / "docs" / "capture_manifest.json"
-INSTITUTION_NAME = "Hospital Sub Regional de Andahuaylas"
-CLIENT_ROOT = ROOT / "CLIENTES" / "Hospital Sub Regional Andahuaylas"
-BRAND_IMAGE = CLIENT_ROOT / "logo andahuylas.png"
-PRODUCT_IMAGE = ROOT / "MUFFIN_ICONO.jpg"
-MASCOT_IMAGE = ROOT / "MUFFIN_SINFONDO.png"
-CLIENT_SIGNERS = (
-    {
-        "slug": "katherine-pena-vega",
-        "usernames": ("kpena",),
-        "name": "Katherine Mariely Peña Vega",
-        "title": "Bióloga - Microbióloga - Parasitóloga",
-        "credential": "CBP 16728",
-        "file": CLIENT_ROOT / "usuarios" / "Katherine Mariely Peña Vega" / "KATHERINE.jpeg",
-    },
-    {
-        "slug": "ruth-calderon-de-la-cruz",
-        "usernames": ("rcalderon",),
-        "name": "Ruth N. Calderon De La Cruz",
-        "title": "Bióloga - Microbióloga",
-        "credential": "CBP 17484",
-        "file": CLIENT_ROOT / "usuarios" / "Ruth N. Calderon De La Cruz" / "RUTH.jpeg",
-    },
+
+
+def env_text(name: str, default: str) -> str:
+    value = os.environ.get(name, "").strip()
+    return value or default
+
+
+def project_path(value: str | None, default: Path) -> Path:
+    raw = (value or "").strip()
+    if not raw:
+        return default
+    path = Path(raw)
+    return path if path.is_absolute() else ROOT / path
+
+
+def image_path(value: str | None, default: Path, fallback: Path) -> Path:
+    path = project_path(value, default)
+    return path if path.exists() else fallback
+
+
+DEFAULT_CLIENT_ROOT = ROOT / "CLIENTES" / "_plantilla"
+if "andahuaylas" in env_text("DEFAULT_INSTITUTION_NAME", "").lower():
+    DEFAULT_CLIENT_ROOT = ROOT / "CLIENTES" / "Hospital Sub Regional Andahuaylas"
+
+INSTITUTION_NAME = env_text(
+    "MUFFIN_INSTITUTION_NAME",
+    env_text("DEFAULT_INSTITUTION_NAME", "MUFFIN Microbiología Hospitalaria"),
 )
+INSTITUTION_SLUG = env_text(
+    "MUFFIN_INSTITUTION_SLUG",
+    env_text("DEFAULT_INSTITUTION_SLUG", "muffin-padre"),
+)
+PRODUCT_NAME = env_text("MUFFIN_PRODUCT_NAME", "MUFFIN Microbiología Hospitalaria")
+PRODUCT_TAGLINE = env_text(
+    "MUFFIN_PRODUCT_TAGLINE",
+    "Microbiología: Unidad de Fuentes, Flujos e Informes Nosocomiales",
+)
+PRODUCT_OWNER = env_text("MUFFIN_IP_OWNER", "RyM SAC")
+COPYRIGHT_OWNER = env_text("MUFFIN_COPYRIGHT_OWNER", INSTITUTION_NAME)
+APP_VERSION = env_text("MUFFIN_VERSION", "1.0")
+CLIENT_ROOT = project_path(os.environ.get("MUFFIN_CLIENT_ROOT"), DEFAULT_CLIENT_ROOT)
+PRODUCT_IMAGE = image_path(os.environ.get("MUFFIN_PRODUCT_IMAGE"), ROOT / "MUFFIN_ICONO.jpg", ROOT / "MUFFIN_ICONO.jpg")
+BRAND_IMAGE = image_path(
+    os.environ.get("MUFFIN_BRAND_IMAGE"),
+    CLIENT_ROOT / "logo.png",
+    CLIENT_ROOT / "logo andahuylas.png" if (CLIENT_ROOT / "logo andahuylas.png").exists() else PRODUCT_IMAGE,
+)
+MASCOT_IMAGE = image_path(os.environ.get("MUFFIN_MASCOT_IMAGE"), ROOT / "MUFFIN_SINFONDO.png", PRODUCT_IMAGE)
+
+
+def load_client_signers() -> tuple[dict, ...]:
+    config_path = project_path(os.environ.get("MUFFIN_SIGNERS_CONFIG"), CLIENT_ROOT / "signers.json")
+    if not config_path.exists():
+        return ()
+    try:
+        payload = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ()
+    items = payload.get("signers", payload) if isinstance(payload, dict) else payload
+    signers: list[dict] = []
+    if not isinstance(items, list):
+        return ()
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        slug = str(item.get("slug", "")).strip()
+        name = str(item.get("name", "")).strip()
+        file_value = item.get("file") or item.get("signature_file")
+        if not slug or not name or not file_value:
+            continue
+        file_path = Path(str(file_value))
+        if not file_path.is_absolute():
+            file_path = CLIENT_ROOT / file_path
+        usernames = item.get("usernames") or ()
+        if isinstance(usernames, str):
+            usernames = [usernames]
+        signers.append(
+            {
+                "slug": slug,
+                "usernames": tuple(str(username).strip() for username in usernames if str(username).strip()),
+                "name": name,
+                "title": str(item.get("title", "")).strip(),
+                "credential": str(item.get("credential", "")).strip(),
+                "file": file_path,
+            }
+        )
+    return tuple(signers)
+
+
+CLIENT_SIGNERS = load_client_signers()
 SIGNATURE_IMAGE_ROUTES = {f"/MUFFIN/firmas/{signer['slug']}.jpeg": signer["file"] for signer in CLIENT_SIGNERS}
 GRAM_RESULT_OPTIONS = [
     ("COCOS_GRAM_POSITIVOS", "COCOS GRAM POSITIVOS"),
@@ -258,21 +325,21 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
 })();
 </script>"""
 
-APP_FOOTER_MARKUP = """		<footer class="muffin-footer" role="contentinfo">
+APP_FOOTER_MARKUP = f"""		<footer class="muffin-footer" role="contentinfo">
 			<div class="muffin-footer-brand">
 				<span class="muffin-footer-mark" aria-hidden="true">
-					<img src="/MUFFIN_ICONO.jpg?v=andahuaylas-20260717" alt="">
+					<img src="/MUFFIN_ICONO.jpg?v={html.escape(INSTITUTION_SLUG, quote=True)}-{html.escape(APP_VERSION, quote=True)}" alt="">
 				</span>
 				<span class="muffin-footer-title">
-					<strong>Hospital Sub Regional de Andahuaylas</strong>
-					<small>MUFFIN Microbiolog&iacute;a Hospitalaria</small>
+					<strong>{html.escape(INSTITUTION_NAME)}</strong>
+					<small>{html.escape(PRODUCT_NAME)}</small>
 				</span>
 			</div>
 			<div class="muffin-footer-legal">
-				<span>&copy; 2026 Hospital Sub Regional de Andahuaylas.</span>
-				<span>MUFFIN Microbiolog&iacute;a Hospitalaria. Propiedad intelectual de RyM SAC.</span>
+				<span>&copy; 2026 {html.escape(COPYRIGHT_OWNER)}.</span>
+				<span>{html.escape(PRODUCT_NAME)}. Propiedad intelectual de {html.escape(PRODUCT_OWNER)}.</span>
 			</div>
-			<span class="muffin-footer-version">v1.0</span>
+			<span class="muffin-footer-version">v{html.escape(APP_VERSION)}</span>
 		</footer>""".encode("utf-8")
 
 LEGACY_FOOTERS = [
@@ -289,6 +356,22 @@ LEGACY_FOOTERS = [
 def apply_corporate_footer(body: bytes) -> bytes:
     for legacy_footer in LEGACY_FOOTERS:
         body = body.replace(legacy_footer, APP_FOOTER_MARKUP)
+    return body
+
+
+def apply_runtime_branding(body: bytes) -> bytes:
+    replacements = (
+        (b"Hospital Sub Regional de Andahuaylas", html_bytes(INSTITUTION_NAME)),
+        (b"MUFFIN Microbiolog\xc3\xada Hospitalaria", html_bytes(PRODUCT_NAME)),
+        (
+            b"Microbiolog\xc3\xada: Unidad de Fuentes, Flujos e Informes Nosocomiales",
+            html_bytes(PRODUCT_TAGLINE),
+        ),
+        (b"Propiedad intelectual de RyM SAC", f"Propiedad intelectual de {html.escape(PRODUCT_OWNER)}".encode("utf-8")),
+        (b"&copy; 2026 RyM SAC.", f"&copy; 2026 {html.escape(PRODUCT_OWNER)}.".encode("utf-8")),
+    )
+    for old, new in replacements:
+        body = body.replace(old, new)
     return body
 
 # ── Session injection: reads JWT, calls /auth/me, updates navbar + menus ──
@@ -432,6 +515,13 @@ fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+token}})
 .catch(function(){localStorage.removeItem('muffin_token');window.location.href='/MUFFIN/Login/Index';});
 })();
 </script>"""
+
+
+def html_bytes(value: str) -> bytes:
+    return html.escape(value, quote=True).encode("utf-8")
+
+
+SESSION_SCRIPT = SESSION_SCRIPT.replace(b"Hospital Sub Regional de Andahuaylas", html_bytes(INSTITUTION_NAME))
 
 # ── SIMCORE → MUFFIN proxy mappings ──
 
@@ -1016,6 +1106,7 @@ class Handler(BaseHTTPRequestHandler):
         body = path.read_bytes()
         if path.suffix.lower() in {".html", ".htm"}:
             body = refresh_frontend_asset_versions(body)
+            body = apply_runtime_branding(body)
         if inject_favicon:
             closing_head = body.lower().find(b"</head>")
             if closing_head >= 0:

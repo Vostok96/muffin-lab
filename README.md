@@ -60,14 +60,13 @@ http://127.0.0.1:8000/api/v1
 
 ## Personalización por institución
 
-Cada versión institucional debe partir del padre y modificar solo la capa de branding/configuración:
+Cada versión institucional debe partir del padre y modificar solo la capa de branding/configuración. El core ya tiene sockets por entorno para nombre, slug, logos, mascota, firmantes, propietario legal y versión visible.
 
-- Logo, favicon e imágenes institucionales.
-- Nombre legal y nombre corto de la institución.
-- Paleta de colores.
-- Footer, textos de propiedad intelectual y versión.
-- Variables `DEFAULT_INSTITUTION_NAME` y `DEFAULT_INSTITUTION_SLUG`.
-- Dominio, proxy HTTPS y secretos de producción.
+Punto de partida:
+
+- `CLIENTES/_plantilla/README.md`
+- `.env.example`
+- `docs/MUFFIN_PADRE.md`
 
 Evitar modificar flujos clínicos o contratos de API salvo que el cambio deba volver al padre.
 
@@ -79,6 +78,7 @@ Evitar modificar flujos clínicos o contratos de API salvo que el cambio deba vo
 - [docs/MODELO_DATOS_MUFFIN.md](docs/MODELO_DATOS_MUFFIN.md): modelo de datos.
 - [docs/MUFFIN_API_V1.yaml](docs/MUFFIN_API_V1.yaml): contrato OpenAPI.
 - [docs/IDENTIDAD_VISUAL_MUFFIN.md](docs/IDENTIDAD_VISUAL_MUFFIN.md): identidad visual base.
+- [CONTEXTO_LOCAL_MUFFIN.md](CONTEXTO_LOCAL_MUFFIN.md): contexto de esta estación de trabajo.
 
 ## Estado actual
 

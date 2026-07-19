@@ -5,14 +5,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "MUFFIN API - Hospital Sub Regional de Andahuaylas"
+    app_name: str = "MUFFIN API"
     app_env: str = "development"
     database_url: str = "sqlite:///./muffin.db"
     jwt_secret: SecretStr = SecretStr("development-only-secret-change-before-deploy")
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 30
-    default_institution_name: str = "Hospital Sub Regional de Andahuaylas"
-    default_institution_slug: str = "hospital-sub-regional-andahuaylas"
+    default_institution_name: str = "MUFFIN Microbiología Hospitalaria"
+    default_institution_slug: str = "muffin-padre"
     bootstrap_admin_username: str | None = None
     bootstrap_admin_password: SecretStr | None = None
     bootstrap_admin_given_name: str = "Administrador"

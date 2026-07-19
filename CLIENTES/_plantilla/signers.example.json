@@ -1,0 +1,12 @@
+{
+  "signers": [
+    {
+      "slug": "nombre-apellido",
+      "usernames": ["usuario"],
+      "name": "Nombre Apellido",
+      "title": "Cargo profesional",
+      "credential": "Colegiatura o registro",
+      "file": "usuarios/Nombre Apellido/firma.jpeg"
+    }
+  ]
+}

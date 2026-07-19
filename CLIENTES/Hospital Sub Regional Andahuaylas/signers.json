@@ -1,0 +1,20 @@
+{
+  "signers": [
+    {
+      "slug": "katherine-pena-vega",
+      "usernames": ["kpena"],
+      "name": "Katherine Mariely Peña Vega",
+      "title": "Bióloga - Microbióloga - Parasitóloga",
+      "credential": "CBP 16728",
+      "file": "usuarios/Katherine Mariely Peña Vega/KATHERINE.jpeg"
+    },
+    {
+      "slug": "ruth-calderon-de-la-cruz",
+      "usernames": ["rcalderon"],
+      "name": "Ruth N. Calderon De La Cruz",
+      "title": "Bióloga - Microbióloga",
+      "credential": "CBP 17484",
+      "file": "usuarios/Ruth N. Calderon De La Cruz/RUTH.jpeg"
+    }
+  ]
+}

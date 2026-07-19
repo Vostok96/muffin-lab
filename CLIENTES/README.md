@@ -10,5 +10,7 @@ Reglas:
 - No cargar estos assets automáticamente en MUFFIN padre.
 - Cada institución debe tener su propia subcarpeta.
 - La activación de un branding institucional debe hacerse en una rama, fork o paquete de despliegue específico.
+- Use `CLIENTES/_plantilla/` como molde para nuevas instituciones.
+- Los firmantes se declaran en `signers.json`; las imágenes reales van en `usuarios/` y no se versionan.
 
 La carpeta actual contiene insumos visuales de referencia para una futura variante institucional.

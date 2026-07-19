@@ -1,90 +1,204 @@
-# Variante institucional: Hospital Sub Regional de Andahuaylas
+# Cliente: Hospital Sub Regional de Andahuaylas
 
-Esta rama deriva de MUFFIN padre y direcciona el producto al primer cliente institucional.
+Esta variante es el primer despliegue institucional de MUFFIN. Debe mantenerse como rama/perfil de cliente sobre MUFFIN padre.
 
-## Institución
+## Identidad
 
-- Nombre: Hospital Sub Regional de Andahuaylas
-- Slug: `hospital-sub-regional-andahuaylas`
-- Producto: MUFFIN Microbiología Hospitalaria
+- Institución: Hospital Sub Regional de Andahuaylas.
+- Slug: `hospital-sub-regional-andahuaylas`.
+- Dominio público: `andahuaylas.microbiolog-ia.com`.
+- Producto: MUFFIN Microbiología Hospitalaria.
+- Versión visible: `1.0`.
+- Propiedad intelectual de MUFFIN: RyM SAC.
 
-## Insumos usados
+Insumos:
 
-- Logo institucional: `CLIENTES/Hospital Sub Regional Andahuaylas/logo andahuylas.png`
-- Captura web de referencia: `CLIENTES/Hospital Sub Regional Andahuaylas/pagina web del hospital.png`
-- Sellos/firma locales ignorados por git:
-  - `CLIENTES/Hospital Sub Regional Andahuaylas/usuarios/Katherine Mariely Peña Vega/KATHERINE.jpeg`
-  - `CLIENTES/Hospital Sub Regional Andahuaylas/usuarios/Ruth N. Calderon De La Cruz/RUTH.jpeg`
+- Logo institucional: `CLIENTES/Hospital Sub Regional Andahuaylas/logo andahuylas.png`.
+- Captura web de referencia: `CLIENTES/Hospital Sub Regional Andahuaylas/pagina web del hospital.png`.
+- Perfil local: `CLIENTES/Hospital Sub Regional Andahuaylas/README.md`.
+- Firmantes: `CLIENTES/Hospital Sub Regional Andahuaylas/signers.json`.
+- Firmas reales: `CLIENTES/Hospital Sub Regional Andahuaylas/usuarios/` ignorado por git.
 
-La captura web se conserva solo como referencia visual. La primera personalización usa principalmente el logo institucional y el nombre oficial.
+## Variables de despliegue
 
-## Cambios aplicados
+El `.env` del NAS debe contener, además de secretos:
 
-- `server.py`
-  - `BRAND_IMAGE` apunta al logo institucional.
-  - `/MUFFIN_PRODUCTO.jpg` sirve el logo propio de MUFFIN para piezas corporativas secundarias.
-  - `/MUFFIN_MASCOTA.png` sirve la mascota MUFFIN sin fondo para el sidebar.
-  - Footer corporativo identifica al Hospital Sub Regional de Andahuaylas.
-  - Reporte de resultados muestra logo y nombre del hospital.
-  - Reporte imprimible incluye bloque de responsables autorizadas con sello/firma:
-    - Katherine Mariely Peña Vega, CBP 16728.
-    - Ruth N. Calderon De La Cruz, CBP 17484.
-  - `/MUFFIN/Dashboard/Resumen` entrega conteos operativos del día y últimos 7 días para la portada.
+```env
+DEFAULT_INSTITUTION_NAME=Hospital Sub Regional de Andahuaylas
+DEFAULT_INSTITUTION_SLUG=hospital-sub-regional-andahuaylas
+MUFFIN_CLIENT_ROOT=CLIENTES/Hospital Sub Regional Andahuaylas
+MUFFIN_BRAND_IMAGE=CLIENTES/Hospital Sub Regional Andahuaylas/logo andahuylas.png
+MUFFIN_PRODUCT_IMAGE=MUFFIN_ICONO.jpg
+MUFFIN_MASCOT_IMAGE=MUFFIN_SINFONDO.png
+MUFFIN_SIGNERS_CONFIG=CLIENTES/Hospital Sub Regional Andahuaylas/signers.json
+MUFFIN_COPYRIGHT_OWNER=Hospital Sub Regional de Andahuaylas
+MUFFIN_IP_OWNER=RyM SAC
+MUFFIN_VERSION=1.0
+```
 
-- `mirror/_pages/SIMCORE_WEB__Home__Index.html`
-  - Portada prioriza el nombre y logo del Hospital Sub Regional de Andahuaylas.
-  - Portada reemplaza secciones de demostración por conteos de producción.
-  - Los valores se actualizan automáticamente contra `/MUFFIN/Dashboard/Resumen`.
-  - Las tarjetas de conteo son solo informativas, no enlaces de navegación.
+## Usuarios productivos iniciales
 
-- `docs/login.html`
-  - Login muestra logo institucional y nombre completo.
-  - Subtítulo mantiene el producto MUFFIN.
-  - Footer de login muestra logo MUFFIN, significado y propiedad intelectual de RyM SAC.
+No documentar contraseñas. Las credenciales se entregan por canal operativo y deben rotarse.
 
-- `mirror/MUFFIN/Content/muffin.css`
-  - Navbar/sidebar muestra `MUFFIN` con el logo de MUFFIN como marca superior.
-  - Nombre institucional se muestra centrado, con logo del hospital, en un bloque propio debajo de `Reportes`.
-  - Mascota MUFFIN se muestra sin fondo debajo de la tarjeta institucional y salta levemente al hover.
-  - Logo se renderiza con `object-fit: contain` para no recortar el emblema.
+- `admin-hsr`: administrador.
+- `kpena`: Katherine Mariely Peña Vega, CBP 16728, valida y firma.
+- `rcalderon`: Ruth N. Calderon De La Cruz, CBP 17484, valida y firma.
 
-- `backend/app/config.py`
-  - Defaults de institución apuntan al Hospital Sub Regional de Andahuaylas.
+Regla de firma: el PDF muestra solo la firma del usuario que realizó la validación final. Nunca deben aparecer dos firmas juntas en un resultado.
+
+## Catálogo institucional
+
+Procedencias activas:
+
+- `CONSULTA EXTERNA`
+- `EMERGENCIA`
+- `HOSPITALIZACIÓN`
+- `REFERIDO`
+- `UCI`
+
+Servicios activos:
+
+- `ALOJAMIENTO CONJUNTO`
+- `CARDIOLOGIA`
+- `CENTRO OBSTETRICO`
+- `CIRUGIA GENERAL`
+- `CIRUGIA PEDIATRICA`
+- `DERMATOLOGIA`
+- `ENDOCRINOLOGIA`
+- `GASTROENTEROLOGIA`
+- `GINECOLOGIA`
+- `HOSP. CIRUGIA`
+- `HOSP. GINECO-OBSTETRICIA`
+- `HOSP. MEDICINA`
+- `HOSP. NEO I`
+- `HOSP. NEO II`
+- `HOSP. PEDIATRIA`
+- `MEDICINA FISICA Y REHABILITACION`
+- `MEDICINA INTERNA`
+- `NEUMOLOGIA`
+- `NEUROCIRUGIA`
+- `NEUROLOGIA`
+- `OBSTETRICIA`
+- `ODONTOLOGIA`
+- `ODONTO-PEDIATRIA`
+- `OFTALMOLOGIA`
+- `ONCOLOGIA`
+- `OTORRINOLARINGOLOGIA`
+- `PAGANTES`
+- `PEDIATRIA`
+- `PROGRAMA DE ETS/VIH-SIDA`
+- `PROGRAMA DE TUBERCULOSIS`
+- `PSICOLOGIA`
+- `PSIQUIATRIA`
+- `REFERENCIA`
+- `REPOSO EMERGENCIA`
+- `REUMATOLOGIA`
+- `SALA DE OPERACIONES`
+- `SALUD MENTAL`
+- `TOPICO CIRUGIA`
+- `TOPICO GINECO-OBSTETRICIA`
+- `TOPICO MEDICINA`
+- `TOPICO PEDIATRIA`
+- `TRAUMA SHOK`
+- `TRAUMATOLOGIA`
+- `UCI`
+- `UCIN`
+- `UROLOGIA`
+
+Médico activo para nuevas órdenes: `MEDICO DE TURNO`.
+
+Los catálogos se cargan y restringen con:
 
 - `backend/scripts/prepare_andahuaylas_production.py`
-  - Carga idempotente del catálogo institucional de Andahuaylas:
-    - 5 procedencias oficiales.
-    - 46 servicios oficiales.
-  - Los códigos se normalizan sin tildes para estabilidad técnica; los nombres visibles se conservan como catálogo institucional.
-
 - `backend/alembic/versions/0010_andahuaylas_catalogs.py`
-  - Aplica el mismo catálogo institucional durante `alembic upgrade head`.
-  - Deja solo `MEDICO_TURNO` como médico activo para nuevas órdenes.
-
 - `backend/alembic/versions/0011_andahuaylas_catalog_cleanup.py`
-  - Desactiva procedencias y servicios fuera del catálogo oficial de Andahuaylas para nuevas órdenes.
-  - No elimina registros, por lo que las órdenes históricas siguen conservando sus referencias.
 
-- `.env.example` y `.env.local.example`
-  - Defaults de institución alineados a la variante.
+Las opciones fuera del catálogo oficial se desactivan, no se eliminan.
 
-## Catálogos Institucionales
+## Flujo clínico validado
 
-- Procedencias oficiales: `CONSULTA EXTERNA`, `EMERGENCIA`, `HOSPITALIZACIÓN`, `REFERIDO`, `UCI`.
-- Servicios oficiales: cargados desde `ANDAHUAYLAS_SERVICES` en `backend/scripts/prepare_andahuaylas_production.py`.
-- Médico activo para órdenes: `MEDICO DE TURNO`.
-- La carga no elimina valores existentes; desactiva opciones no oficiales para que las nuevas órdenes usen solo el catálogo aprobado.
+- Crear paciente/orden.
+- Buscar paciente por HC.
+- Autogenerar número de orden.
+- Autogenerar código de barras por detalle.
+- Seleccionar examen/muestra desde listas heredadas del padre.
+- Recepcionar/verificar muestra.
+- Registrar resultado negativo, positivo, rechazado o en proceso.
+- Agregar identificación con panel AST.
+- Usar `PANEL SIN ATB` para identificación sola o antibióticos manuales.
+- Validar preliminar/final.
+- Imprimir/reporte PDF desde sesión autenticada.
 
-## Límites
+## Reglas de resultado
 
-- No se suben fotos de usuarios ni documentos personales.
-- `CLIENTES/**/usuarios/` está ignorado por git.
-- MUFFIN padre sigue siendo `main`; esta variante vive en rama de cliente.
-- Las contraseñas iniciales de usuarios se entregan por canal operativo y no se documentan en el repositorio.
+- Estado final del reporte:
+  - `FINALIZADO` si hay validación final.
+  - `RECHAZADO` si el resultado indica no trajo muestra o muestra inadecuada.
+  - `EN PROCESO` si está registrado/guardado sin final.
+- Nitrito es opcional.
+- `COLORACIÓN GRAM`: cocos Gram positivos, bacilos Gram negativos, levaduras.
+- Recuento: 1,000 a 100,000 UFC/mL.
+- AST por defecto: `DISCO`, valor `-`.
+- AST `CMI`: permite valor editable.
+- `NR`: antibiótico no reportado, se omite del PDF.
 
-## Siguientes ajustes posibles
+## Despliegue actual
 
-- Ajustar paleta completa con base en el manual visual institucional, si existe.
-- Cambiar favicon a emblema del hospital si el cliente lo solicita.
-- Agregar textos legales específicos de la institución.
-- Preparar `.env` productivo con secretos únicos antes de desplegar.
+NAS:
+
+- Proyecto: `/volume1/docker/muffin-andahuaylas/source`.
+- Contenedores: `muffin-postgres`, `muffin-api`, `muffin-frontend`.
+- Frontend expuesto por Cloudflare Tunnel hacia puerto NAS configurado.
+- Servicios Docker con `restart: unless-stopped`.
+
+Comandos útiles:
+
+```bash
+docker compose ps
+docker compose logs --tail=100 frontend
+docker compose logs --tail=100 api
+docker compose up -d --build frontend
+docker compose up -d --build api frontend
+```
+
+## Backup y migración
+
+Backup lógico:
+
+```bash
+docker compose exec -T postgres pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --file=/tmp/muffin-andahuaylas.backup
+docker compose cp postgres:/tmp/muffin-andahuaylas.backup ./muffin-andahuaylas.backup
+```
+
+Además copiar por canal seguro:
+
+- `.env` productivo.
+- `CLIENTES/Hospital Sub Regional Andahuaylas/usuarios/`.
+- Cualquier storage externo de PDF/exportaciones si se activa.
+
+Restore:
+
+```bash
+docker compose up -d postgres
+docker compose cp ./muffin-andahuaylas.backup postgres:/tmp/muffin-andahuaylas.backup
+docker compose exec -T postgres pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists /tmp/muffin-andahuaylas.backup
+docker compose up -d --build api frontend
+```
+
+## Rendimiento observado
+
+Medición pública posterior a optimización:
+
+- HTML resultados: alrededor de 430 ms.
+- Bundle pesado `PluginsJS`: alrededor de 570 ms con `CF-Cache-Status: HIT`.
+- CSS/JQuery/JS de resultados: cacheados por Cloudflare con Brotli.
+
+Siguiente mejora si el volumen crece mucho: paginación server-side real en `/result-worklist`.
+
+## Cuidado para próximos cambios
+
+- No subir datos clínicos ni pruebas productivas.
+- No dejar órdenes QA en producción.
+- No versionar contraseñas ni `.env`.
+- No subir sellos/firma reales.
+- Si aparece una mejora genérica, portarla a `main`/MUFFIN padre.
