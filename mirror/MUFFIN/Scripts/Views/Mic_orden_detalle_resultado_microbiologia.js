@@ -1,7 +1,7 @@
 ﻿var tabladata;
 var posicion_frame = 0;
 const posicion_frame_data = [];
-var session_user_rol = $("#session_user_rol").val();
+var session_user_rol = "";
 var catalogo_microorganismos = [];
 var catalogo_microorganismos_busqueda = null;
 var catalogo_microorganismos_ultimo_filtro = "";
@@ -20,6 +20,46 @@ var filtros_resultado_cultivo = [
     { value: "MUESTRA_INADECUADA", text: "MUESTRA INADECUADA" },
     { value: "SIN_RESULTADO", text: "SIN RESULTADO" }
 ];
+
+function sesionLista() {
+    return $("#session_user_loaded").val() === "True";
+}
+
+function rolActual() {
+    if (!sesionLista()) {
+        return "0";
+    }
+    return String($("#session_user_rol").val() || session_user_rol || "0");
+}
+
+function puedeEditarResultados() {
+    return ["1", "2", "3"].indexOf(rolActual()) !== -1;
+}
+
+function mensajeSoloLecturaResultados() {
+    swal("Solo lectura", "Este usuario solo puede buscar y visualizar resultados.", "warning");
+}
+
+function aplicarPermisosResultado() {
+    var puedeEditar = puedeEditarResultados();
+    var controlesEdicion = "#btnGuardarCambios,#btnOPDeleteEventos,#btnDeletePanel,#btnOPAdpanel,#btnAddMECA,#btnAddATB,#btnAddComent,#btnComentariosMuestra,#btnAddPanelGuardar,#btnAddATBGuardar,#btnAddComentarioDefinido";
+    $(controlesEdicion).toggle(puedeEditar);
+    $("#divListaParama").find("input, select, textarea, button").prop("disabled", !puedeEditar);
+    $("#cboTipoMuestra,#txtFechaTomaMuestra,#txtFechaRecepcionMuestra,#txComentariosMuestra,#cboTipoLocalizacion").prop("disabled", !puedeEditar);
+    $("#IDEN_RECUENTO,#IDEN_FENO,#IDEN_COMENT").prop("disabled", !puedeEditar);
+    $("#tlbtbody_atb").find("input, select, textarea, button").prop("disabled", !puedeEditar);
+    if (!puedeEditar) {
+        $("#btnValPreliminar,#btnValPreliminar_siguiente,#btnValFinal,#btnValFinal_siguiente").hide();
+    }
+}
+
+function aplicarSesionResultado() {
+    session_user_rol = $("#session_user_rol").val() || "";
+    aplicarPermisosResultado();
+    if ($.fn.DataTable.isDataTable("#tbdata") && tabladata) {
+        tabladata.ajax.reload(null, false);
+    }
+}
 
 function muffinToggleCultureDetails() {
     var result = $("#CULTURE_RESULT");
@@ -57,6 +97,9 @@ function muffinSyncAstRow(row) {
         valueInput.val("-");
         valueInput.prop("disabled", true);
         valueInput.attr("placeholder", "-");
+    }
+    if (!puedeEditarResultados()) {
+        valueInput.prop("disabled", true);
     }
 }
 
@@ -154,6 +197,7 @@ function muffinRecargarListadoResultados() {
 
 $(document).ready(function () {
     activarMenu("Mantenedor_resultado_micro");
+    document.addEventListener("muffin:session-ready", aplicarSesionResultado);
 
     muffinCargarFiltroResultadoCultivo();
     muffinCargarFiltroProcedencia();
@@ -302,6 +346,9 @@ $(document).ready(function () {
     $("#txtfechaFin").val(fecha_actual);
 
     listarRistros($("#txtfechaInicio").val(), $("#txtfechaFin").val(), $("#txtBuscar").val(), $("#cboArea").val(), $("#cboFiltro").val(), $("#session_user_id").val())
+    if (sesionLista()) {
+        aplicarSesionResultado();
+    }
     $("#btnBuscar").click(function () {
         var table = $('#tbdata').DataTable();
         table.destroy();
@@ -450,7 +497,7 @@ function listarRistros(orden_fecha_ini, orden_fecha_fin, orden_buscar, orden_are
 
                     var btn_rev = "<button class='btn btn-primary btn-sm muffin-result-action' type='button' title='Cargar resultado' onclick='rec_abrirPopUpForm_ini(" + JSON.stringify(row.orden_det_id) + ")'><i class='fa fa-user-plus'></i></button>"
                         + "<button class='btn btn-warning btn-sm muffin-result-action' type='button' title='Generar código de barras' onclick='_RegistrarPrinterCodebarMic_orden(" + JSON.stringify(row.orden_det_id) + ")'><i class='fas fa-barcode'></i></button>";
-                    if (session_user_rol == "4" || session_user_rol == "5" || session_user_rol == "6" || session_user_rol == "7") {
+                    if (!puedeEditarResultados()) {
                         btn_rev = "";
                     }
 
@@ -533,6 +580,10 @@ function revisa_boton_validar() {
     $("#btnValFinal").hide();
     $("#btnValFinal_siguiente").hide();
 
+    if (!puedeEditarResultados()) {
+        return;
+    }
+
     session_user_rol_validacion_preliminar = $("#session_user_rol_validacion_preliminar").val() == "True"?1:0;
     session_user_rol_validacion_final = $("#session_user_rol_validacion_final").val() == "True" ? 1 : 0;
 
@@ -549,6 +600,7 @@ function revisa_boton_validar() {
 
 function abrirPopUpForm(json) {
     revisa_boton_validar();
+    aplicarPermisosResultado();
 
     $("#divListaParama").html('<p style="text-align: center"><i class="fa fa-spin fa-spinner fa-5x"></i></p>');
     $("#form").each(function () {
@@ -609,6 +661,7 @@ function abrirPopUpForm(json) {
         $("#tlbtbody_atb").html("");
     }
     $('#FormModal').modal('show');
+    aplicarPermisosResultado();
 }
 
 function _ObtenerMic_orden_detalle_examen_muestra(orden_det_id) {
@@ -632,6 +685,7 @@ function _ObtenerMic_orden_detalle_examen_muestra(orden_det_id) {
                     muffinToggleCultureDetails();
                 });
                 muffinToggleCultureDetails();
+                aplicarPermisosResultado();
             }
         },
         error: function (error) {
@@ -657,6 +711,7 @@ function cboMuetsraEXA(Exa, selectec) {
                     $("<option>").attr({ "value": item.oMic_muestra.muestra_cod_alfa }).text(item.oMic_muestra.muestra_desc).appendTo("#cboTipoMuestra");
                 })
                 $("#cboTipoMuestra").val(selectec);
+                aplicarPermisosResultado();
             }
         },
         error: function (error) {
@@ -703,6 +758,7 @@ function param_ObtenerOrdenIdMic_orden_detalle_res(orden_det_id) {
                             break;
                     }
                 });
+                aplicarPermisosResultado();
             }
         },
         error: function (error) {
@@ -734,6 +790,7 @@ function cboMicroOrganismosCODEBAR(codebar) {
                 $('#div_col_sm_mitad_pri').removeClass("col-sm-6").addClass("col-sm-12");
                 $('#div_iden_atb').removeClass("col-sm-6").addClass("col-sm-0");
             }
+            aplicarPermisosResultado();
         },
         error: function (error) {
             console.log(error)
@@ -774,6 +831,7 @@ function cboMicroOrganismosCODEBARORGACOD(codebar, organismo_cod) {
                 $('#div_iden_atb').removeClass("col-sm-6").addClass("col-sm-0");
 
             }
+            aplicarPermisosResultado();
         },
         error: function (error) {
             console.log(error)
@@ -838,6 +896,7 @@ function tlb_ObtenerCodebarOrgaCod_lista_atb(codebar, organismo_cod) {
                 }
                 $("#tlbtbody_atb").html(html);
                 muffinSyncAstTable();
+                aplicarPermisosResultado();
             }
         },
         error: function (error) {
@@ -850,6 +909,10 @@ function tlb_ObtenerCodebarOrgaCod_lista_atb(codebar, organismo_cod) {
 
 
 function _GuardarMic_orden_detalle_res(tipo, estadoModal) {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        return;
+    }
     columnas_id = "";
     columnas_val = "";
     $('#divListaParama').find('input, select, button,textarea').each(function () {
@@ -903,6 +966,10 @@ function _GuardarMic_orden_detalle_res(tipo, estadoModal) {
 
 
 function _GuardarResultadoMicrobiologia(tipo, estadoModal) {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        return;
+    }
     if (!$("#form").valid()) {
         return;
     }
@@ -924,6 +991,11 @@ function _GuardarResultadoMicrobiologia(tipo, estadoModal) {
 
 
 function _GuardarMoMuestraMic_orden_detalle(alCompletar) {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        alCompletar(false);
+        return;
+    }
     if ($("#form").valid()) {
         var request = {
             objeto: {
@@ -964,6 +1036,11 @@ function _GuardarMoMuestraMic_orden_detalle(alCompletar) {
 
 
 function _GuardarMic_res_panel_detalle(alCompletar) {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        alCompletar(false);
+        return;
+    }
     orden_det_id = $("#txtIdOrdenDet").val(),
     orga_panel_id = $("#IDEN_PANEL_ID").val();
     orga_id = $("#IDEN_ORGA_ID").val();
@@ -1202,6 +1279,10 @@ function cboObtenerMic_antibiotico(filtro) {
 
 
 function _RegistrarPanel() {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        return;
+    }
     if ($("#formTer").valid()) {
         if (!$("#cboOrgaLista").val()) {
             swal("Seleccione un microorganismo", "Busque por nombre científico y seleccione una opción válida.", "warning");
@@ -1243,6 +1324,10 @@ function _RegistrarPanel() {
 }
 
 function _GuardarManualPanel() {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        return;
+    }
     if ($("#formSeg").valid()) {
         if (!$("#IDEN_PANEL_ID").val()) {
             swal("Seleccione un microorganismo", "Primero agregue una identificación para poder asociar antibióticos.", "warning");
@@ -1341,6 +1426,10 @@ function _DocumentoPDFMic_temp(orden_id) {
 
 
 function _EliminarMic_res_panel($respanel_id) {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        return;
+    }
     swal({
         title: "Mensaje",
         text: "¿Desea eliminar el registro seleccionado?",
@@ -1457,6 +1546,10 @@ function _RegistrarEnviarInstrumentoMic_orden_detalle($orden_det_id) {
 }
 
 function _RegistrarDeleteEventosMic_orden_detalle($orden_det_id) {
+    if (!puedeEditarResultados()) {
+        mensajeSoloLecturaResultados();
+        return;
+    }
     swal({
         title: "Mensaje",
         text: "¿Desea borrar el resultado y antibiograma de esta orden para corregirlo?",

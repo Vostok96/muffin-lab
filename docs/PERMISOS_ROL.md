@@ -41,12 +41,21 @@ El rol `ADMIN` tiene validación implícita en todas las áreas sin necesidad de
 | Crear/editar aislados | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Borrar aislados | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Crear/editar AST | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Eliminar paciente desde UI | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Retirar examen de orden | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | Print jobs / notificaciones | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | Mensajes de instrumento | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Ver auditoría | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Ver resultados (lectura) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 *Requiere permiso de área (`can_preliminary_validate` / `can_final_validate`)
+
+Desde 2026-08-13, los endpoints de validacion preliminar, validacion final y
+reapertura tambien exigen rol `ADMIN`, `PROCESS_ADMIN` o `PROCESSOR`. Un permiso
+de area asignado por error no debe habilitar validacion a `CONSULTANT`.
+
+En la variante Andahuaylas, `CONSULTANT` se usa para usuarios de solo lectura en
+la pantalla `Resultados`: buscar y visualizar resultados, sin mutaciones.
 
 ## Mapeo SIMCORE → MUFFIN
 

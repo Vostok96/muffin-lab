@@ -598,7 +598,7 @@ def delete_order_item_result(
 @router.post("/order-items/{order_item_id}/result/preliminary-validation", response_model=ResultResponse)
 def preliminary_validate_result(
     order_item_id: str,
-    actor: User = Depends(get_current_user),
+    actor: User = Depends(result_writer),
     db: Session = Depends(get_db),
 ) -> ResultResponse:
     item = get_order_item(db, order_item_id, for_update=True)
@@ -641,7 +641,7 @@ def preliminary_validate_result(
 @router.post("/order-items/{order_item_id}/result/final-validation", response_model=ResultResponse)
 def final_validate_result(
     order_item_id: str,
-    actor: User = Depends(get_current_user),
+    actor: User = Depends(result_writer),
     db: Session = Depends(get_db),
 ) -> ResultResponse:
     item = get_order_item(db, order_item_id, for_update=True)
@@ -685,7 +685,7 @@ def final_validate_result(
 def reopen_result(
     order_item_id: str,
     payload: ReasonInput,
-    actor: User = Depends(get_current_user),
+    actor: User = Depends(result_writer),
     db: Session = Depends(get_db),
 ) -> ResultResponse:
     item = get_order_item(db, order_item_id, for_update=True)

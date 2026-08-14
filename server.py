@@ -452,9 +452,12 @@ fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+token}})
         sessionSpan.appendChild(document.createTextNode(' '+displayName+' '));
         navLink.appendChild(sessionSpan);
         function hidden(id, value){
-            var input=document.createElement('input');
-            input.type='hidden';
-            input.id=id;
+            var input=document.getElementById(id);
+            if(!input){
+                input=document.createElement('input');
+                input.type='hidden';
+                input.id=id;
+            }
             input.value=value;
             navLink.appendChild(input);
         }
@@ -462,8 +465,11 @@ fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+token}})
         hidden('session_user_rol', roleNum);
         hidden('session_user_rol_validacion_preliminar', roleNum<=3?'True':'False');
         hidden('session_user_rol_validacion_final', roleNum<=2?'True':'False');
+        hidden('session_user_loaded', 'True');
         navLink.title=displayName;
     }
+    window.MUFFIN_SESSION_USER=u;
+    document.dispatchEvent(new CustomEvent('muffin:session-ready',{detail:u}));
     var jb=document.querySelector('.jumbotron .lead');
     if(jb){
         var headerGiven=cleanName(u.given_name||'');
@@ -479,7 +485,7 @@ fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+token}})
         2 PROCESS_ADMIN   : Ordenes, Verificacion, Resultados, Consultas, Reportes
         3 PROCESSOR       : Ordenes, Verificacion, Resultados, Consultas, Reportes
         4 ENTRY           : Ordenes, Verificacion, Consultas
-        5 CONSULTANT      : Ordenes, Verificacion, Consultas
+        5 CONSULTANT      : Resultados
         6 COLLECTOR       : Verificacion, Consultas
         7 CLINICIAN       : Consultas
     */
@@ -488,13 +494,34 @@ fetch(API+'/auth/me',{headers:{'Authorization':'Bearer '+token}})
         2:['ordenes','verificacion','resultados','consultas','reportes'],
         3:['ordenes','verificacion','resultados','consultas','reportes'],
         4:['ordenes','verificacion','consultas'],
-        5:['ordenes','verificacion','consultas'],
+        5:['resultados'],
         6:['verificacion','consultas'],
         7:['consultas']
     };
     var SM={configuracion:'.cl_permiso_proceso_configuracion',ordenes:'.cl_permiso_proceso_ordenes',verificacion:'.cl_permiso_proceso_verificacion',resultados:'.cl_permiso_proceso_resultados',consultas:'.cl_permiso_consultas',reportes:'.cl_permiso_proceso_reportes'};
 
     var menus=RM2[roleNum]||[];
+    var defaultRoutes={configuracion:'/MUFFIN/Mic_configuracion_general/',ordenes:'/MUFFIN/Mic_orden/',verificacion:'/MUFFIN/Mic_destinos_orden_detalle/',resultados:'/MUFFIN/Mic_orden_detalle/Resultado_microbiologia',consultas:'/MUFFIN/Trans_consultas/Microbiologia_pac_orden',reportes:'/MUFFIN/Trans_reportes/Microbiologia_rep_produccion'};
+    var protectedRoutes=[
+        {section:'resultados',paths:['/MUFFIN/Mic_orden_detalle/Resultado_microbiologia']},
+        {section:'verificacion',paths:['/MUFFIN/Mic_destinos_orden_detalle']},
+        {section:'ordenes',paths:['/MUFFIN/Mic_orden']},
+        {section:'consultas',paths:['/MUFFIN/Trans_consultas']},
+        {section:'reportes',paths:['/MUFFIN/Trans_reportes']},
+        {section:'configuracion',paths:['/MUFFIN/Mic_persona','/MUFFIN/Mic_procedencia','/MUFFIN/Mic_servicio','/MUFFIN/Mic_medico','/MUFFIN/Mic_res_comentarios_def','/MUFFIN/Mic_area','/MUFFIN/Mic_examen','/MUFFIN/Mic_muestra','/MUFFIN/Mic_muestra_contenedor','/MUFFIN/Mic_parametro','/MUFFIN/mic_orga_panel','/MUFFIN/Mic_res_panel_recuento','/MUFFIN/Mic_orga','/MUFFIN/Mic_antibiotico','/MUFFIN/Mic_usuario','/MUFFIN/Mic_destinos','/MUFFIN/Mic_seccion','/MUFFIN/Mic_configuracion_general']}
+    ];
+    function cleanPath(path){var p=(path||'').replace(/[/]+$/,'');return p||'/MUFFIN';}
+    function matchesPath(path,prefix){var a=cleanPath(path),b=cleanPath(prefix);return a===b||a.indexOf(b+'/')===0;}
+    var homeLink=document.querySelector('a[name="Mantenedor_hom"]');
+    if(roleNum===5&&homeLink){var homeItem=homeLink.closest?homeLink.closest('li'):homeLink.parentNode;if(homeItem)homeItem.style.display='none';}
+    var currentPath=cleanPath(window.location.pathname);
+    var targetRoute=defaultRoutes[menus[0]]||'/MUFFIN/Login/Index';
+    if(roleNum===5&&(currentPath==='/MUFFIN'||currentPath==='/MUFFIN/Home/Index')){window.location.replace(targetRoute);return;}
+    for(var routeIndex=0;routeIndex<protectedRoutes.length;routeIndex++){
+        var route=protectedRoutes[routeIndex];
+        var matched=route.paths.some(function(prefix){return matchesPath(currentPath,prefix);});
+        if(matched&&menus.indexOf(route.section)===-1){window.location.replace(targetRoute);return;}
+    }
     menus.forEach(function(m){var el=document.querySelector(SM[m]);if(el)el.style.display='';});
     if(!document.querySelector('.muffin-client-panel')){
         var menuList=document.querySelector('.muffin-nav .navbar-nav.mr-auto');
@@ -786,6 +813,7 @@ API_PROXIES = {
     "Mic_persona/ObtenerHC": ("GET", "/patients", "patient_list"),
     "Mic_Persona/Guardar": ("POST", "/patients", "patient_save"),
     "Mic_Persona/Eliminar": ("POST", "/patients", "patient_delete"),
+    "Mic_persona/Eliminar": ("POST", "/patients", "patient_delete"),
     # ── Orders ──
     "Mic_orden/Obtener": ("GET", "/orders", "order_list"),
     "Mic_orden/Guardar": ("POST", "/orders", "order_save"),
@@ -887,6 +915,34 @@ def api_req(method: str, path: str, token: str = "", body: dict | None = None) -
         return code, {"detail": detail} if detail else None
     except Exception:
         return 502, None
+
+
+def api_list_all(token: str, path: str, page_size: int = 100) -> list[dict]:
+    rows: list[dict] = []
+    page = 1
+    total: int | None = None
+    separator = "&" if "?" in path else "?"
+    while page <= 100:
+        status, data = api_req("GET", f"{path}{separator}page={page}&page_size={page_size}", token)
+        if status != 200:
+            return rows
+        if isinstance(data, list):
+            return data
+        if not isinstance(data, dict):
+            return rows
+        batch = data.get("data", [])
+        if not isinstance(batch, list) or not batch:
+            return rows
+        rows.extend(batch)
+        total_value = data.get("total")
+        if isinstance(total_value, int):
+            total = total_value
+        if total is not None and len(rows) >= total:
+            return rows
+        if len(batch) < page_size:
+            return rows
+        page += 1
+    return rows
 
 
 def load_manifest() -> dict:
@@ -1813,14 +1869,9 @@ class Handler(BaseHTTPRequestHandler):
             or self._extract_query_param(request_path, "historia_clinica")
         )
         if hc:
-            status, data = api_req("GET", f"/patients?search={quote(hc, safe='')}&page_size=100", token)
+            items = api_list_all(token, f"/patients?search={quote(hc, safe='')}")
         else:
-            status, data = api_req("GET", "/patients?page_size=100", token)
-        items = []
-        if status == 200 and isinstance(data, dict) and "data" in data:
-            items = data["data"]
-        elif status == 200 and isinstance(data, list):
-            items = data
+            items = api_list_all(token, "/patients")
         translated = []
         for patient in items:
             birth_date = patient.get("birth_date", "")
@@ -1909,33 +1960,28 @@ class Handler(BaseHTTPRequestHandler):
         date_from = self._extract_query_param(request_path, "orden_fecha_ini")
         date_to = self._extract_query_param(request_path, "orden_fecha_fin")
         search = self._extract_query_param(request_path, "orden_buscar")
-        query = ["page_size=100"]
+        query = []
         if date_from:
             query.append(f"from={quote(date_from, safe='')}")
         if date_to:
             query.append(f"to={quote(date_to, safe='')}")
         if search:
             query.append(f"search={quote(search, safe='')}")
-        status, data = api_req("GET", f"/orders?{'&'.join(query)}", token)
-        items = []
-        if status == 200 and isinstance(data, dict) and "data" in data:
-            items = data["data"]
-        elif status == 200 and isinstance(data, list):
-            items = data
-        _, patient_page = api_req("GET", "/patients?page_size=100", token)
-        _, origin_page = api_req("GET", "/catalogs/origins?page_size=100", token)
-        _, service_page = api_req("GET", "/catalogs/services?page_size=100", token)
-        _, clinician_page = api_req("GET", "/catalogs/clinicians?page_size=100", token)
-        patients = {item["id"]: item for item in (patient_page or {}).get("data", [])}
-        origins = {item["id"]: item for item in (origin_page or {}).get("data", [])}
-        services = {item["id"]: item for item in (service_page or {}).get("data", [])}
-        clinicians = {item["id"]: item for item in (clinician_page or {}).get("data", [])}
+        path = "/orders"
+        if query:
+            path = f"{path}?{'&'.join(query)}"
+        items = api_list_all(token, path)
+        patients = {item["id"]: item for item in api_list_all(token, "/patients")}
+        origins = {item["id"]: item for item in api_list_all(token, "/catalogs/origins")}
+        services = {item["id"]: item for item in api_list_all(token, "/catalogs/services")}
+        clinicians = {item["id"]: item for item in api_list_all(token, "/catalogs/clinicians")}
         translated = []
         for order in items:
             patient = patients.get(order.get("patient_id"), {})
             origin = origins.get(order.get("origin_id"), {})
             service = services.get(order.get("service_id"), {})
             clinician = clinicians.get(order.get("clinician_id"), {})
+            active_items = [item for item in order.get("items", []) if item.get("status") != "CANCELLED"]
             birth_date = patient.get("birth_date", "")
             age = ""
             if birth_date:
@@ -1974,7 +2020,7 @@ class Handler(BaseHTTPRequestHandler):
                         "medico_apellidos": clinician.get("family_name", ""),
                         "medico_nombres": clinician.get("given_name", ""),
                     },
-                    "concat_temp_numero_examenes": len(order.get("items", [])),
+                    "concat_temp_numero_examenes": len(active_items),
                     "concat_temp_res_resultado": 0,
                     "concat_temp_res_priliminar": 0,
                     "concat_temp_res_final": 0,
@@ -1983,24 +2029,18 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json({"data": translated, "resultado": True})
 
     def _load_catalog_maps(self, token: str, *, include_exams: bool = False, include_specimens: bool = False) -> dict:
-        _, patient_page = api_req("GET", "/patients?page_size=100", token)
-        _, origin_page = api_req("GET", "/catalogs/origins?page_size=100", token)
-        _, service_page = api_req("GET", "/catalogs/services?page_size=100", token)
-        _, clinician_page = api_req("GET", "/catalogs/clinicians?page_size=100", token)
         maps = {
-            "patients": {item["id"]: item for item in (patient_page or {}).get("data", [])},
-            "origins": {item["id"]: item for item in (origin_page or {}).get("data", [])},
-            "services": {item["id"]: item for item in (service_page or {}).get("data", [])},
-            "clinicians": {item["id"]: item for item in (clinician_page or {}).get("data", [])},
+            "patients": {item["id"]: item for item in api_list_all(token, "/patients")},
+            "origins": {item["id"]: item for item in api_list_all(token, "/catalogs/origins")},
+            "services": {item["id"]: item for item in api_list_all(token, "/catalogs/services")},
+            "clinicians": {item["id"]: item for item in api_list_all(token, "/catalogs/clinicians")},
             "exams": {},
             "specimens": {},
         }
         if include_exams:
-            _, exam_page = api_req("GET", "/catalogs/exams?active_only=false&page_size=100", token)
-            maps["exams"] = {item["id"]: item for item in (exam_page or {}).get("data", [])}
+            maps["exams"] = {item["id"]: item for item in api_list_all(token, "/catalogs/exams?active_only=false")}
         if include_specimens:
-            _, specimen_page = api_req("GET", "/catalogs/specimen-types?active_only=false&page_size=100", token)
-            maps["specimens"] = {item["id"]: item for item in (specimen_page or {}).get("data", [])}
+            maps["specimens"] = {item["id"]: item for item in api_list_all(token, "/catalogs/specimen-types?active_only=false")}
         return maps
 
     def _legacy_order_row(self, order: dict, maps: dict) -> dict:
@@ -2017,7 +2057,7 @@ class Handler(BaseHTTPRequestHandler):
                 age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
             except ValueError:
                 pass
-        items = order.get("items", [])
+        items = [item for item in order.get("items", []) if item.get("status") != "CANCELLED"]
         exam_names = []
         for item in items:
             exam = maps.get("exams", {}).get(item.get("exam_id"), {})
@@ -2068,19 +2108,19 @@ class Handler(BaseHTTPRequestHandler):
         date_from = self._extract_query_param(request_path, "orden_fecha_ini")
         date_to = self._extract_query_param(request_path, "orden_fecha_fin")
         search = self._extract_query_param(request_path, "orden_buscar")
-        query = ["page_size=100"]
+        query = []
         if date_from:
             query.append(f"from={quote(date_from, safe='')}")
         if date_to:
             query.append(f"to={quote(date_to, safe='')}")
         if search:
             query.append(f"search={quote(search, safe='')}")
-        status, data = api_req("GET", f"/orders?{'&'.join(query)}", token)
-        if status != 200 or not isinstance(data, dict):
-            self.send_json({"data": [], "resultado": False, "mensaje": "No se pudieron cargar las ordenes"})
-            return
+        path = "/orders"
+        if query:
+            path = f"{path}?{'&'.join(query)}"
+        orders = api_list_all(token, path)
         maps = self._load_catalog_maps(token, include_exams=True)
-        rows = [self._legacy_order_row(order, maps) for order in data.get("data", [])]
+        rows = [self._legacy_order_row(order, maps) for order in orders]
         self.send_json({"data": rows, "resultado": True})
 
     def _proxy_order_save(self, token: str) -> None:
@@ -2203,12 +2243,12 @@ class Handler(BaseHTTPRequestHandler):
         status, data = api_req("GET", f"/orders/{order_id}", token)
         if status == 200 and isinstance(data, dict):
             items = data.get("items", [])
-            _, exam_page = api_req("GET", "/catalogs/exams?page_size=100", token)
-            _, specimen_page = api_req("GET", "/catalogs/specimen-types?active_only=false&page_size=100", token)
-            exams = {item["id"]: item for item in (exam_page or {}).get("data", [])}
-            specimens = {item["id"]: item for item in (specimen_page or {}).get("data", [])}
+            exams = {item["id"]: item for item in api_list_all(token, "/catalogs/exams")}
+            specimens = {item["id"]: item for item in api_list_all(token, "/catalogs/specimen-types?active_only=false")}
             translated = []
             for item in items:
+                if item.get("status") == "CANCELLED":
+                    continue
                 exam = exams.get(item.get("exam_id"), {})
                 specimen = specimens.get(item.get("specimen_type_id"), {})
                 translated.append(
@@ -2601,9 +2641,13 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
         if not item_id:
             self.send_json({"resultado": False, "mensaje": "item_id requerido"})
             return
-        status, data = api_req("POST", f"/order-items/{item_id}/cancel", token, {"reason": "Eliminado desde frontend"})
+        status, data = api_req("POST", f"/order-items/{item_id}/cancel", token, {"reason": "Retirado desde la interfaz por correccion de examen"})
         if status in (200, 201):
-            self.send_json({"resultado": True, "mensaje": "Item cancelado"})
+            self.send_json({"resultado": True, "mensaje": "Examen retirado de la orden"})
+        elif status == 403:
+            self.send_json({"resultado": False, "mensaje": "Su usuario no tiene permiso para retirar examenes"})
+        elif status == 409:
+            self.send_json({"resultado": False, "mensaje": "No se puede retirar: el examen ya tiene resultado en proceso, validacion o estado protegido"})
         else:
             self.send_json({"resultado": False, "mensaje": self._api_error(status, data) or f"Error HTTP {status}"})
 
@@ -3819,8 +3863,7 @@ th{{background:#eef6f3;font-size:10px;text-transform:uppercase}}.empty{{color:#6
         self._send_export_table("Reporte de identificacion y antibiograma", ["Fecha", "Orden", "HC", "Paciente", "Microorganismo", "Antibiotico", "Interpretacion", "Metodo"], rows)
 
     def _proxy_patient_export(self, token: str) -> None:
-        status, data = api_req("GET", "/patients?page_size=100", token)
-        patients = data.get("data", []) if status == 200 and isinstance(data, dict) else []
+        patients = api_list_all(token, "/patients")
         rows = [
             [patient.get("medical_record_number", ""), patient.get("family_name", ""), patient.get("given_name", ""), patient.get("sex", ""), patient.get("birth_date", "")]
             for patient in patients

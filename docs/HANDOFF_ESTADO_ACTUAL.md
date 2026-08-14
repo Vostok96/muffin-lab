@@ -1,22 +1,95 @@
 # Traspaso del estado actual de MUFFIN
 
-Fecha: 2026-07-17
+Fecha: 2026-08-13
 
 Este documento es la fuente autoritativa para continuar el trabajo. Los
 documentos `AGENT_CONTEXT.md`, `AVANCE_MUFFIN.md` y `README.md` contienen partes
 historicas que ya no describen por completo el sistema actual.
 
+## Actualizacion operativa - Andahuaylas NAS
+
+Estado al cierre del 2026-08-13, zona `America/Lima`.
+
+- Directorio activo: `/home/workstation/Documentos/MUFFIN`.
+- Repositorio Git activo: rama `cliente-andahuaylas`, remoto
+  `https://github.com/Vostok96/muffin-lab.git`.
+- Produccion Andahuaylas desplegada en NAS:
+  `/volume1/docker/muffin-andahuaylas/source`.
+- URL publica: `https://andahuaylas.microbiolog-ia.com/MUFFIN/Login/Index`.
+- API publica: `https://andahuaylas.microbiolog-ia.com/api/v1/health`.
+- Contenedores productivos: `muffin-postgres`, `muffin-api`,
+  `muffin-frontend`.
+- Ultima verificacion publica: Login HTTP 200 y health
+  `{"status":"ok","service":"muffin-api"}`.
+
+### Cambios productivos recientes
+
+- Usuario `wsalazar` creado para Wilder Salazar como `CONSULTANT`.
+  No documentar contrasenas. Verificado en produccion:
+  rol `CONSULTANT`, cero permisos de area, intento de validacion final con item
+  falso devuelve HTTP 403 antes de tocar datos reales.
+- El rol `CONSULTANT` en la interfaz Andahuaylas queda como solo lectura en
+  `Resultados`: puede buscar y visualizar, pero no guardar, validar, finalizar,
+  borrar resultado, editar identificacion ni antibiograma.
+- El frontend ya no duplica inputs de sesion capturados con valores por defecto
+  de admin. `server.py` actualiza los inputs existentes y dispara
+  `muffin:session-ready` cuando `/auth/me` confirma el rol real.
+- Backend reforzado: validacion preliminar, validacion final y reapertura de
+  resultados exigen rol `ADMIN`, `PROCESS_ADMIN` o `PROCESSOR`; los permisos de
+  area por si solos no habilitan a `CONSULTANT`.
+- En `Ordenes`, las biologas pueden eliminar pacientes desde la UI con boton
+  funcional para roles autorizados. El backend bloquea pacientes con resultados
+  finales validados.
+- Los examenes registrados por error se retiran desde la UI como cancelacion
+  trazable, no como borrado fisico. Los items cancelados desaparecen de listas
+  operativas y conteos; estados con resultado en proceso/validado quedan
+  protegidos.
+- Los registros que se veian como `, ` no correspondian a pacientes corruptos:
+  produccion tenia 212 pacientes y el proxy solo cargaba los primeros 100. Se
+  corrigio la carga paginada con `api_list_all` para pacientes, ordenes,
+  catalogos usados por mapas y exportacion de pacientes.
+- Se agrego validacion para impedir nuevos pacientes con apellidos/nombres solo
+  de puntuacion o comas.
+
+### Verificaciones recientes
+
+- Local: `node --check` en
+  `mirror/MUFFIN/Scripts/Views/Mic_orden_detalle_resultado_microbiologia.js`.
+- Local: `python3 -m py_compile server.py backend/app/routers/results.py
+  backend/app/schemas.py`.
+- Local: `/home/workstation/miniconda3/envs/micro_ia/bin/python -m pytest
+  backend/tests/test_clinical_schemas.py` -> `5 passed`.
+- Local: `git diff --check` sin errores.
+- NAS: `python3 -m py_compile server.py backend/app/routers/results.py
+  backend/app/schemas.py` antes de reconstruir.
+- NAS: `docker compose up -d --build api frontend` termino con API healthy y
+  frontend started/healthy.
+- NAS: la pagina de resultados sirve
+  `Mic_orden_detalle_resultado_microbiologia.js?v=20260813-readonly` y el JS
+  contiene `puedeEditarResultados`.
+
+### Pendiente para proxima sesion
+
+- Revisar con calma los otros detalles reportados por el usuario, sin tocar ni
+  resetear la base productiva.
+- Si se corre la suite completa local, preparar primero el entorno: en la sesion
+  anterior fallo por dependencia local faltante `pydantic_settings`, no por las
+  pruebas puntuales modificadas.
+- Antes de cualquier cambio destructivo en produccion, hacer backup logico y
+  confirmar expresamente con el usuario.
+
 ## Advertencias antes de trabajar
 
 - Directorio activo: `/home/workstation/Documentos/MUFFIN`.
-- Este directorio no es actualmente un repositorio Git.
+- Este directorio si es un repositorio Git; usar rama `cliente-andahuaylas`.
 - La base local ya contiene al menos una orden ingresada manualmente. No usar
   `docker compose down -v`, no borrar el volumen y no reconstruir la base desde
   cero sin autorizacion expresa del usuario.
 - No documentar ni versionar identificadores de pacientes, historias clinicas,
   resultados o respaldos de la base.
 - `.env.local` contiene configuracion local y no debe publicarse.
-- El NAS no ha sido desplegado y continua fuera de esta etapa.
+- El NAS de Andahuaylas ya esta desplegado. No reconstruir ni migrar produccion
+  sin revisar el alcance y proteger la base.
 - El respaldo previo a la migracion 0008 esta en
   `/tmp/muffin_before_0008.sql`. Es temporal y no debe versionarse.
 

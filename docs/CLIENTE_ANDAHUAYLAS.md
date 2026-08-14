@@ -43,6 +43,7 @@ No documentar contraseñas. Las credenciales se entregan por canal operativo y d
 - `admin-hsr`: administrador.
 - `kpena`: Katherine Mariely Peña Vega, CBP 16728, valida y firma.
 - `rcalderon`: Ruth N. Calderon De La Cruz, CBP 17484, valida y firma.
+- `wsalazar`: Wilder Salazar, solo lectura de resultados (`CONSULTANT`).
 
 Regla de firma: el PDF muestra solo la firma del usuario que realizó la validación final. Nunca deben aparecer dos firmas juntas en un resultado.
 
@@ -150,6 +151,26 @@ NAS:
 - Contenedores: `muffin-postgres`, `muffin-api`, `muffin-frontend`.
 - Frontend expuesto por Cloudflare Tunnel hacia puerto NAS configurado.
 - Servicios Docker con `restart: unless-stopped`.
+- Ultima reconstruccion verificada: 2026-08-13.
+- Estado verificado: `muffin-api` healthy, `muffin-frontend` healthy,
+  `muffin-postgres` healthy.
+- Health publico verificado:
+  `https://andahuaylas.microbiolog-ia.com/api/v1/health`.
+
+Notas productivas recientes:
+
+- `wsalazar` fue verificado con rol `CONSULTANT`, sin permisos de area. Un
+  intento de validacion final con item falso devolvio HTTP 403, por bloqueo de
+  rol antes de acceder a un resultado real.
+- El rol `CONSULTANT` solo debe visualizar/buscar resultados. No debe guardar,
+  validar, finalizar, borrar resultado ni editar identificacion/antibiograma.
+- La UI de ordenes permite eliminar pacientes para roles autorizados; el backend
+  bloquea pacientes con resultados finales validados.
+- La UI de ordenes permite retirar examenes registrados por error mediante
+  cancelacion trazable. No usar borrado fisico para ese flujo.
+- Si aparecen nombres como `, ` en listados, primero revisar carga/paginacion del
+  proxy. El incidente del 2026-08-13 fue por limite de 100 pacientes con una base
+  productiva de 212 pacientes, no por filas corruptas.
 
 Comandos útiles:
 

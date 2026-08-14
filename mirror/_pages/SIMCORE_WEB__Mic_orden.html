@@ -265,6 +265,7 @@
 			<div class="modal-body">
 				<form id="form">
 					<input id="txtOrdenId" value="" type="hidden" />
+					<input id="txtPersonaId" value="" type="hidden" />
 					<div class="row">
 						<div class="col-sm-12">
 							<div class="card border-info">
@@ -403,6 +404,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
+				<button id="btnEliminarPaciente" type="button" class="cl_ocultar_nuevo btn btn-sm btn-outline-danger mr-auto" onclick="_EliminarPacienteOrden()"><i class="fa fa-trash"></i> Eliminar paciente</button>
 				<button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">Cerrar</button>
 				<button id="btnGuardarCambios" type="button" class="btn btn-sm btn-primary" onclick="Guardar(true)">Guardar</button>
 				<button id="btnGuardarCambios_sig" type="button" class="cl_ocultar_nuevo btn btn-sm btn-primary" onclick="Guardar_Siguiente()">Guardar >></button>
@@ -437,7 +439,7 @@
 									<th>Cod</th>
 									<th>Examen</th>
 									<th>Muestra</th>
-									<th>Eliminar</th>
+									<th>Retirar</th>
 									<th></th>
 								</tr>
 							</thead>
@@ -591,6 +593,7 @@
 		$.MisUrls.urls({ _ExportarPersona: '/MUFFIN/Mic_Persona/Exportar' });
 		$.MisUrls.urls({ _ObtenerHC: '/MUFFIN/Mic_persona/ObtenerHC' });
 		$.MisUrls.urls({ _GuardarPersona: '/MUFFIN/Mic_Persona/Guardar' });
+		$.MisUrls.urls({ _EliminarPersona: '/MUFFIN/Mic_Persona/Eliminar' });
 
 		//ORDEN
 		$.MisUrls.urls({ _ObtenerMic_orden: '/MUFFIN/Mic_orden/Obtener' });

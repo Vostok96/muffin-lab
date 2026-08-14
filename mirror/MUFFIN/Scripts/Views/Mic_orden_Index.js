@@ -5,6 +5,19 @@ const posicion_frame_data = [];
 var session_user_rol = $("#session_user_rol").val();
 var muestrasExamenActual = [];
 
+function rolActual() {
+    return parseInt($("#session_user_rol").val() || session_user_rol || "0", 10);
+}
+
+function puedeEliminarPaciente() {
+    return [1, 2, 4].indexOf(rolActual()) !== -1;
+}
+
+function actualizarBotonEliminarPaciente() {
+    var patientId = $("#txtPersonaId").val();
+    $("#btnEliminarPaciente").toggle(!!patientId && puedeEliminarPaciente());
+}
+
 $(document).ready(function () {   
 
     var d = new Date();
@@ -367,6 +380,7 @@ function rec_abrirPopUpForm(posicion) {
 function abrirPopUpForm(json) {
     if (json != null) {        
         $("#txtOrdenId").val(json.orden_id);
+        $("#txtPersonaId").val(json.oMic_persona.persona_id || "");
         $('.cl_ocultar_nuevo').show();
         $("#txtHC").val(json.oMic_persona.persona_hc);
         $("#txtApellidos").val(json.oMic_persona.persona_apellidos);
@@ -392,6 +406,7 @@ function abrirPopUpForm(json) {
         $("#txtCodigoBarras").prop("disabled", true);
     } else {
         $("#txtOrdenId").val("");
+        $("#txtPersonaId").val("");
         $('.cl_ocultar_nuevo').hide();
         $("#form").each(function () {
             $("#txtFechaOrden").prop('disabled', false);
@@ -409,6 +424,7 @@ function abrirPopUpForm(json) {
         $("#txtNumeroOrden").prop('disabled', true);
         
     }
+    actualizarBotonEliminarPaciente();
     $('#FormModal').modal('show');
 }
 
@@ -431,12 +447,16 @@ function _ObtenerIDPersona(HC) {
         contentType: "application/json; charset=utf-8",
         success: function (data) {
             if (data.data.length != 0) {
+                $("#txtPersonaId").val(data.data[0].persona_id || "");
                 $("#txtApellidos").val(data.data[0].persona_apellidos);
                 $("#txtNombres").val(data.data[0].persona_nombres);
                 $("#txtFechaNac").val(data.data[0].persona_fecha_nac);
                 $("#cboGenero").val(data.data[0].persona_genero);
                 $("#txtEdad").val(window._calcEdad(data.data[0].persona_fecha_nac));
+                actualizarBotonEliminarPaciente();
             } else {
+                $("#txtPersonaId").val("");
+                actualizarBotonEliminarPaciente();
                 swal("Mensaje", "No existe paciente con HC " + HC+", complete los datos", "warning")
             }
         },
@@ -516,6 +536,7 @@ function Guardar(estadoModal) {
             objeto: {
                 orden_id: $("#txtOrdenId").val(),
                 oMic_persona: {
+                    persona_id: $("#txtPersonaId").val(),
                     persona_hc: $("#txtHC").val(),
                     persona_apellidos: $("#txtApellidos").val(),
                     persona_nombres: $("#txtNombres").val(),
@@ -560,6 +581,48 @@ function Guardar(estadoModal) {
     }
 }
 
+function _EliminarPacienteOrden() {
+    var personaId = $("#txtPersonaId").val();
+    if (!personaId) {
+        swal("Paciente", "Seleccione un paciente existente antes de eliminar.", "warning");
+        return;
+    }
+    swal({
+        title: "Eliminar paciente",
+        text: "Se eliminará el paciente completo y sus órdenes/exámenes que no tengan resultado final validado. Esta acción queda auditada. ¿Desea continuar?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        confirmButtonColor: "#DD6B55",
+        cancelButtonText: "No",
+        closeOnConfirm: false
+    },
+        function () {
+            jQuery.ajax({
+                url: $.MisUrls.url._EliminarPersona + "?persona_id=" + encodeURIComponent(personaId),
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.resultado) {
+                        tabladata.ajax.reload();
+                        $("#FormModal").modal("hide");
+                        swal("Paciente", data.mensaje || "Paciente eliminado correctamente", "success");
+                    } else {
+                        swal("No se pudo eliminar", data.mensaje || "El paciente tiene registros protegidos", "warning");
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    swal("No se pudo eliminar", "No fue posible comunicarse con el servidor", "error");
+                },
+                beforeSend: function () {
+
+                },
+            });
+        });
+}
+
 function Guardar_Siguiente() {
     Guardar(false);
     if (posicion_frame < posicion_frame_data.length - 1) {
@@ -588,8 +651,8 @@ function _Obtener_Mic_orden_detalle_examen(orden_id) {
                     html += '<td>' + item.oMic_muestra.muestra_desc + (item.orden_det_muestra_comentarios == "" ? "" : " / "+item.orden_det_muestra_comentarios) +'</td>';
 
                     html += "<td>";
-                    if (session_user_rol != 6) {
-                        html += '<button class="btn btn-danger btn-sm ml-2" type="button" onclick=\'_EliminarMic_orden_detalle(' + JSON.stringify(item.orden_det_id) + ')\'><i class="fa fa-trash"></i></button>';
+                    if (rolActual() != 6) {
+                        html += '<button class="btn btn-danger btn-sm ml-2" type="button" title="Retirar examen de la orden" onclick=\'_EliminarMic_orden_detalle(' + JSON.stringify(item.orden_det_id) + ')\'><i class="fa fa-trash"></i></button>';
                     }
                     html += "</td>";
 
@@ -660,12 +723,12 @@ function _RegistrarExaMuestraMic_orden_detalle() {
 
 function _EliminarMic_orden_detalle($orden_det_id) {
     swal({
-        title: "Mensaje",
-        text: "¿Desea eliminar el registro seleccionado?",
+        title: "Retirar examen",
+        text: "Se retirará este examen de la orden. No se podrá retirar si ya tiene resultado en proceso, validación o estado protegido. ¿Desea continuar?",
         type: "warning",
         showCancelButton: true,
 
-        confirmButtonText: "Sí",
+        confirmButtonText: "Sí, retirar",
         confirmButtonColor: "#DD6B55",
 
         cancelButtonText: "No",
@@ -682,12 +745,15 @@ function _EliminarMic_orden_detalle($orden_det_id) {
                 success: function (data) {
                     if (data.resultado) {
                         _Obtener_Mic_orden_detalle_examen($("#txtOrdenExamen_orden_id").val());
+                        tabladata.ajax.reload(null, false);
+                        swal("Examen", data.mensaje || "Examen retirado de la orden", "success");
                     } else {
-                        swal("Mensaje", "No se pudo eliminar el usuario", "warning")
+                        swal("No se pudo retirar", data.mensaje || "El examen tiene registros protegidos", "warning")
                     }
                 },
                 error: function (error) {
                     console.log(error)
+                    swal("No se pudo retirar", "No fue posible comunicarse con el servidor", "error")
                 },
                 beforeSend: function () {
 

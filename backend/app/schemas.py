@@ -310,6 +310,14 @@ def ensure_timezone(value: datetime | None) -> datetime | None:
     return value
 
 
+def require_letters(value: str | None) -> str | None:
+    if value is None:
+        return value
+    if not any(character.isalpha() for character in value):
+        raise ValueError("must contain letters")
+    return value
+
+
 class PatientCreate(InputModel):
     medical_record_number: str = Field(min_length=1, max_length=50, pattern=r"^[A-Za-z0-9._/-]+$")
     document_number: str | None = Field(default=None, min_length=1, max_length=30, pattern=r"^[A-Za-z0-9._-]+$")
@@ -317,6 +325,8 @@ class PatientCreate(InputModel):
     given_name: str = Field(min_length=1, max_length=120)
     birth_date: date
     sex: Sex
+
+    _patient_names_contain_letters = field_validator("family_name", "given_name")(require_letters)
 
     @field_validator("birth_date")
     @classmethod
@@ -333,6 +343,8 @@ class PatientUpdate(InputModel):
     given_name: str | None = Field(default=None, min_length=1, max_length=120)
     birth_date: date | None = None
     sex: Sex | None = None
+
+    _patient_names_contain_letters = field_validator("family_name", "given_name")(require_letters)
 
     @field_validator("birth_date")
     @classmethod

@@ -17,6 +17,17 @@ def test_patient_birth_date_cannot_be_in_future() -> None:
         )
 
 
+def test_patient_names_must_contain_letters() -> None:
+    with pytest.raises(ValidationError, match="must contain letters"):
+        PatientCreate(
+            medical_record_number="HC-COMMA",
+            family_name=",",
+            given_name=",",
+            birth_date=date(1990, 1, 1),
+            sex="X",
+        )
+
+
 def test_order_datetime_requires_timezone() -> None:
     with pytest.raises(ValidationError, match="timezone offset"):
         OrderCreate(
