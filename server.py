@@ -2211,6 +2211,8 @@ class Handler(BaseHTTPRequestHandler):
             specimens = {item["id"]: item for item in (specimen_page or {}).get("data", [])}
             translated = []
             for item in items:
+                if item.get("status") in {"CANCELLED", "REJECTED"}:
+                    continue
                 exam = exams.get(item.get("exam_id"), {})
                 specimen = specimens.get(item.get("specimen_type_id"), {})
                 translated.append(
@@ -3371,6 +3373,12 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         )
         return result if status == 200 and isinstance(result, dict) else None
 
+    def _result_allows_ast(self, result: dict | None) -> bool:
+        return any(
+            str(parameter.get("code", "")).upper() == "CULTURE_RESULT"
+            for parameter in (result or {}).get("values", [])
+        )
+
     def _proxy_ast_panel_register(self, token: str) -> None:
         body = self._read_body()
         obj = (body or {}).get("objeto", body or {})
@@ -3389,6 +3397,9 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         result = self._ensure_result(token, item_id)
         if not result or not result.get("id"):
             self.send_json({"resultado": False, "mensaje": "No se pudo iniciar el resultado de microbiologia"})
+            return
+        if not self._result_allows_ast(result):
+            self.send_json({"resultado": False, "mensaje": "Este examen no usa identificacion microbiologica ni antibiograma"})
             return
         payload = {"organism_id": organism_id}
         if panel_id:
@@ -3410,6 +3421,9 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         if not result or not result.get("id"):
             self.send_json({"resultado": False, "mensaje": "resultado_id requerido"})
             return
+        if not self._result_allows_ast(result):
+            self.send_json({"resultado": False, "mensaje": "Este examen no usa identificacion microbiologica ni antibiograma"})
+            return
         status, data = api_req("DELETE", f"/results/{result['id']}/isolates/{isolate_id}", token)
         if status in (200, 204):
             self.send_json({"resultado": True, "mensaje": "Aislado eliminado"})
@@ -3421,7 +3435,7 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         barcode = self._extract_query_param(request_path, "codebar")
         context = self._result_context(token, barcode=barcode)
         result = (context or {}).get("result") or {}
-        if not result.get("id"):
+        if not result.get("id") or not self._result_allows_ast(result):
             self.send_json({"data": [], "resultado": True})
             return
         status, isolates = api_req("GET", f"/results/{result['id']}/isolates", token)
@@ -3447,7 +3461,7 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         isolate_id = self._extract_query_param(request_path, "organismo_cod")
         context = self._result_context(token, barcode=barcode)
         result = (context or {}).get("result") or {}
-        if not result.get("id") or not isolate_id:
+        if not result.get("id") or not self._result_allows_ast(result) or not isolate_id:
             self.send_json({"data": [], "resultado": True})
             return
         status, isolate = api_req("GET", f"/results/{result['id']}/isolates/{isolate_id}", token)
@@ -3481,6 +3495,9 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         result = self._ensure_result(token, item_id) if item_id else None
         if not isolate_id or not result or not result.get("id"):
             self.send_json({"resultado": False, "mensaje": "aislado_id y resultado_id requeridos"})
+            return
+        if not self._result_allows_ast(result):
+            self.send_json({"resultado": False, "mensaje": "Este examen no usa identificacion microbiologica ni antibiograma"})
             return
 
         isolate_payload = {

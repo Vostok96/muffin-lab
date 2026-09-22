@@ -12,6 +12,7 @@ var catalogo_antibioticos_busqueda = null;
 var catalogo_antibioticos_ultimo_filtro = "";
 var catalogo_antibioticos_request = null;
 var catalogo_antibioticos_limite_inicial = 25;
+var muffin_resultado_permite_ast = false;
 var filtros_resultado_cultivo = [
     { value: "ALL", text: "TODOS LOS RESULTADOS" },
     { value: "POSITIVO", text: "POSITIVO" },
@@ -25,6 +26,30 @@ function muffinToggleCultureDetails() {
     var result = $("#CULTURE_RESULT");
     var show = result.length && result.val() === "POSITIVO";
     $(".muffin-culture-positive-only").toggle(show);
+}
+
+function muffinResultadoTieneCultivo(parametros) {
+    var tieneResultadoCultivo = false;
+    $.each(parametros || [], function (_i, item) {
+        if (String(item.param_cod || "").toUpperCase() === "CULTURE_RESULT") {
+            tieneResultadoCultivo = true;
+        }
+    });
+    return tieneResultadoCultivo;
+}
+
+function muffinSetAstDisponible(disponible) {
+    muffin_resultado_permite_ast = !!disponible;
+    $("#btnOPAdpanel").toggle(muffin_resultado_permite_ast);
+    if (!muffin_resultado_permite_ast) {
+        $("#FormModalTer,#FormModalSeg").modal("hide");
+        $("#IDEN_PANEL_ID,#IDEN_ORGA_ID,#IDEN_ORGA,#IDEN_RECUENTO,#IDEN_FENO,#IDEN_COMENT").val("");
+        $("#tlbtbody_atb").html("");
+        $('#div_iden_atb').hide();
+        $('#div_modal_modal_dialog_1').removeClass("modal-xl").addClass("modal-lg");
+        $('#div_col_sm_mitad_pri').removeClass("col-sm-6").addClass("col-sm-12");
+        $('#div_iden_atb').removeClass("col-sm-6").addClass("col-sm-0");
+    }
 }
 
 function muffinAstMethod(method) {
@@ -239,6 +264,10 @@ $(document).ready(function () {
     });
 
     $("#btnAddATB").click(function () {
+        if (!muffin_resultado_permite_ast) {
+            swal("No aplica", "Este examen no usa identificación microbiológica ni antibiograma.", "warning");
+            return;
+        }
         if (!$("#IDEN_PANEL_ID").val()) {
             swal("Seleccione un microorganismo", "Primero agregue una identificación para poder asociar antibióticos.", "warning");
             return;
@@ -253,6 +282,10 @@ $(document).ready(function () {
         cboObtenerMic_antibiotico("");
     });
     $("#btnOPAdpanel").click(function () {
+        if (!muffin_resultado_permite_ast) {
+            swal("No aplica", "Este examen no usa identificación microbiológica ni antibiograma.", "warning");
+            return;
+        }
         $("#formTer").each(function () {
             this.reset();
         });
@@ -561,6 +594,7 @@ function abrirPopUpForm(json) {
     $("#IDEN_FENO").val("");
     $("#IDEN_COMENT").val("");
     $("#tlbtbody_atb").html("");
+    muffinSetAstDisponible(false);
 
     if (json != null) {
         $("#txtIdOrdenDet").val(json.orden_det_id);
@@ -580,7 +614,7 @@ function abrirPopUpForm(json) {
             $("#divRecuentoColonias").hide();
         }
 
-        $("#btnOPAdpanel").show();
+        $("#btnOPAdpanel").hide();
         if (json.oMic_examen.examen_analizador_send == 1) {//SE VISUALIZA ENVIO AL INSTRUMENTO
             $("#btnOPEnviarVitek").show();
         } else {
@@ -683,6 +717,10 @@ function param_ObtenerOrdenIdMic_orden_detalle_res(orden_det_id) {
                     html += item.param_html;
                 });
                 $("#divListaParama").html(html);
+                muffinSetAstDisponible(muffinResultadoTieneCultivo(data.data));
+                if (muffin_resultado_permite_ast) {
+                    cboMicroOrganismosCODEBAR($("#txtCodigoBarras").val());
+                }
 
                 //SEGUNDO RECOGIDO COMPLETA DATOS
                 $.each(data.data, function (i, item) {
@@ -714,6 +752,11 @@ function param_ObtenerOrdenIdMic_orden_detalle_res(orden_det_id) {
 }
 
 function cboMicroOrganismosCODEBAR(codebar) {
+    if (!muffin_resultado_permite_ast) {
+        $("#cboMicroOrganismos").html("");
+        $('#div_iden_atb').hide();
+        return;
+    }
     jQuery.ajax({
         url: $.MisUrls.url._ObtenerCodebarMic_res_panel + "?codebar=" + codebar,
         type: "GET",
@@ -747,6 +790,10 @@ function cboMicroOrganismosCODEBAR(codebar) {
 }
 
 function cboMicroOrganismosCODEBARORGACOD(codebar, organismo_cod) {
+    if (!muffin_resultado_permite_ast) {
+        $('#div_iden_atb').hide();
+        return;
+    }
     jQuery.ajax({
         url: $.MisUrls.url._ObtenerCodebarOrgacodMic_res_panel + "?codebar=" + codebar + "&organismo_cod=" + organismo_cod,
         type: "GET",
@@ -1202,6 +1249,10 @@ function cboObtenerMic_antibiotico(filtro) {
 
 
 function _RegistrarPanel() {
+    if (!muffin_resultado_permite_ast) {
+        swal("No aplica", "Este examen no usa identificación microbiológica ni antibiograma.", "warning");
+        return;
+    }
     if ($("#formTer").valid()) {
         if (!$("#cboOrgaLista").val()) {
             swal("Seleccione un microorganismo", "Busque por nombre científico y seleccione una opción válida.", "warning");
@@ -1243,6 +1294,10 @@ function _RegistrarPanel() {
 }
 
 function _GuardarManualPanel() {
+    if (!muffin_resultado_permite_ast) {
+        swal("No aplica", "Este examen no usa identificación microbiológica ni antibiograma.", "warning");
+        return;
+    }
     if ($("#formSeg").valid()) {
         if (!$("#IDEN_PANEL_ID").val()) {
             swal("Seleccione un microorganismo", "Primero agregue una identificación para poder asociar antibióticos.", "warning");
