@@ -141,6 +141,7 @@ class Exam(TimestampedEntity, Base):
     laboratory_area_id: Mapped[str] = mapped_column(String(36), ForeignKey("laboratory_area.id", ondelete="RESTRICT"), nullable=False)
     sends_to_analyzer: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     requires_colony_count: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    external_provider: Mapped[str | None] = mapped_column(String(80))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
 
@@ -294,6 +295,21 @@ class ResultValue(TimestampedEntity, Base):
     value_code: Mapped[str | None] = mapped_column(String(250))
     observed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     result: Mapped[Result] = relationship(back_populates="values")
+
+
+class ResultAttachment(TimestampedEntity, Base):
+    __tablename__ = "result_attachment"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    order_item_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("order_item.id", ondelete="RESTRICT"), index=True, nullable=False
+    )
+    filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    stored_name: Mapped[str] = mapped_column(String(80), unique=True, index=True, nullable=False)
+    content_type: Mapped[str | None] = mapped_column(String(120))
+    size_bytes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    note: Mapped[str | None] = mapped_column(String(500))
+    uploaded_by: Mapped[str | None] = mapped_column(String(36), ForeignKey("user.id", ondelete="SET NULL"))
 
 
 class Organism(TimestampedEntity, Base):

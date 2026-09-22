@@ -636,6 +636,8 @@ def report_ast_value(method: object, value: object) -> str:
 
 
 def render_report_signatures(signer: dict | None) -> str:
+    if os.environ.get("MUFFIN_REPORT_STAMP", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return ""
     if not signer:
         return ""
     signature_file = signer["file"]

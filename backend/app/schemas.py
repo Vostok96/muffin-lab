@@ -128,6 +128,7 @@ class ExamCreate(InputModel):
     laboratory_area_id: str
     sends_to_analyzer: bool = False
     requires_colony_count: bool = False
+    external_provider: str | None = Field(default=None, max_length=80)
     is_active: bool = True
 
 
@@ -139,6 +140,7 @@ class ExamUpdate(InputModel):
     laboratory_area_id: str | None = None
     sends_to_analyzer: bool | None = None
     requires_colony_count: bool | None = None
+    external_provider: str | None = Field(default=None, max_length=80)
     is_active: bool | None = None
 
 
@@ -244,6 +246,7 @@ class ExamResponse(TimestampedResponse):
     laboratory_area_id: str
     sends_to_analyzer: bool
     requires_colony_count: bool
+    external_provider: str | None
     is_active: bool
 
 
