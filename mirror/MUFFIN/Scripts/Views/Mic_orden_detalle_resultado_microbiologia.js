@@ -61,10 +61,62 @@ function aplicarSesionResultado() {
     }
 }
 
+function muffinMainResultControl() {
+    return $("#divListaParama")
+        .find("[data-parameter-code='CULTURE_RESULT'],[data-parameter-code='URO_CULTURE_RESULT'],[data-parameter-code='COPRO_CULTURE_RESULT'],[data-parameter-code='HEMO_CULTURE_RESULT'],[data-parameter-code='KOH_RESULT']")
+        .filter("select")
+        .first();
+}
+
+function muffinNormalizeMainResult(value) {
+    var key = String(value || "").trim().toUpperCase().replace(/\s+/g, "_");
+    if (key.indexOf("NEGATIVO") === 0) {
+        return "NEGATIVO";
+    }
+    if (key === "POSITIVO" || key.indexOf("SE_OBSERVAN") === 0) {
+        return "POSITIVO";
+    }
+    return key;
+}
+
 function muffinToggleCultureDetails() {
-    var result = $("#CULTURE_RESULT");
-    var show = result.length && result.val() === "POSITIVO";
+    var result = muffinMainResultControl();
+    var code = muffinNormalizeMainResult(result.length ? result.val() : "");
+    var show = code === "POSITIVO";
     $(".muffin-culture-positive-only").toggle(show);
+    $(".muffin-koh-positive-only").toggle(show);
+}
+
+function muffinWriteKohStructures(panel) {
+    var target = $("#" + panel.attr("data-target"));
+    var selected = [];
+    panel.find(".muffin-koh-structure-choice:checked").each(function () {
+        selected.push($(this).val());
+    });
+    target.val(selected.join(", "));
+}
+
+function muffinSyncKohStructureChoices(scope) {
+    (scope || $(document)).find(".muffin-koh-structures").each(function () {
+        var panel = $(this);
+        var target = $("#" + panel.attr("data-target"));
+        var current = String(target.val() || "");
+        panel.find(".muffin-koh-structure-choice").each(function () {
+            var value = $(this).val();
+            $(this).prop("checked", current.toUpperCase().indexOf(value.toUpperCase()) !== -1);
+        });
+    });
+}
+
+function muffinInitResultParameterControls() {
+    muffinMainResultControl().off("change.muffin").on("change.muffin", function () {
+        muffinToggleCultureDetails();
+    });
+    $(".muffin-koh-structure-choice").off("change.muffin").on("change.muffin", function () {
+        muffinWriteKohStructures($(this).closest(".muffin-koh-structures"));
+    });
+    muffinSyncKohStructureChoices($("#divListaParama"));
+    muffinToggleCultureDetails();
 }
 
 function muffinAstMethod(method) {
@@ -632,7 +684,11 @@ function abrirPopUpForm(json) {
             $("#divRecuentoColonias").hide();
         }
 
-        $("#btnOPAdpanel").show();
+        if (String(json.oMic_examen.examen_codigo || "").toUpperCase() === "KOH_DIRECTO") {
+            $("#btnOPAdpanel").hide();
+        } else {
+            $("#btnOPAdpanel").show();
+        }
         if (json.oMic_examen.examen_analizador_send == 1) {//SE VISUALIZA ENVIO AL INSTRUMENTO
             $("#btnOPEnviarVitek").show();
         } else {
@@ -681,10 +737,6 @@ function _ObtenerMic_orden_detalle_examen_muestra(orden_det_id) {
                     $("#txtFechaTomaMuestra").val(item.fecha_muestra_toma);
                     $("#txtFechaRecepcionMuestra").val(item.fecha_muestra_recepcion);
                 });
-                $("#CULTURE_RESULT").off("change.muffin").on("change.muffin", function () {
-                    muffinToggleCultureDetails();
-                });
-                muffinToggleCultureDetails();
                 aplicarPermisosResultado();
             }
         },
@@ -758,6 +810,7 @@ function param_ObtenerOrdenIdMic_orden_detalle_res(orden_det_id) {
                             break;
                     }
                 });
+                muffinInitResultParameterControls();
                 aplicarPermisosResultado();
             }
         },
@@ -916,12 +969,16 @@ function _GuardarMic_orden_detalle_res(tipo, estadoModal) {
     columnas_id = "";
     columnas_val = "";
     $('#divListaParama').find('input, select, button,textarea').each(function () {
+        var controlId = $(this).attr('id');
+        if (!controlId || $(this).attr("data-result-helper") === "true") {
+            return;
+        }
         var valor = $(this).val();
         if (valor === null || typeof valor === "undefined") {
             valor = "";
         }
         columnas_val += valor + "|";
-        columnas_id += ($(this).attr('id')) + "|";
+        columnas_id += controlId + "|";
     });
     var request = {
         objeto: {

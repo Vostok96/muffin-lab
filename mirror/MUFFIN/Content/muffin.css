@@ -516,6 +516,35 @@ body {
     color: var(--muffin-teal-dark);
 }
 
+.muffin-koh-structures {
+    display: grid;
+    gap: 0.45rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+
+.muffin-koh-structure-option {
+    align-items: center;
+    background: rgba(35, 156, 163, 0.06);
+    border: 1px solid rgba(35, 156, 163, 0.2);
+    border-radius: 0.7rem;
+    color: var(--muffin-ink);
+    display: flex;
+    gap: 0.45rem;
+    line-height: 1.25;
+    margin: 0;
+    min-height: 2.4rem;
+    padding: 0.45rem 0.6rem;
+}
+
+.muffin-koh-structure-option input {
+    flex: 0 0 auto;
+}
+
+.muffin-koh-structure-option span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 [data-theme="dark"] body {
     background: var(--muffin-cream);
     color: var(--muffin-ink);

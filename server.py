@@ -608,12 +608,59 @@ def uppercase_report_value(value: object) -> str:
     return str(value or "").strip().upper()
 
 
+MAIN_RESULT_PARAMETER_CODES = {
+    "CULTURE_RESULT",
+    "URO_CULTURE_RESULT",
+    "COPRO_CULTURE_RESULT",
+    "HEMO_CULTURE_RESULT",
+    "KOH_RESULT",
+}
+
+DIRECT_EXAM_CODES = {"KOH_DIRECTO"}
+
+KOH_STRUCTURE_OPTIONS = (
+    "HIFAS HIALINAS SEPTADAS",
+    "PSEUDOHIFAS",
+    "LEVADURAS GEMANTES",
+    "ARTROCONIDIAS / ARTROSPORAS",
+    "CONIDIAS / ESPORAS",
+    "OTROS ELEMENTOS FUNGICOS OBSERVADOS",
+)
+
+
+def normalize_main_result_code(value: object) -> str:
+    key = uppercase_report_value(value).replace(" ", "_")
+    if key.startswith("NEGATIVO"):
+        return "NEGATIVO"
+    if key == "POSITIVO" or key.startswith("SE_OBSERVAN"):
+        return "POSITIVO"
+    if key in {"NO_TRAJO_MUESTRA", "MUESTRA_INADECUADA"}:
+        return key
+    return key
+
+
 def culture_result_code(result: dict) -> str:
+    main_result = result.get("main_result") if isinstance(result, dict) else None
+    if isinstance(main_result, dict):
+        normalized = normalize_main_result_code(main_result.get("code") or main_result.get("raw_code"))
+        if normalized:
+            return normalized
     values = result.get("values", []) if isinstance(result, dict) else []
     for parameter in values:
-        if parameter.get("code") == "CULTURE_RESULT":
-            return uppercase_report_value(parameter.get("value_code") or parameter.get("value_text"))
+        if parameter.get("code") in MAIN_RESULT_PARAMETER_CODES:
+            return normalize_main_result_code(parameter.get("value_code") or parameter.get("value_text"))
     return ""
+
+
+PROCESSED_RESULT_STATUSES = {"IN_PROCESS", "RESULT_SAVED", "PRELIMINARY_VALIDATED", "FINAL_VALIDATED"}
+
+
+def is_processed_result_status(status: object) -> bool:
+    return uppercase_report_value(status) in PROCESSED_RESULT_STATUSES
+
+
+def is_positive_result(result: dict) -> bool:
+    return culture_result_code(result) == "POSITIVO"
 
 
 def report_status_label(status: object, culture_result: object = "") -> str:
@@ -630,7 +677,9 @@ def report_status_label(status: object, culture_result: object = "") -> str:
 
 def report_parameter_method_label(code: object, value: object) -> str:
     code_key = uppercase_report_value(code)
-    if code_key == "CULTURE_RESULT":
+    if code_key == "KOH_RESULT" or code_key == "KOH_STRUCTURES":
+        return "EXAMEN DIRECTO KOH"
+    if code_key in MAIN_RESULT_PARAMETER_CODES:
         return "CULTIVO MANUAL"
     if code_key == "CULTURE_GRAM":
         return "TINCIÓN GRAM"
@@ -867,6 +916,7 @@ API_PROXIES = {
     "Trans_reportes/Microbiologia_rep_hoja_trabajo_export": ("GET", "/result-worklist", "worksheet_report_export"),
     "Trans_reportes/Microbiologia_rep_idt_ast_export": ("GET", "/result-worklist", "idt_ast_report_export"),
     "Trans_reportes/Microbiologia_rep_produccion_export": ("GET", "/result-worklist", "production_report_export"),
+    "Trans_reportes/Microbiologia_rep_estadistica_export": ("GET", "/result-worklist", "statistics_report_export"),
     "Mic_Persona/Exportar": ("GET", "/patients", "patient_export"),
 }
 
@@ -1313,6 +1363,7 @@ class Handler(BaseHTTPRequestHandler):
             "worksheet_report_export": lambda: self._proxy_worksheet_report_export(token, path),
             "idt_ast_report_export": lambda: self._proxy_idt_ast_report_export(token, path),
             "production_report_export": lambda: self._proxy_production_report_export(token, path),
+            "statistics_report_export": lambda: self._proxy_statistics_report_export(token, path),
             "patient_export": lambda: self._proxy_patient_export(token),
         }
 
@@ -1348,9 +1399,16 @@ class Handler(BaseHTTPRequestHandler):
     def _proxy_dashboard_summary(self, token: str) -> None:
         today = datetime.now(LOCAL_TIMEZONE).date()
         week_start = today - timedelta(days=6)
+        month_start = today.replace(day=1)
 
-        def load_worklist(start: date, end: date) -> list[dict]:
-            status, data = api_req("GET", f"/result-worklist?from={start.isoformat()}&to={end.isoformat()}", token)
+        def load_worklist(start: date | None = None, end: date | None = None) -> list[dict]:
+            query = []
+            if start:
+                query.append(f"from={start.isoformat()}")
+            if end:
+                query.append(f"to={end.isoformat()}")
+            suffix = f"?{'&'.join(query)}" if query else ""
+            status, data = api_req("GET", f"/result-worklist{suffix}", token)
             return data if status == 200 and isinstance(data, list) else []
 
         def load_order_count(start: date, end: date) -> int:
@@ -1365,6 +1423,9 @@ class Handler(BaseHTTPRequestHandler):
             item = row.get("item") or {}
             result = row.get("result") or {}
             return str(result.get("status") or item.get("status") or "SIN_RESULTADO")
+
+        def result_payload(row: dict) -> dict:
+            return row.get("result") if isinstance(row.get("result"), dict) else {}
 
         def summarize(rows: list[dict]) -> dict[str, int]:
             final = sum(1 for row in rows if item_status(row) == "FINAL_VALIDATED")
@@ -1381,10 +1442,26 @@ class Handler(BaseHTTPRequestHandler):
                 "finalizados": final,
             }
 
+        def clinical_summary(rows: list[dict]) -> dict[str, int]:
+            processed = sum(1 for row in rows if is_processed_result_status(item_status(row)))
+            positive = sum(1 for row in rows if is_positive_result(result_payload(row)))
+            negative = sum(1 for row in rows if culture_result_code(result_payload(row)) == "NEGATIVO")
+            positivity = round((positive / processed) * 100) if processed else 0
+            return {
+                "procesados": processed,
+                "positivos": positive,
+                "negativos": negative,
+                "porcentaje_positividad": positivity,
+            }
+
         today_rows = load_worklist(today, today)
         week_rows = load_worklist(week_start, today)
+        month_rows = load_worklist(month_start, today)
+        all_rows = load_worklist()
         today_summary = summarize(today_rows)
         week_summary = summarize(week_rows)
+        month_summary = clinical_summary(month_rows)
+        historical_summary = clinical_summary(all_rows)
         today_summary["ordenes"] = load_order_count(today, today)
         week_summary["ordenes"] = load_order_count(week_start, today)
         week_summary["porcentaje_finalizado"] = round((week_summary["finalizados"] / week_summary["total"]) * 100) if week_summary["total"] else 0
@@ -1396,6 +1473,12 @@ class Handler(BaseHTTPRequestHandler):
                 "rango_7_dias": {"desde": week_start.isoformat(), "hasta": today.isoformat()},
                 "hoy": today_summary,
                 "ultimos_7_dias": week_summary,
+                "mes_actual": {
+                    "desde": month_start.isoformat(),
+                    "hasta": today.isoformat(),
+                    **month_summary,
+                },
+                "historico": historical_summary,
                 "actualizado": datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%d %H:%M:%S"),
             }
         )
@@ -2786,9 +2869,9 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
         if status != 200 or not isinstance(data, dict):
             return ""
         for parameter in data.get("values", []):
-            if parameter.get("code") != "CULTURE_RESULT":
+            if parameter.get("code") not in MAIN_RESULT_PARAMETER_CODES:
                 continue
-            value = str(parameter.get("value_code") or "").strip().upper()
+            value = normalize_main_result_code(parameter.get("value_code") or "")
             if value:
                 return value
             text_value = str(parameter.get("value_text") or "").strip().upper().replace(" ", "_")
@@ -2797,7 +2880,7 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
                 "MUESTRA_INADECUADA": "MUESTRA_INADECUADA",
                 "POSITIVO": "POSITIVO",
                 "NEGATIVO": "NEGATIVO",
-            }.get(text_value, text_value)
+            }.get(text_value, normalize_main_result_code(text_value))
         return ""
 
     def _proxy_result_item_sample(self, token: str) -> None:
@@ -2938,6 +3021,8 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
                 value_type = parameter.get("value_type")
                 if parameter_code in SUPPRESSED_RESULT_PARAMETERS:
                     continue
+                parameter_id_attr = html.escape(parameter_id)
+                parameter_code_attr = html.escape(str(parameter_code or ""))
                 if value_type == "SELECT":
                     options = RESULT_PARAMETER_OPTION_OVERRIDES.get(
                         parameter_code,
@@ -2947,16 +3032,40 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
                         f'<option value="{html.escape(code)}">{html.escape(label)}</option>'
                         for code, label in options
                     )
-                    control_html = f'<select id="{parameter_id}" class="form-control form-control-sm"{required}>{options_html}</select>'
+                    control_html = (
+                        f'<select id="{parameter_id_attr}" class="form-control form-control-sm" '
+                        f'data-parameter-code="{parameter_code_attr}"{required}>{options_html}</select>'
+                    )
                     parameter_type = "COMBO_BOX"
                     current_value = parameter.get("value_code") or ""
+                elif parameter_code == "KOH_STRUCTURES":
+                    choices_html = "".join(
+                        "<label class='muffin-koh-structure-option'>"
+                        f"<input type='checkbox' class='muffin-koh-structure-choice' data-result-helper='true' "
+                        f"value='{html.escape(option)}'>"
+                        f"<span>{html.escape(option)}</span></label>"
+                        for option in KOH_STRUCTURE_OPTIONS
+                    )
+                    control_html = (
+                        f'<textarea id="{parameter_id_attr}" class="form-control form-control-sm muffin-koh-structures-value" '
+                        f'data-parameter-code="{parameter_code_attr}" style="display:none"{required}></textarea>'
+                        f'<div class="muffin-koh-structures" data-target="{parameter_id_attr}">{choices_html}</div>'
+                    )
+                    parameter_type = "TEXT_AREA"
+                    current_value = parameter.get("value_text") or ""
                 elif value_type == "LONG_TEXT":
-                    control_html = f'<textarea id="{parameter_id}" class="form-control form-control-sm"{required}></textarea>'
+                    control_html = (
+                        f'<textarea id="{parameter_id_attr}" class="form-control form-control-sm" '
+                        f'data-parameter-code="{parameter_code_attr}"{required}></textarea>'
+                    )
                     parameter_type = "TEXT_AREA"
                     current_value = parameter.get("value_text") or ""
                 else:
                     input_type = "date" if value_type == "DATE" else "text"
-                    control_html = f'<input type="{input_type}" id="{parameter_id}" class="form-control form-control-sm"{required}>'
+                    control_html = (
+                        f'<input type="{input_type}" id="{parameter_id_attr}" class="form-control form-control-sm" '
+                        f'data-parameter-code="{parameter_code_attr}"{required}>'
+                    )
                     parameter_type = "TEXT"
                     current_value = parameter.get("value_text") or ""
                 wrapper_classes = ["form-group"]
@@ -2968,12 +3077,18 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
                 }:
                     wrapper_classes.append("muffin-culture-positive-only")
                     wrapper_style = ' style="display:none"'
+                if parameter_code == "KOH_STRUCTURES":
+                    wrapper_classes.append("muffin-koh-positive-only")
+                    wrapper_style = ' style="display:none"'
                 parameters.append(
                     {
                         "param_cod": parameter_id,
                         "param_tipo": parameter_type,
                         "param_value1": current_value,
-                        "param_html": f'<div class="{" ".join(wrapper_classes)}"{wrapper_style}><label for="{parameter_id}">{parameter_name}</label>{control_html}</div>',
+                        "param_html": (
+                            f'<div class="{" ".join(wrapper_classes)}" data-parameter-code="{parameter_code_attr}"{wrapper_style}>'
+                            f'<label for="{parameter_id_attr}">{parameter_name}</label>{control_html}</div>'
+                        ),
                     }
                 )
             self.send_json({"data": parameters, "resultado": True, "estado": data.get("status", "NOT_STARTED")})
@@ -2996,7 +3111,11 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
             for parameter in data.get("values", []):
                 if parameter.get("code") in SUPPRESSED_RESULT_PARAMETERS:
                     continue
-                value = parameter.get("value_text") if parameter.get("value_text") is not None else parameter.get("value_code")
+                if parameter.get("value_code"):
+                    options = dict(select_options_from_schema(parameter.get("options_schema")))
+                    value = options.get(str(parameter.get("value_code")), parameter.get("value_code"))
+                else:
+                    value = parameter.get("value_text")
                 if value in (None, ""):
                     continue
                 rows.append({"param_desc": uppercase_report_value(parameter.get("name")), "param_value1": uppercase_report_value(value)})
@@ -3276,6 +3395,7 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
         result = report_item["result"]
         exam = translated.get("oMic_examen", {})
         specimen = translated.get("oMic_muestra", {})
+        exam_code = uppercase_report_value(exam.get("examen_codigo"))
 
         def e(value: object) -> str:
             return html.escape(str(value or ""))
@@ -3339,8 +3459,14 @@ th {{ background: var(--soft); color: var(--ink); font-size: 10px; letter-spacin
                 f"{ast_html}"
             )
 
-        isolates_html = "".join(isolate_sections) if isolate_sections else "<div class='empty'>Sin identificación/antibiograma registrado.</div>"
-        item_status = report_status_label(result.get("status") or translated.get("orden_det_estado"), culture_result_code(result))
+        main_result_code = culture_result_code(result)
+        should_render_isolates = bool(isolate_sections) or (main_result_code == "POSITIVO" and exam_code not in DIRECT_EXAM_CODES)
+        isolates_html = (
+            "".join(isolate_sections)
+            if isolate_sections
+            else "<div class='empty'>Sin identificación/antibiograma registrado.</div>"
+        ) if should_render_isolates else ""
+        item_status = report_status_label(result.get("status") or translated.get("orden_det_estado"), main_result_code)
         return f"""
 <h2>{e(uppercase_report_value(exam.get('examen_desc')))}</h2>
 <div class="grid">
@@ -3762,10 +3888,24 @@ th{{background:#eef6f3;font-size:10px;text-transform:uppercase}}.empty{{color:#6
 </html>"""
         self.send_bytes(page.encode("utf-8"), 200, "text/html; charset=utf-8", cache_control="no-store")
 
+    def _matches_report_status_filter(self, raw_filter: str, status_value: object) -> bool:
+        key = uppercase_report_value(raw_filter)
+        if key in {"", "ALL", "0"}:
+            return True
+        status_key = uppercase_report_value(status_value)
+        status_groups = {
+            "GUARDADOS": {"IN_PROCESS", "RESULT_SAVED"},
+            "GUARDADO": {"IN_PROCESS", "RESULT_SAVED"},
+            "PRELIMINAR": {"PRELIMINARY_VALIDATED"},
+            "FINAL": {"FINAL_VALIDATED", "FINAL"},
+        }
+        expected = status_groups.get(key)
+        return status_key in expected if expected else status_key == key
+
     def _proxy_production_report_export(self, token: str, path: str) -> None:
         request_path = self.path if hasattr(self, "path") else path
         exam_ids = self._selected_id_set(self._extract_query_param(request_path, "examen_id"))
-        result_filter = (self._extract_query_param(request_path, "orden_filtro") or "ALL").upper()
+        result_filter = self._extract_query_param(request_path, "orden_filtro") or "ALL"
         rows = []
         for row in self._worklist_rows_for_path(token, request_path):
             item = row.get("item") or {}
@@ -3777,7 +3917,7 @@ th{{background:#eef6f3;font-size:10px;text-transform:uppercase}}.empty{{color:#6
             result = row.get("result") or {}
             if exam_ids and exam.get("id") not in exam_ids:
                 continue
-            if result_filter not in {"ALL", "0"} and str(result.get("status") or item.get("status") or "").upper() != result_filter:
+            if not self._matches_report_status_filter(result_filter, result.get("status") or item.get("status")):
                 continue
             rows.append(
                 [
@@ -3792,6 +3932,84 @@ th{{background:#eef6f3;font-size:10px;text-transform:uppercase}}.empty{{color:#6
                 ]
             )
         self._send_export_table("Reporte de produccion microbiologica", ["Fecha", "Orden", "HC", "Paciente", "Examen", "Procedencia", "Servicio", "Estado"], rows)
+
+    def _proxy_statistics_report_export(self, token: str, path: str) -> None:
+        request_path = self.path if hasattr(self, "path") else path
+        exam_ids = self._selected_id_set(self._extract_query_param(request_path, "examen_id"))
+        result_filter = self._extract_query_param(request_path, "orden_filtro") or "ALL"
+        grouped: dict[tuple[str, str], dict[str, int]] = {}
+        total = {"total": 0, "procesados": 0, "positivos": 0, "negativos": 0, "rechazados": 0, "finalizados": 0}
+
+        def bucket(month: str, exam_name: str) -> dict[str, int]:
+            return grouped.setdefault(
+                (month, exam_name),
+                {"total": 0, "procesados": 0, "positivos": 0, "negativos": 0, "rechazados": 0, "finalizados": 0},
+            )
+
+        for row in self._worklist_rows_for_path(token, request_path):
+            item = row.get("item") or {}
+            order = row.get("order") or {}
+            exam = row.get("exam") or {}
+            result = row.get("result") or {}
+            status_value = result.get("status") or item.get("status")
+            if exam_ids and exam.get("id") not in exam_ids:
+                continue
+            if not self._matches_report_status_filter(result_filter, status_value):
+                continue
+            month = str(order.get("ordered_at", ""))[:7] or "SIN FECHA"
+            exam_name = str(exam.get("name") or "SIN EXAMEN")
+            result_code = culture_result_code(result)
+            row_bucket = bucket(month, exam_name)
+            for target in (row_bucket, total):
+                target["total"] += 1
+                if is_processed_result_status(status_value):
+                    target["procesados"] += 1
+                if result_code == "POSITIVO":
+                    target["positivos"] += 1
+                elif result_code == "NEGATIVO":
+                    target["negativos"] += 1
+                elif result_code in {"NO_TRAJO_MUESTRA", "MUESTRA_INADECUADA"}:
+                    target["rechazados"] += 1
+                if uppercase_report_value(status_value) == "FINAL_VALIDATED":
+                    target["finalizados"] += 1
+
+        rows = []
+        for (month, exam_name), counts in sorted(grouped.items(), key=lambda item: (item[0][0], item[0][1]), reverse=True):
+            processed = counts["procesados"]
+            positivity = round((counts["positivos"] / processed) * 100) if processed else 0
+            rows.append(
+                [
+                    month,
+                    exam_name,
+                    counts["total"],
+                    processed,
+                    counts["positivos"],
+                    counts["negativos"],
+                    counts["rechazados"],
+                    counts["finalizados"],
+                    f"{positivity}%",
+                ]
+            )
+        total_positivity = round((total["positivos"] / total["procesados"]) * 100) if total["procesados"] else 0
+        if rows:
+            rows.append(
+                [
+                    "TOTAL",
+                    "TODOS LOS EXAMENES",
+                    total["total"],
+                    total["procesados"],
+                    total["positivos"],
+                    total["negativos"],
+                    total["rechazados"],
+                    total["finalizados"],
+                    f"{total_positivity}%",
+                ]
+            )
+        self._send_export_table(
+            "Estadistica microbiologica",
+            ["Mes", "Examen", "Total", "Procesados", "Positivos", "Negativos", "No procesables", "Finalizados", "Positividad"],
+            rows,
+        )
 
     def _proxy_worksheet_report_export(self, token: str, path: str) -> None:
         request_path = self.path if hasattr(self, "path") else path

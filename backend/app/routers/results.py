@@ -33,6 +33,42 @@ from app.services import derive_care_setting, parameter_definition_snapshot, rec
 router = APIRouter(tags=["Results"])
 result_writer = require_role("ADMIN", "PROCESS_ADMIN", "PROCESSOR")
 
+MAIN_RESULT_PARAMETER_CODES = {
+    "CULTURE_RESULT",
+    "URO_CULTURE_RESULT",
+    "COPRO_CULTURE_RESULT",
+    "HEMO_CULTURE_RESULT",
+    "KOH_RESULT",
+}
+
+
+def normalize_main_result_code(value: str | None) -> str:
+    code = (value or "").strip().upper().replace(" ", "_")
+    if code.startswith("NEGATIVO"):
+        return "NEGATIVO"
+    if code == "POSITIVO" or code.startswith("SE_OBSERVAN"):
+        return "POSITIVO"
+    if code in {"NO_TRAJO_MUESTRA", "MUESTRA_INADECUADA"}:
+        return code
+    return code
+
+
+def main_result_summary(result: Result | None) -> dict[str, str]:
+    if not result:
+        return {"code": "", "raw_code": "", "text": "", "parameter_code": ""}
+    for value in result.values:
+        parameter_code = str(value.parameter_snapshot.get("code") or "")
+        if parameter_code not in MAIN_RESULT_PARAMETER_CODES:
+            continue
+        raw_code = str(value.value_code or value.value_text or "")
+        return {
+            "code": normalize_main_result_code(raw_code),
+            "raw_code": raw_code.strip().upper(),
+            "text": str(value.value_text or value.value_code or "").strip(),
+            "parameter_code": parameter_code,
+        }
+    return {"code": "", "raw_code": "", "text": "", "parameter_code": ""}
+
 
 @router.get("/result-worklist")
 def list_result_worklist(
@@ -131,6 +167,7 @@ def list_result_worklist(
                     "saved_at": result.saved_at,
                     "preliminary_at": result.preliminary_at,
                     "final_at": result.final_at,
+                    "main_result": main_result_summary(result),
                 }
                 if result
                 else None

@@ -69,6 +69,9 @@
     $("#btnGenerarreporte").click(function () {
         _Microbiologia_rep_produccion_export();
     });
+    $("#btnGenerarestadistica").click(function () {
+        _Microbiologia_rep_estadistica_export();
+    });
     $('#select-all').click(function () {
         $('#examen_id').multiSelect('select_all');
         return false;
@@ -82,7 +85,7 @@
 });
 
 
-function _Microbiologia_rep_produccion_export() {
+function _Microbiologia_rep_query_params() {
     var selectedValues = [];
     var selectedValuesIn = ""
     $("#examen_id :selected").each(function () {
@@ -104,8 +107,17 @@ function _Microbiologia_rep_produccion_export() {
     examen_id = selectedValuesIn;
     orden_filtro = $('#orden_filtro').val();
 
-    var url = $.MisUrls.url._Microbiologia_rep_produccion_export + "?orden_fecha_ini=" + orden_fecha_ini + "&orden_fecha_fin=" + orden_fecha_fin + "&examen_id=" + examen_id + "&orden_filtro=" + orden_filtro;
+    return "?orden_fecha_ini=" + orden_fecha_ini + "&orden_fecha_fin=" + orden_fecha_fin + "&examen_id=" + examen_id + "&orden_filtro=" + orden_filtro;
+}
+
+function _Microbiologia_rep_produccion_export() {
+    var url = $.MisUrls.url._Microbiologia_rep_produccion_export + _Microbiologia_rep_query_params();
     _AbrirVentanaAutorizada(url, "Reporte de produccion", 1000, 700);
+}
+
+function _Microbiologia_rep_estadistica_export() {
+    var url = $.MisUrls.url._Microbiologia_rep_estadistica_export + _Microbiologia_rep_query_params();
+    _AbrirVentanaAutorizada(url, "Estadistica microbiologica", 1000, 700);
 }
 
 function _AbrirVentanaAutorizada(url, titulo, ancho, alto) {

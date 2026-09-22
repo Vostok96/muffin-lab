@@ -232,8 +232,9 @@
                         </div>
 
                         <div class="col-sm-2">
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-sm" style="gap: .35rem; flex-wrap: wrap;">
                                 <button type="button" id="btnGenerarreporte" class="btn btn-sm btn-warning"> <i class="fa fa-file-archive" aria-hidden="true"></i> Generar Reporte</button>
+                                <button type="button" id="btnGenerarestadistica" class="btn btn-sm btn-info text-white"> <i class="fa fa-chart-bar" aria-hidden="true"></i> Estadística</button>
                             </div>
                         </div>
                     </div>
@@ -443,6 +444,7 @@
 
         //CONTROLADOR Trans_pdfController
     $.MisUrls.urls({ _Microbiologia_rep_produccion_export: '/MUFFIN/Trans_reportes/Microbiologia_rep_produccion_export' });
+    $.MisUrls.urls({ _Microbiologia_rep_estadistica_export: '/MUFFIN/Trans_reportes/Microbiologia_rep_estadistica_export' });
     $.MisUrls.urls({ _Microbiologia_rep_idt_ast_export: '/MUFFIN/Trans_reportes/Microbiologia_rep_idt_ast_export' });
         $.MisUrls.urls({ _Microbiologia_rep_hoja_trabajo_export_Trans_reportes: '/MUFFIN/Trans_reportes/Microbiologia_rep_hoja_trabajo_export' });
 
