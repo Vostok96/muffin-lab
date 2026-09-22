@@ -1,5 +1,8 @@
 # Cliente Analizate Huaraz
 
+Estado de trabajo: 2026-09-22. La rama activa es `cliente-analizate` y el
+entorno local aislado se encuentra operativo en los puertos 8879/8013.
+
 Analizate es el segundo despliegue institucional de MUFFIN. A diferencia de
 Andahuaylas, su alcance no es solo microbiologia hospitalaria: funciona como
 laboratorio clinico privado con catalogo amplio, examenes tercerizados y
@@ -84,7 +87,12 @@ incluye:
   perfiles, parasitologia, patologia y examenes generales.
 - Procedencias y servicios propios de laboratorio privado.
 - Muestras habituales: suero, plasma, sangre total, orina, orina 24 horas,
-  heces, semen, secrecion, hisopado, esputo, tejido, liquido biologico y lamina.
+  heces, semen, secrecion, hisopado, esputo, tejido, liquido biologico, lamina
+  y raspado de piel/pestanas.
+- Cada examen conserva exclusivamente las relaciones examen-muestra declaradas
+  por el catalogo de Analizate. El sembrado elimina relaciones antiguas
+  incorrectas para evitar que un examen herede muestras de otro.
+- `ACAROS PIEL Y PESTANAS` usa `RASPADO DE PIEL / PESTANAS`, no plasma.
 - Examenes genericos con parametros `RESULTADO`, `UNIDAD`,
   `VALOR DE REFERENCIA` y `OBSERVACIONES`.
 - Cultivos que reutilizan los parametros microbiologicos del core.
@@ -92,6 +100,15 @@ incluye:
 
 Los adjuntos de Synlab ya tienen estructura de datos (`result_attachment`), pero
 la carga/descarga por API y la UI quedan como siguiente bloque de desarrollo.
+
+## Correcciones estabilizadas
+
+- El destino de recepcion local es `LABORATORIO ANALIZATE`.
+- Los examenes que no son cultivos no muestran ni aceptan antibiogramas.
+- El boton de eliminar detalle de orden fue validado contra la API.
+- Se corrigio la cache de assets del listado y del formulario de orden.
+- Se agrego una version de assets nueva para evitar JavaScript obsoleto en el
+  navegador.
 
 ## Siguiente Bloque Funcional
 

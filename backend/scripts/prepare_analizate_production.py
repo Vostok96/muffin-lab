@@ -99,6 +99,7 @@ SPECIMENS = (
     ("TISSUE", "TEJIDO", "FRASCO"),
     ("BIOLOGICAL_FLUID", "LIQUIDO BIOLOGICO", "FRASCO"),
     ("SLIDE", "LAMINA", "LAMINA"),
+    ("SKIN_EYELASH_SCRAPING", "RASPADO DE PIEL / PESTANAS", "LAMINA"),
 )
 
 GENERIC_PARAMETERS = (
@@ -230,7 +231,7 @@ EXAMS = (
     ("PARASITOLOGY", "REACCION INFLAMATORIA", "STOOL", False, None),
     ("PARASITOLOGY", "THEVENON EN HECES 1-2-3", "STOOL", False, None),
     ("PARASITOLOGY", "TEST DE GRAHAM", "SLIDE", False, None),
-    ("PARASITOLOGY", "ACAROS PIEL Y PESTANAS", "SLIDE", False, None),
+    ("PARASITOLOGY", "ACAROS PIEL Y PESTANAS", "SKIN_EYELASH_SCRAPING", False, None),
     ("PARASITOLOGY", "COPROLOGICO FUNCIONAL", "STOOL", False, None),
     ("GENERAL_TESTS", "ADA LIQUIDO ASCITICO", "BIOLOGICAL_FLUID", False, "SYNLAB"),
     ("GENERAL_TESTS", "ADA LIQUIDO CEFALORRAQUIDEO", "BIOLOGICAL_FLUID", False, "SYNLAB"),
@@ -357,12 +358,22 @@ def ensure_exam_parameter(db, exam: Exam, parameter: ParameterDefinition, displa
         )
 
 
-def ensure_exam_specimen(db, exam: Exam, specimen: SpecimenType) -> None:
-    relation = db.get(ExamSpecimenType, (exam.id, specimen.id))
-    if relation:
-        relation.is_favorite = True
-    else:
-        db.add(ExamSpecimenType(exam_id=exam.id, specimen_type_id=specimen.id, is_favorite=True))
+def ensure_exam_specimens(db, exam: Exam, specimens: list[SpecimenType]) -> None:
+    """Keep the selectable specimen catalog deterministic for each exam."""
+    intended_ids = {specimen.id for specimen in specimens}
+    current_relations = list(
+        db.scalars(select(ExamSpecimenType).where(ExamSpecimenType.exam_id == exam.id))
+    )
+    for relation in current_relations:
+        if relation.specimen_type_id not in intended_ids:
+            db.delete(relation)
+        else:
+            relation.is_favorite = True
+
+    current_ids = {relation.specimen_type_id for relation in current_relations}
+    for specimen in specimens:
+        if specimen.id not in current_ids:
+            db.add(ExamSpecimenType(exam_id=exam.id, specimen_type_id=specimen.id, is_favorite=True))
 
 
 def ensure_institution_catalogs(db) -> list[LaboratoryArea]:
@@ -424,7 +435,7 @@ def ensure_institution_catalogs(db) -> list[LaboratoryArea]:
             external_provider=external_provider,
             is_active=True,
         )
-        ensure_exam_specimen(db, exam, specimen_by_code[specimen_code])
+        ensure_exam_specimens(db, exam, [specimen_by_code[specimen_code]])
         if is_culture and all(code in culture_parameters for code, _display_order, _required in CULTURE_PARAMETER_CODES):
             for parameter_code, display_order, is_required in CULTURE_PARAMETER_CODES:
                 ensure_exam_parameter(db, exam, culture_parameters[parameter_code], display_order, is_required)

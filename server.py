@@ -194,7 +194,7 @@ STATIC_ASSET_ALIASES = {
     "/MUFFIN/bundles/jquery.js": "/MUFFIN/bundles/jquery",
     "/MUFFIN/Content/PluginsJS.js": "/MUFFIN/Content/PluginsJS",
 }
-FRONTEND_ASSET_VERSION = "muffin-20260922-analizate-1"
+FRONTEND_ASSET_VERSION = "muffin-20260922-analizate-2"
 LEGACY_CSS_VERSIONED_URL = (
     b"/MUFFIN/Content/css?v=ivzLv745bmnThkrYOWP2Oyh3EQaw__rxaWvN5bNa0zg1"
 )
