@@ -14,3 +14,16 @@ Reglas:
 - Los firmantes se declaran en `signers.json`; las imágenes reales van en `usuarios/` y no se versionan.
 
 La carpeta actual contiene insumos visuales de referencia para una futura variante institucional.
+
+## Proximo cliente previsto
+
+Analizate se trabajara como un nuevo perfil/cliente, no como copia directa de
+Andahuaylas. La base funcional puede apoyarse en lo validado para microbiologia,
+pero deben definirse por separado:
+
+- Branding, logos, textos legales y dominio.
+- Catalogos, servicios, usuarios, roles y firmantes.
+- Alcance robusto mas alla de microbiologia, si aplica.
+- Modelo de despliegue, backups, permisos y datos iniciales.
+
+No reutilizar datos clinicos, credenciales, firmas ni `.env` de Andahuaylas.

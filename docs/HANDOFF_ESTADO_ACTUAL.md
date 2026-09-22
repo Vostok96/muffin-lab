@@ -1,12 +1,75 @@
 # Traspaso del estado actual de MUFFIN
 
-Fecha: 2026-08-13
+Fecha: 2026-09-22
 
 Este documento es la fuente autoritativa para continuar el trabajo. Los
 documentos `AGENT_CONTEXT.md`, `AVANCE_MUFFIN.md` y `README.md` contienen partes
 historicas que ya no describen por completo el sistema actual.
 
 ## Actualizacion operativa - Andahuaylas NAS
+
+### Cierre 2026-09-22
+
+Estado confirmado despues del despliegue `bf119c4` (`Add KOH exam and
+microbiology statistics`) en la rama `cliente-andahuaylas`, sincronizada con
+`origin/cliente-andahuaylas`.
+
+- Produccion Andahuaylas sigue desplegada en:
+  `/volume1/docker/muffin-andahuaylas/source`.
+- Archivo de control en NAS: `DEPLOYED_COMMIT = bf119c4`.
+- Migracion vigente en produccion: `0013_koh_exam_options (head)`.
+- Contenedores verificados en NAS: `muffin-postgres`, `muffin-api` y
+  `muffin-frontend` healthy.
+- URL publica verificada con `GET`:
+  `https://andahuaylas.microbiolog-ia.com/MUFFIN/Login/Index`.
+- Health interno verificado: `{"status":"ok","service":"muffin-api"}`.
+- Backup logico previo al despliegue:
+  `/volume1/docker/muffin-andahuaylas/backups/muffin-andahuaylas-before-koh-20260922-071141.backup`.
+- Conteos clinicos antes y despues del despliegue, sin variacion:
+  `patient=432`, `lab_order=540`, `order_item=574`, `result=520`,
+  `isolate=78`, `antimicrobial_result=1129`.
+
+Cambios funcionales desplegados:
+
+- Nuevo examen `KOH_DIRECTO` / `EXAMEN DIRECTO KOH`, activo y sin recuento de
+  colonias.
+- Muestras KOH activas: `RASPADO DE PIEL`, `ESCAMAS DE PIEL`, `UÑAS`,
+  `CABELLOS`.
+- Resultado KOH:
+  `NO SE OBSERVAN ESTRUCTURAS FUNGICAS` o
+  `SE OBSERVAN ESTRUCTURAS FUNGICAS`.
+- `ESTRUCTURAS OBSERVADAS` en KOH se maneja como seleccion multiple en la UI y
+  se guarda como texto largo para el reporte impreso.
+- `OBSERVACIONES` KOH queda como texto libre.
+- Opciones rapidas agregadas:
+  `NEGATIVO PARA ENTEROPATOGENOS` en coprocultivo,
+  `NEGATIVO DESPUES DE 5 DIAS DE INCUBACION` en hemocultivo y
+  `NEGATIVO A UROPATOGENOS` en urocultivo.
+- La pantalla de inicio incorpora conteo de positivos por mes y total de
+  procesados.
+- Reportes de produccion incorporan exportacion estadistica adicional.
+- El reporte impreso de KOH omite bloques vacios de identificacion/AST.
+
+Verificaciones locales del cierre:
+
+- `python3 -m py_compile server.py backend/app/routers/results.py backend/alembic/versions/0013_koh_and_exam_result_options.py`.
+- `node --check` en los JavaScript modificados.
+- Docker local con API y frontend reconstruidos.
+- Alembic local en `0013_koh_exam_options (head)`.
+- Suite local en contenedor: `39 passed`.
+- Prueba funcional local de orden KOH positiva con estructuras seleccionadas y
+  reporte imprimible.
+- Validacion visual responsive de inicio y reporte KOH en escritorio y movil.
+
+Nota para futuros clientes, incluido Analizate:
+
+- Usar esta rama como referencia funcional de microbiologia y como evidencia de
+  despliegue real, pero partir el nuevo cliente desde MUFFIN padre y una rama o
+  perfil institucional propio.
+- No reutilizar datos, usuarios, firmas, respaldos, `.env` ni configuracion
+  productiva de Andahuaylas.
+- Cualquier mejora transversal solicitada por Analizate debe evaluarse para
+  volver al core padre, no quedar acoplada al cliente Andahuaylas.
 
 Estado al cierre del 2026-08-13, zona `America/Lima`.
 
@@ -128,7 +191,7 @@ frontend 8877     activo
 La migracion vigente es:
 
 ```text
-0008_ast_catalogs (head)
+0013_koh_exam_options (head)
 ```
 
 ## Funcionalidad terminada
@@ -415,16 +478,18 @@ python3 backend/scripts/build_organism_catalog.py
   VITEK real ni procesamiento automatico de mensajes entrantes.
 - El guardado AST del proxy realiza varias llamadas API y no es una transaccion
   atomica unica; una falla intermedia puede requerir reintento.
-- La pantalla `Reportes > Produccion` todavia no esta conectada, aunque los
-  estados necesarios ya existen en la base.
+- La pantalla `Reportes > Produccion` cuenta con exportacion estadistica
+  adicional desde el cierre 2026-09-22.
 - Mantenedores heredados de algunos catalogos conservan diferencias de campos y
   metodos; validar cada uno antes de considerarlo terminado.
 
 ### Datos y despliegue
 
-- No desplegar al NAS todavia.
-- No cargar datos clinicos adicionales hasta revisar permisos, respaldos,
-  exportaciones y reporte final.
+- Andahuaylas ya esta desplegado en NAS y contiene datos clinicos productivos.
+- No crear datos de prueba en produccion.
+- No ejecutar `docker compose down -v`, `drop`, `truncate`, restauraciones
+  destructivas ni limpieza de volumenes sin autorizacion expresa y backup
+  verificable.
 - No versionar `data`, dumps, `.env.local` ni identificadores clinicos.
 
 ## Siguiente paso recomendado

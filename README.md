@@ -91,3 +91,15 @@ La pantalla de resultados de microbiología ya tiene:
 - Responsive móvil validado en 360, 390 y 430 px.
 - Footer corporativo MUFFIN/RyM SAC con versión `v1.0`.
 - Reporte de resultados servido con JWT de sesión, sin credencial puente hardcodeada.
+
+Actualizacion 2026-09-22:
+
+- Andahuaylas esta desplegado en NAS con commit `bf119c4`.
+- Migracion vigente: `0013_koh_exam_options (head)`.
+- Se agrego examen directo KOH, opciones negativas rapidas para coprocultivo,
+  hemocultivo y urocultivo, estadistica de inicio y exportacion estadistica.
+- La base productiva de Andahuaylas contiene datos clinicos reales; cualquier
+  cambio debe preservar volumenes y contar con backup previo.
+- Proximo cliente previsto: Analizate. Debe partir de MUFFIN padre/perfil nuevo,
+  reutilizando mejoras transversales sin copiar datos, secretos ni branding
+  privado de Andahuaylas.

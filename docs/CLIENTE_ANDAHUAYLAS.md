@@ -151,14 +151,33 @@ NAS:
 - Contenedores: `muffin-postgres`, `muffin-api`, `muffin-frontend`.
 - Frontend expuesto por Cloudflare Tunnel hacia puerto NAS configurado.
 - Servicios Docker con `restart: unless-stopped`.
-- Ultima reconstruccion verificada: 2026-08-13.
+- Ultima reconstruccion verificada: 2026-09-22.
+- Commit desplegado: `bf119c4`.
+- Migracion vigente: `0013_koh_exam_options (head)`.
 - Estado verificado: `muffin-api` healthy, `muffin-frontend` healthy,
   `muffin-postgres` healthy.
 - Health publico verificado:
   `https://andahuaylas.microbiolog-ia.com/api/v1/health`.
+- Login publico verificado con `GET`:
+  `https://andahuaylas.microbiolog-ia.com/MUFFIN/Login/Index`.
 
 Notas productivas recientes:
 
+- El despliegue del 2026-09-22 agrego `EXAMEN DIRECTO KOH` con muestras
+  `RASPADO DE PIEL`, `ESCAMAS DE PIEL`, `UÑAS` y `CABELLOS`.
+- KOH reporta negativo como `NO SE OBSERVAN ESTRUCTURAS FUNGICAS`; en positivo
+  permite marcar varias estructuras observadas y agregar observaciones.
+- Coprocultivo, hemocultivo y urocultivo tienen opciones rapidas negativas:
+  `NEGATIVO PARA ENTEROPATOGENOS`,
+  `NEGATIVO DESPUES DE 5 DIAS DE INCUBACION` y
+  `NEGATIVO A UROPATOGENOS`.
+- Inicio muestra estadistica rapida de positivos por mes y total procesado.
+- Reportes de produccion incluyen exportacion estadistica adicional.
+- Backup previo al despliegue KOH:
+  `/volume1/docker/muffin-andahuaylas/backups/muffin-andahuaylas-before-koh-20260922-071141.backup`.
+- Conteos clinicos se mantuvieron sin variacion antes/despues:
+  `patient=432`, `lab_order=540`, `order_item=574`, `result=520`,
+  `isolate=78`, `antimicrobial_result=1129`.
 - `wsalazar` fue verificado con rol `CONSULTANT`, sin permisos de area. Un
   intento de validacion final con item falso devolvio HTTP 403, por bloqueo de
   rol antes de acceder a un resultado real.
@@ -223,3 +242,6 @@ Siguiente mejora si el volumen crece mucho: paginación server-side real en `/re
 - No versionar contraseñas ni `.env`.
 - No subir sellos/firma reales.
 - Si aparece una mejora genérica, portarla a `main`/MUFFIN padre.
+- Andahuaylas puede servir como referencia para nuevos clientes, pero no como
+  fuente de datos ni secretos. Para Analizate u otro laboratorio crear perfil,
+  branding, catálogos y despliegue propios.

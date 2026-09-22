@@ -4,6 +4,10 @@ MUFFIN se ejecuta en Docker sobre el NAS ARM64. La PC se usa solo para desarroll
 
 Tenant inicial: `Hospital Sub Regional de Andahuaylas`.
 
+Estado Andahuaylas confirmado: 2026-09-22. Produccion en NAS con commit
+`bf119c4`, migracion `0013_koh_exam_options (head)` y contenedores
+`muffin-postgres`, `muffin-api`, `muffin-frontend` healthy.
+
 ## Servicios
 
 - `muffin-api`: FastAPI, dos workers y limite de 768 MB.
@@ -41,3 +45,10 @@ Si Docker Hub no esta disponible desde el NAS, `MUFFIN_PYTHON_BASE_IMAGE` permit
 - No exponer PostgreSQL fuera de la red Docker.
 - Mantener el puerto de la API solo en la red local o detras del proxy HTTPS.
 - Programar copias logicas de PostgreSQL y probar restauraciones periodicamente.
+- En instalaciones con datos clinicos reales, hacer backup logico antes de cada
+  migracion o reconstruccion de servicios.
+- No usar `docker compose down -v` en produccion ni eliminar volumenes de
+  PostgreSQL.
+- No crear ordenes, pacientes ni resultados de prueba en produccion.
+- Registrar en el perfil del cliente el commit desplegado, migracion vigente,
+  backup previo y conteos clinicos de control.
