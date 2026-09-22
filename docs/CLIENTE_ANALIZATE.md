@@ -54,9 +54,21 @@ Desde una base migrada y con seed base:
 ```bash
 docker compose up -d postgres
 docker compose run --rm api alembic upgrade head
-docker compose run --rm api python scripts/prepare_analizate_production.py
+docker compose run --rm api sh -c "PYTHONPATH=/app python scripts/prepare_analizate_production.py"
 docker compose up -d --build api frontend
 ```
+
+Para desarrollo local aislado sin tocar otra pila MUFFIN en la misma maquina:
+
+```bash
+cp .env.analizate.local.example .env.analizate.local
+docker compose --env-file .env.analizate.local -f compose.analizate.local.yaml up -d --build
+```
+
+Puertos locales:
+
+- Frontend Analizate: `http://127.0.0.1:8879/MUFFIN/Login/Index`
+- API Analizate: `http://127.0.0.1:8013/api/v1/health`
 
 Si se ejecuta fuera de Docker, usar el entorno Python del backend y asegurarse
 de que `DATABASE_URL`, `ANALIZATE_ADMIN_PASSWORD` y `ANALIZATE_LAB_PASSWORD`
