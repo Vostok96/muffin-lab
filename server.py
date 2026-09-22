@@ -2442,11 +2442,13 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
         status, data = api_req("GET", "/catalogs/destinations?active_only=false&page_size=100", token)
         return {item["id"]: item for item in (data or {}).get("data", [])} if status == 200 and isinstance(data, dict) else {}
 
-    def _microbiology_destination_id(self, token: str) -> str:
+    def _default_reception_destination_id(self, token: str) -> str:
         destinations = self._destination_map(token)
-        for item in destinations.values():
-            if str(item.get("code", "")).upper() == "MICROBIOLOGY_BENCH":
-                return item.get("id", "")
+        preferred_codes = ("ANALIZATE_LAB", "MICROBIOLOGY_BENCH")
+        for code in preferred_codes:
+            for item in destinations.values():
+                if str(item.get("code", "")).upper() == code and item.get("is_active", True):
+                    return item.get("id", "")
         return next((item.get("id", "") for item in destinations.values() if item.get("is_active", True)), "")
 
     def _proxy_destination_order_detail_list(self, token: str, path: str) -> None:
@@ -2503,9 +2505,9 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
         if item.get("status") in {"RECEIVED", "IN_PROCESS", "RESULT_SAVED", "PRELIMINARY_VALIDATED", "FINAL_VALIDATED"}:
             self.send_json({"resultado": True, "mensaje": "Muestra ya verificada"})
             return
-        destination_id = self._microbiology_destination_id(token)
+        destination_id = self._default_reception_destination_id(token)
         if not destination_id:
-            self.send_json({"resultado": False, "mensaje": "No existe destino activo para microbiologia"})
+            self.send_json({"resultado": False, "mensaje": "No existe destino activo para recibir la muestra"})
             return
         now = datetime.now(LOCAL_TIMEZONE).strftime("%Y-%m-%dT%H:%M:%S-05:00")
         payload = {
@@ -2561,9 +2563,9 @@ body{{background:#f3f8f6;color:#173d43;font-family:Arial,Helvetica,sans-serif;ma
         reception_at = str(obj.get("fecha_muestra_recepcion", "")).strip()
         if collection_at:
             payload["collection_at"] = f"{collection_at}:00-05:00" if len(collection_at) == 16 else f"{collection_at}-05:00"
-        destination_id = resolve_id("/catalogs/destinations", "MICROBIOLOGY_BENCH") if reception_at else ""
+        destination_id = self._default_reception_destination_id(token) if reception_at else ""
         if reception_at and not destination_id:
-            self.send_json({"resultado": False, "mensaje": "No se encontro el destino de microbiologia para recibir la muestra"})
+            self.send_json({"resultado": False, "mensaje": "No se encontro un destino activo para recibir la muestra"})
             return
         status, data = api_req("POST", f"/orders/{order_id}/items", token, payload)
         if status in (200, 201):
