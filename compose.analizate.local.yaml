@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: muffin-analizate-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-muffin_analizate}
+      POSTGRES_USER: ${POSTGRES_USER:-muffin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.analizate.local}
+    volumes:
+      - muffin_analizate_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        PYTHON_BASE_IMAGE: ${MUFFIN_PYTHON_BASE_IMAGE:-python:3.12-slim}
+    container_name: muffin-analizate-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.analizate.local
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-muffin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-muffin_analizate}
+    command: >
+      sh -c "alembic upgrade head &&
+             python scripts/prepare_analizate_production.py &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
+    ports:
+      - "127.0.0.1:8013:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        PYTHON_BASE_IMAGE: ${MUFFIN_PYTHON_BASE_IMAGE:-python:3.12-slim}
+    container_name: muffin-analizate-frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    env_file:
+      - .env.analizate.local
+    environment:
+      SIMCORE_CLONE_HOST: 0.0.0.0
+      SIMCORE_CLONE_PORT: 8501
+      MUFFIN_API_URL: http://api:8000/api/v1
+    ports:
+      - "127.0.0.1:8879:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/MUFFIN/Login/Index')"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+
+volumes:
+  muffin_analizate_postgres_data:
+    name: muffin_analizate_postgres_data
