@@ -63,8 +63,12 @@ CLIENT_ROOT = project_path(os.environ.get("MUFFIN_CLIENT_ROOT"), DEFAULT_CLIENT_
 PRODUCT_IMAGE = image_path(os.environ.get("MUFFIN_PRODUCT_IMAGE"), ROOT / "MUFFIN_ICONO.jpg", ROOT / "MUFFIN_ICONO.jpg")
 BRAND_IMAGE = image_path(
     os.environ.get("MUFFIN_BRAND_IMAGE"),
-    CLIENT_ROOT / "logo.png",
-    CLIENT_ROOT / "logo andahuylas.png" if (CLIENT_ROOT / "logo andahuylas.png").exists() else PRODUCT_IMAGE,
+    CLIENT_ROOT / "logo_remaster.jpeg",
+    image_path(
+        None,
+        CLIENT_ROOT / "logo.png",
+        CLIENT_ROOT / "logo andahuylas.png" if (CLIENT_ROOT / "logo andahuylas.png").exists() else PRODUCT_IMAGE,
+    ),
 )
 MASCOT_IMAGE = image_path(os.environ.get("MUFFIN_MASCOT_IMAGE"), ROOT / "MUFFIN_SINFONDO.png", PRODUCT_IMAGE)
 
@@ -194,7 +198,7 @@ STATIC_ASSET_ALIASES = {
     "/MUFFIN/bundles/jquery.js": "/MUFFIN/bundles/jquery",
     "/MUFFIN/Content/PluginsJS.js": "/MUFFIN/Content/PluginsJS",
 }
-FRONTEND_ASSET_VERSION = "muffin-20260922-analizate-2"
+FRONTEND_ASSET_VERSION = "muffin-20260922-analizate-3"
 LEGACY_CSS_VERSIONED_URL = (
     b"/MUFFIN/Content/css?v=ivzLv745bmnThkrYOWP2Oyh3EQaw__rxaWvN5bNa0zg1"
 )

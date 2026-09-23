@@ -102,18 +102,20 @@ body {
     gap: 0.32rem;
     justify-items: center;
     margin: 1rem 0 0.5rem;
-    padding: 0.9rem 0.75rem;
+    padding: 1rem 0.7rem 0.95rem;
     text-align: center;
 }
 
 .muffin-client-panel img {
     background: #fff;
     border: 2px solid rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-    height: 4rem;
+    border-radius: 0.85rem;
+    box-shadow: 0 8px 18px rgba(4, 41, 49, 0.2);
+    height: 5.35rem;
+    max-width: 12.5rem;
     object-fit: contain;
-    padding: 0.2rem;
-    width: 4rem;
+    padding: 0.35rem;
+    width: 100%;
 }
 
 .muffin-client-kicker {

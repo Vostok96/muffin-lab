@@ -12,7 +12,8 @@ cliente/despliegue de MUFFIN. Este cliente parte de MUFFIN padre (rama
 - Domicilio: Pasaje Daniel Coral Vega 450 - Huaraz.
 - Telefonos: 947893084 / 945211972.
 - Email: laboratorioanalizatehuaraz@gmail.com.
-- Logo institucional: `logo.png` (extraido del membrete del dia 2026-09-22).
+- Logo institucional: `logo_remaster.jpeg` (version remasterizada de mayor
+  resolucion).
 - Producto: MUFFIN (Laboratorio de Analisis Clinico).
 - Propiedad intelectual de MUFFIN: RyM SAC.
 - Version visible: `1.0`.
@@ -24,7 +25,7 @@ DEFAULT_INSTITUTION_NAME=LABORATORIO DE ANALISIS CLINICO ANALIZATE
 DEFAULT_INSTITUTION_SLUG=analizate-huaraz
 MUFFIN_INSTITUTION_NAME=Analizate Huaraz
 MUFFIN_CLIENT_ROOT=CLIENTES/ANALIZATE - HUARAZ
-MUFFIN_BRAND_IMAGE=CLIENTES/ANALIZATE - HUARAZ/logo.png
+MUFFIN_BRAND_IMAGE=CLIENTES/ANALIZATE - HUARAZ/logo_remaster.jpeg
 MUFFIN_PRODUCT_IMAGE=MUFFIN_ICONO.jpg
 MUFFIN_MASCOT_IMAGE=MUFFIN_SINFONDO.png
 MUFFIN_SIGNERS_CONFIG=CLIENTES/ANALIZATE - HUARAZ/signers.json

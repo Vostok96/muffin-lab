@@ -31,6 +31,8 @@ rama y al entorno de Analizate.
    antes solo agregaba la relación nueva y podía dejar combinaciones inválidas.
 7. `ACAROS PIEL Y PESTANAS` usa `RASPADO DE PIEL / PESTANAS` con contenedor
    `LAMINA`; no usa `PLASMA`.
+8. Se incorporo `logo_remaster.jpeg` como identidad visual de Analizate y se
+   amplio su panel institucional para que el logotipo horizontal sea visible.
 
 ## Archivos principales modificados en esta etapa
 
