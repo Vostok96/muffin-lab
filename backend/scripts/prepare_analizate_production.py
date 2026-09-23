@@ -88,8 +88,11 @@ SERVICES = (
 SPECIMENS = (
     ("SERUM", "SUERO", "TUBO"),
     ("PLASMA", "PLASMA", "TUBO"),
+    ("CITRATED_PLASMA", "PLASMA CITRATADO", "TUBO_CITRATO"),
     ("WHOLE_BLOOD", "SANGRE TOTAL", "TUBO"),
+    ("ARTERIAL_BLOOD", "SANGRE ARTERIAL", "JERINGA_HEPARINIZADA"),
     ("URINE", "ORINA", "FRASCO"),
+    ("URINE_PREGNANCY", "ORINA (PRUEBA DE EMBARAZO)", "FRASCO"),
     ("URINE_24H", "ORINA DE 24 HORAS", "FRASCO"),
     ("STOOL", "HECES", "FRASCO"),
     ("SEMEN", "SEMEN", "FRASCO"),
@@ -98,8 +101,9 @@ SPECIMENS = (
     ("SPUTUM", "ESPUTO", "FRASCO"),
     ("TISSUE", "TEJIDO", "FRASCO"),
     ("BIOLOGICAL_FLUID", "LIQUIDO BIOLOGICO", "FRASCO"),
+    ("CSF", "LIQUIDO CEFALORRAQUIDEO", "FRASCO"),
     ("SLIDE", "LAMINA", "LAMINA"),
-    ("SKIN_EYELASH_SCRAPING", "RASPADO DE PIEL / PESTANAS", "LAMINA"),
+    ("SKIN_EYELASH_SCRAPING", "RASPADO DE PIEL Y PESTANAS", "LAMINA"),
 )
 
 GENERIC_PARAMETERS = (
@@ -170,12 +174,12 @@ EXAMS = (
     ("HEMATOLOGY", "FERRITINA", "SERUM", False, None),
     ("HEMATOLOGY", "VITAMINA B12", "SERUM", False, "SYNLAB"),
     ("HEMATOLOGY", "ACIDO FOLICO", "SERUM", False, "SYNLAB"),
-    ("HEMATOLOGY", "INR", "PLASMA", False, None),
-    ("HEMATOLOGY", "TIEMPO DE PROTROMBINA TPT", "PLASMA", False, None),
-    ("HEMATOLOGY", "TIEMPO DE TROMBOPLASTINA PARCIAL ACTIVADA TTPA", "PLASMA", False, None),
-    ("HEMATOLOGY", "FIBRINOGENO", "PLASMA", False, None),
-    ("HEMATOLOGY", "DIMERO D", "PLASMA", False, None),
-    ("PREGNANCY", "TEST DE EMBARAZO", "SERUM", False, None),
+    ("HEMATOLOGY", "INR", "CITRATED_PLASMA", False, None),
+    ("HEMATOLOGY", "TIEMPO DE PROTROMBINA TPT", "CITRATED_PLASMA", False, None),
+    ("HEMATOLOGY", "TIEMPO DE TROMBOPLASTINA PARCIAL ACTIVADA TTPA", "CITRATED_PLASMA", False, None),
+    ("HEMATOLOGY", "FIBRINOGENO", "CITRATED_PLASMA", False, None),
+    ("HEMATOLOGY", "DIMERO D", "CITRATED_PLASMA", False, None),
+    ("PREGNANCY", "TEST DE EMBARAZO EN ORINA", "URINE_PREGNANCY", False, None),
     ("PREGNANCY", "BHCG CUALITATIVO", "SERUM", False, None),
     ("PREGNANCY", "BHCG CUANTITATIVO", "SERUM", False, None),
     ("IMMUNOLOGY", "RPR", "SERUM", False, None),
@@ -215,7 +219,7 @@ EXAMS = (
     ("ENDOCRINOLOGY", "TSH", "SERUM", False, "SYNLAB"),
     ("ENDOCRINOLOGY", "TESTOSTERONA TOTAL", "SERUM", False, "SYNLAB"),
     ("PROFILES", "PERFIL RENAL", "SERUM", False, None),
-    ("PROFILES", "PERFIL DE COAGULACION", "PLASMA", False, None),
+    ("PROFILES", "PERFIL DE COAGULACION", "CITRATED_PLASMA", False, None),
     ("PROFILES", "PERFIL DE ANEMIA HEMOLITICA", "WHOLE_BLOOD", False, None),
     ("PROFILES", "PERFIL FEMENINO", "SERUM", False, "SYNLAB"),
     ("PROFILES", "PERFIL HEPATITIS", "SERUM", False, "SYNLAB"),
@@ -231,12 +235,12 @@ EXAMS = (
     ("PARASITOLOGY", "REACCION INFLAMATORIA", "STOOL", False, None),
     ("PARASITOLOGY", "THEVENON EN HECES 1-2-3", "STOOL", False, None),
     ("PARASITOLOGY", "TEST DE GRAHAM", "SLIDE", False, None),
-    ("PARASITOLOGY", "ACAROS PIEL Y PESTANAS", "SKIN_EYELASH_SCRAPING", False, None),
+    ("PARASITOLOGY", "EXAMEN DE ACAROS EN PIEL Y PESTANAS", "SKIN_EYELASH_SCRAPING", False, None),
     ("PARASITOLOGY", "COPROLOGICO FUNCIONAL", "STOOL", False, None),
     ("GENERAL_TESTS", "ADA LIQUIDO ASCITICO", "BIOLOGICAL_FLUID", False, "SYNLAB"),
-    ("GENERAL_TESTS", "ADA LIQUIDO CEFALORRAQUIDEO", "BIOLOGICAL_FLUID", False, "SYNLAB"),
+    ("GENERAL_TESTS", "ADA LIQUIDO CEFALORRAQUIDEO", "CSF", False, "SYNLAB"),
     ("GENERAL_TESTS", "ADA LIQUIDO PLEURAL", "BIOLOGICAL_FLUID", False, "SYNLAB"),
-    ("GENERAL_TESTS", "ANALISIS DE GASES ARTERIALES AGA", "WHOLE_BLOOD", False, None),
+    ("GENERAL_TESTS", "ANALISIS DE GASES ARTERIALES AGA", "ARTERIAL_BLOOD", False, None),
     ("GENERAL_TESTS", "PRUEBA DE PATERNIDAD ADN", "WHOLE_BLOOD", False, "SYNLAB"),
     ("PATHOLOGY", "PAP SC VAGINAL", "SLIDE", False, "SYNLAB"),
     ("PATHOLOGY", "PAP LIQUIDOS BIOLOGICOS", "BIOLOGICAL_FLUID", False, "SYNLAB"),
@@ -250,6 +254,11 @@ EXAMS = (
     ("PATHOLOGY", "BIOPSIA CORE", "TISSUE", False, "SYNLAB"),
     ("PATHOLOGY", "BIOPSIA BAAF", "TISSUE", False, "SYNLAB"),
 )
+
+LEGACY_EXAM_CODES = {
+    "EXAMEN_DE_ACAROS_EN_PIEL_Y_PESTANAS": "ACAROS_PIEL_Y_PESTANAS",
+    "TEST_DE_EMBARAZO_EN_ORINA": "TEST_DE_EMBARAZO",
+}
 
 
 def env_password(name: str, fallback_name: str | None = None) -> str:
@@ -378,7 +387,14 @@ def ensure_exam_specimens(db, exam: Exam, specimens: list[SpecimenType]) -> None
 
 def ensure_institution_catalogs(db) -> list[LaboratoryArea]:
     container_by_code: dict[str, Container] = {}
-    for code, name in (("TUBO", "TUBO"), ("FRASCO", "FRASCO"), ("HISOPADO", "HISOPADO"), ("LAMINA", "LAMINA")):
+    for code, name in (
+        ("TUBO", "TUBO"),
+        ("TUBO_CITRATO", "TUBO CON CITRATO DE SODIO"),
+        ("JERINGA_HEPARINIZADA", "JERINGA HEPARINIZADA"),
+        ("FRASCO", "FRASCO"),
+        ("HISOPADO", "HISOPADO"),
+        ("LAMINA", "LAMINA"),
+    ):
         container_by_code[code] = ensure_catalog(db, Container, code, name=name, is_active=True)
 
     areas = [
@@ -422,19 +438,39 @@ def ensure_institution_catalogs(db) -> list[LaboratoryArea]:
 
     for area_code, exam_name, specimen_code, is_culture, external_provider in EXAMS:
         code = normalized_catalog_key(exam_name)[:50]
-        exam = ensure_catalog(
-            db,
-            Exam,
-            code,
-            name=exam_name,
-            external_code=f"ANALIZATE-{code}",
-            barcode_suffix=code[:12],
-            laboratory_area_id=area_by_code[area_code].id,
-            sends_to_analyzer=False,
-            requires_colony_count=is_culture,
-            external_provider=external_provider,
-            is_active=True,
-        )
+        exam = db.scalar(select(Exam).where(Exam.code == code))
+        legacy_code = LEGACY_EXAM_CODES.get(code)
+        if not exam and legacy_code:
+            exam = db.scalar(select(Exam).where(Exam.code == legacy_code))
+            if exam:
+                # Free the unique code before assigning the normalized replacement.
+                exam.code = f"LEGACY_{exam.id[:8]}"
+                db.flush()
+                exam.code = code
+                exam.name = exam_name
+        if not exam:
+            exam = ensure_catalog(
+                db,
+                Exam,
+                code,
+                name=exam_name,
+                external_code=f"ANALIZATE-{code}",
+                barcode_suffix=code[:12],
+                laboratory_area_id=area_by_code[area_code].id,
+                sends_to_analyzer=False,
+                requires_colony_count=is_culture,
+                external_provider=external_provider,
+                is_active=True,
+            )
+        else:
+            exam.name = exam_name
+            exam.external_code = f"ANALIZATE-{code}"
+            exam.barcode_suffix = code[:12]
+            exam.laboratory_area_id = area_by_code[area_code].id
+            exam.sends_to_analyzer = False
+            exam.requires_colony_count = is_culture
+            exam.external_provider = external_provider
+            exam.is_active = True
         ensure_exam_specimens(db, exam, [specimen_by_code[specimen_code]])
         if is_culture and all(code in culture_parameters for code, _display_order, _required in CULTURE_PARAMETER_CODES):
             for parameter_code, display_order, is_required in CULTURE_PARAMETER_CODES:

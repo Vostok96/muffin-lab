@@ -92,7 +92,10 @@ incluye:
 - Cada examen conserva exclusivamente las relaciones examen-muestra declaradas
   por el catalogo de Analizate. El sembrado elimina relaciones antiguas
   incorrectas para evitar que un examen herede muestras de otro.
-- `ACAROS PIEL Y PESTANAS` usa `RASPADO DE PIEL / PESTANAS`, no plasma.
+- `EXAMEN DE ACAROS EN PIEL Y PESTANAS` usa `RASPADO DE PIEL Y PESTANAS`.
+- `ANALISIS DE GASES ARTERIALES AGA` usa `SANGRE ARTERIAL` en `JERINGA
+  HEPARINIZADA`.
+- Las pruebas de coagulacion usan `PLASMA CITRATADO` en tubo con citrato.
 - Examenes genericos con parametros `RESULTADO`, `UNIDAD`,
   `VALOR DE REFERENCIA` y `OBSERVACIONES`.
 - Cultivos que reutilizan los parametros microbiologicos del core.
