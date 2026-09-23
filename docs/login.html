@@ -8,19 +8,18 @@
     <link rel="stylesheet" href="/MUFFIN/Content/muffin.css">
     <style>
         :root {
-            --muffin-teal: #239ca3;
-            --muffin-teal-dark: #176d78;
-            --muffin-teal-deeper: #0f525a;
-            --muffin-mint: #76cdb8;
+            --analizate-green: #0e6655;
+            --analizate-green-bright: #1a9a78;
+            --analizate-red: #b5204c;
             --muffin-cream: #fff8ec;
-            --muffin-ink: #294c52;
-            --muffin-muted: #62787b;
+            --muffin-ink: #183e39;
+            --muffin-muted: #607773;
         }
         body {
             background:
-                radial-gradient(circle at 15% 18%, rgba(118,205,184,.16) 0 12%, transparent 13%),
-                radial-gradient(circle at 85% 12%, rgba(244,173,131,.16) 0 10%, transparent 11%),
-                linear-gradient(145deg, #06121b 0%, #0b1f2d 45%, #173748 100%);
+                radial-gradient(circle at 16% 16%, rgba(26,154,120,.20) 0 12%, transparent 13%),
+                radial-gradient(circle at 86% 12%, rgba(181,32,76,.17) 0 10%, transparent 11%),
+                linear-gradient(145deg, #061916 0%, #0b2924 48%, #123f38 100%);
             box-sizing: border-box;
             margin: 0;
             min-height: 100vh;
@@ -32,26 +31,29 @@
         }
         .login-card {
             background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(26, 154, 120, 0.18);
             border-radius: 1.4rem;
+            border-top: 5px solid var(--analizate-green-bright);
             box-sizing: border-box;
             padding: 2.75rem 2.25rem 1.85rem;
             position: relative;
             width: 100%;
-            max-width: 440px;
+            max-width: 480px;
             box-shadow: 0 24px 64px rgba(9, 32, 40, 0.36);
         }
         .login-card .brand {
             text-align: center;
-            margin-bottom: 1.55rem;
+            margin-bottom: 1.65rem;
         }
         .login-card .brand img {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 3px solid var(--muffin-mint);
-            padding: 3px;
+            width: min(100%, 290px);
+            height: 128px;
+            border-radius: 1rem;
+            border: 2px solid rgba(26, 154, 120, 0.42);
+            padding: 8px 12px;
             background: #fff;
-            margin-bottom: 0.6rem;
+            box-shadow: 0 10px 24px rgba(14, 102, 85, 0.12);
+            margin-bottom: 0.85rem;
             object-fit: contain;
         }
         .login-card .brand h1 {
@@ -66,6 +68,15 @@
             color: var(--muffin-muted);
             font-size: 0.7rem;
             margin: 0.1rem 0 0;
+        }
+        .login-card .brand::after {
+            background: linear-gradient(90deg, var(--analizate-green-bright) 0 72%, var(--analizate-red) 72% 100%);
+            border-radius: 999px;
+            content: "";
+            display: block;
+            height: 4px;
+            margin: 0.85rem auto 0;
+            max-width: 8rem;
         }
         .login-card form {
             margin-top: 0.2rem;
@@ -135,15 +146,15 @@
         }
         .login-card .form-control:focus {
             background: #fff;
-            border-color: var(--muffin-teal);
-            box-shadow: 0 0 0 3px rgba(35, 156, 163, 0.12);
+            border-color: var(--analizate-green-bright);
+            box-shadow: 0 0 0 3px rgba(26, 154, 120, 0.14);
             color: var(--muffin-ink);
         }
         .login-card .form-control::placeholder {
             color: #bccac6;
         }
         .btn-muffin {
-            background: linear-gradient(100deg, var(--muffin-teal-dark), var(--muffin-teal));
+            background: linear-gradient(100deg, var(--analizate-green), var(--analizate-green-bright));
             border: none;
             color: #fff;
             display: block;
@@ -152,13 +163,13 @@
             padding: 0.65rem;
             border-radius: 0.7rem;
             letter-spacing: 0.04em;
-            box-shadow: 0 6px 16px rgba(23, 109, 120, 0.22);
+            box-shadow: 0 6px 16px rgba(14, 102, 85, 0.24);
             transition: all 0.2s ease;
             width: 100%;
         }
         .btn-muffin:hover {
-            background: linear-gradient(100deg, #105b65, var(--muffin-teal));
-            box-shadow: 0 8px 22px rgba(23, 109, 120, 0.32);
+            background: linear-gradient(100deg, #084c40, var(--analizate-green-bright));
+            box-shadow: 0 8px 22px rgba(14, 102, 85, 0.34);
             color: #fff;
         }
         .btn-muffin:disabled {
@@ -167,11 +178,11 @@
         }
         /* ── dark mode overrides ── */
         [data-theme="dark"] body { background:
-                radial-gradient(circle at 12% 18%, rgba(72,184,191,.14) 0 10%, transparent 11%),
-                radial-gradient(circle at 88% 12%, rgba(196,122,94,.12) 0 9%, transparent 10%),
-                linear-gradient(145deg, #061018 0%, #0a1b27 46%, #102c3d 100%); }
+                radial-gradient(circle at 12% 18%, rgba(26,154,120,.16) 0 10%, transparent 11%),
+                radial-gradient(circle at 88% 12%, rgba(181,32,76,.14) 0 9%, transparent 10%),
+                linear-gradient(145deg, #041310 0%, #071f1b 46%, #0d332d 100%); }
         [data-theme="dark"] .login-card { background: rgba(16,32,42,.94); box-shadow: 0 24px 64px rgba(0,0,0,.56); }
-        [data-theme="dark"] .login-card .brand h1 { color: #d4e8e2 !important; }
+        [data-theme="dark"] .login-card .brand h1 { color: #d8eee5 !important; }
         [data-theme="dark"] .login-card .brand p { color: #96b5b0 !important; }
         [data-theme="dark"] .product-footer { border-color: #25474d; }
         [data-theme="dark"] .product-footer img { background: #e8f3ef; border-color: #2e5960; }
@@ -181,7 +192,7 @@
         [data-theme="dark"] .login-card label { color: #b4c8c3; }
         [data-theme="dark"] .login-card .form-control { background: #0f222b; border-color: #1e3e44; color: #d4e8e2; }
         [data-theme="dark"] .login-card .form-control::placeholder { color: #5a7a72; }
-        [data-theme="dark"] .login-card .form-control:focus { background: #183542; border-color: #6abfd0; box-shadow: 0 0 0 3px rgba(106,191,208,.15); }
+        [data-theme="dark"] .login-card .form-control:focus { background: #183b34; border-color: #5dc29d; box-shadow: 0 0 0 3px rgba(93,194,157,.16); }
         .alert {
             border-radius: 0.7rem;
             font-size: 0.8rem;
@@ -228,7 +239,7 @@
             width: 100%;
         }
         .theme-pill .pill-thumb {
-            background: linear-gradient(135deg, #239ca3, #176d78);
+            background: linear-gradient(135deg, var(--analizate-green-bright), var(--analizate-green));
             border-radius: 50%;
             box-shadow: 0 2px 6px rgba(0,0,0,.2);
             height: 1.55rem;
@@ -239,7 +250,7 @@
         }
         [data-theme="dark"] .theme-pill .pill-thumb {
             transform: translateX(2rem);
-            background: linear-gradient(135deg, #48b8bf, #c47a5e);
+            background: linear-gradient(135deg, #5dc29d, var(--analizate-red));
         }
         .theme-pill .pill-icon {
             font-size: .85rem;
