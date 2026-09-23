@@ -48,13 +48,22 @@ rama y al entorno de Analizate.
   reglas de AST para exámenes de cultivo.
 - `docs/CLIENTE_ANALIZATE.md`: instrucciones y estado del cliente.
 
-## Comprobaciones pendientes de esta sesión
+## Comprobaciones realizadas
 
-- Reconstruir `api` y `frontend` para ejecutar el sembrado actualizado.
-- Confirmar por API todas las relaciones de examen-muestra del catálogo.
-- Probar visualmente que Ácaros muestra únicamente `RASPADO DE PIEL Y PESTAÑAS`.
-- Recorrer órdenes, recepción, resultados, validaciones y reportes para
-  registrar nuevos hallazgos clínicos o funcionales.
+- API y frontend reconstruidos con el sembrado actualizado.
+- 130/130 relaciones de examen-muestra confirmadas por API.
+- No existen nombres de examen duplicados en la base local.
+- Ácaros, gases arteriales, coagulación, embarazo y ADA de LCR verificados.
+- Logo remasterizado y pantalla de ingreso revisados visualmente.
+
+## Próximo despliegue de revisión
+
+- El cliente debe recibir una instancia aislada con datos ficticios y HTTPS.
+- Netlify no puede ejecutar por sí solo el stack Docker actual; revisar
+  `docs/DESPLIEGUE_NETLIFY_ANALIZATE.md` antes de publicar una URL.
+- La opción inmediata es un staging Docker completo detrás de un túnel
+  temporal; el NAS y la URL pública quedan después de la aprobación del
+  cliente.
 
 ## Próximo bloque sugerido
 
@@ -78,3 +87,4 @@ rama y al entorno de Analizate.
 - `27eea5e` destino de recepción Analizate.
 - `73a6934` ocultar AST para exámenes sin cultivo.
 - `5d33f74` refresco de assets del listado de órdenes.
+- `8b37217` correcciones clínicas de muestras y auditoría del catálogo.

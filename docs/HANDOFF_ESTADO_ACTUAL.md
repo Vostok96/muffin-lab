@@ -1,15 +1,19 @@
 # Traspaso del estado actual de MUFFIN
 
-Fecha: 2026-07-17
+Fecha original: 2026-07-17. Actualización de continuidad: 2026-09-22.
 
-Este documento es la fuente autoritativa para continuar el trabajo. Los
+Este documento conserva el contexto histórico del despliegue base. Para el
+trabajo activo de Analízate, la fuente autoritativa es
+`docs/ESTADO_ANALIZATE_2026-09-22.md` y la guía de cliente es
+`docs/CLIENTE_ANALIZATE.md`. Los
 documentos `AGENT_CONTEXT.md`, `AVANCE_MUFFIN.md` y `README.md` contienen partes
 historicas que ya no describen por completo el sistema actual.
 
 ## Advertencias antes de trabajar
 
 - Directorio activo: `/home/workstation/Documentos/MUFFIN`.
-- Este directorio no es actualmente un repositorio Git.
+- La rama activa para Analízate es `cliente-analizate`; la rama
+  `cliente-andahuaylas` queda congelada.
 - La base local ya contiene al menos una orden ingresada manualmente. No usar
   `docker compose down -v`, no borrar el volumen y no reconstruir la base desde
   cero sin autorizacion expresa del usuario.

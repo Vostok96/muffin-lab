@@ -2,7 +2,9 @@
 
 MUFFIN es una plataforma base para microbiología hospitalaria. Este repositorio funciona como **MUFFIN padre**: el núcleo común desde el cual se derivan versiones institucionales con logos, nombres, colores, textos legales, branding y configuraciones propias.
 
-> Rama actual de producción institucional: **Hospital Sub Regional de Andahuaylas**. Ver [docs/CLIENTE_ANDAHUAYLAS.md](docs/CLIENTE_ANDAHUAYLAS.md).
+> La rama `cliente-andahuaylas` queda congelada para su cliente. El desarrollo
+> activo de revisión es `cliente-analizate`; ver
+> [docs/CLIENTE_ANALIZATE.md](docs/CLIENTE_ANALIZATE.md).
 
 El objetivo del repositorio padre es conservar el flujo clínico, la API, el proxy de compatibilidad y la experiencia visual común sin acoplar el producto a una sola institución.
 
@@ -75,6 +77,8 @@ Evitar modificar flujos clínicos o contratos de API salvo que el cambio deba vo
 - [docs/MUFFIN_PADRE.md](docs/MUFFIN_PADRE.md): guía para próximos agentes.
 - [docs/MANUAL_OPERATIVO.md](docs/MANUAL_OPERATIVO.md): operación y comandos.
 - [docs/DESPLIEGUE_NAS.md](docs/DESPLIEGUE_NAS.md): despliegue.
+- [docs/DESPLIEGUE_NETLIFY_ANALIZATE.md](docs/DESPLIEGUE_NETLIFY_ANALIZATE.md):
+  revisión externa previa al NAS.
 - [docs/MODELO_DATOS_MUFFIN.md](docs/MODELO_DATOS_MUFFIN.md): modelo de datos.
 - [docs/MUFFIN_API_V1.yaml](docs/MUFFIN_API_V1.yaml): contrato OpenAPI.
 - [docs/IDENTIDAD_VISUAL_MUFFIN.md](docs/IDENTIDAD_VISUAL_MUFFIN.md): identidad visual base.

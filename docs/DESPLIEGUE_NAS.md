@@ -4,6 +4,10 @@ MUFFIN se ejecuta en Docker sobre el NAS ARM64. La PC se usa solo para desarroll
 
 Tenant inicial: `Hospital Sub Regional de Andahuaylas`.
 
+Para Analízate se debe usar la rama `cliente-analizate`, el archivo de entorno
+correspondiente y un volumen PostgreSQL separado. Andahuaylas queda congelado
+y no debe recibir los cambios de esta rama.
+
 ## Servicios
 
 - `muffin-api`: FastAPI, dos workers y limite de 768 MB.
@@ -28,7 +32,13 @@ El presupuesto inicial de MUFFIN es menor de 2.8 GB. Esto deja memoria para el s
 4. Ejecutar `docker compose up -d --build`.
 5. Verificar `http://IP_DEL_NAS:8000/api/v1/health`.
 6. Verificar `http://IP_DEL_NAS:8501/MUFFIN/Login/Index`.
-7. Configurar el proxy reverso o Cloudflare Tunnel hacia `IP_DEL_NAS:8501` para publicar la aplicacion web. La API puede quedar limitada a red local.
+7. Configurar el proxy reverso o Cloudflare Tunnel hacia el puerto frontend del
+   cliente para publicar la aplicación web. La API puede quedar limitada a red
+   local.
+
+Antes del NAS, la revisión externa de Analízate debe hacerse en un staging
+aislado con HTTPS y datos ficticios. Netlify no reemplaza el stack Docker
+completo; consultar `docs/DESPLIEGUE_NETLIFY_ANALIZATE.md`.
 
 Las imagenes oficiales de Python y PostgreSQL seleccionan automaticamente la variante `linux/arm64` en el NAS RK3588C. No fijar una imagen `amd64`.
 

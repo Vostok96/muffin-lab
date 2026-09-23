@@ -91,3 +91,11 @@ Incluye:
 
 Ver `docs/CLIENTE_ANALIZATE.md` y el archivo de entorno
 `.env.analizate.local.example`.
+
+## Revisión externa antes del NAS
+
+Para que el cliente pruebe botones y funciones se necesita publicar el stack
+completo con HTTPS y datos ficticios. Netlify solo puede servir una capa web
+estática; no reemplaza el servidor Python, la API FastAPI ni PostgreSQL. Usar
+la guía `docs/DESPLIEGUE_NETLIFY_ANALIZATE.md` y no exponer el volumen ni las
+credenciales locales.

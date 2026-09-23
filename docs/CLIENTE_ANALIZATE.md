@@ -11,8 +11,8 @@ resultados genericos.
 ## Rama
 
 - Rama local: `cliente-analizate`.
-- Remoto pendiente: publicar `cliente-analizate` en `origin` cuando el primer
-  bloque estabilizado este commiteado.
+- Remoto: `origin/cliente-analizate`, actualizado hasta el commit de auditoría
+  clínica.
 - No modificar la rama `cliente-andahuaylas`; ese despliegue queda congelado
   para su cliente.
 
@@ -112,6 +112,26 @@ la carga/descarga por API y la UI quedan como siguiente bloque de desarrollo.
 - Se corrigio la cache de assets del listado y del formulario de orden.
 - Se agrego una version de assets nueva para evitar JavaScript obsoleto en el
   navegador.
+- La pantalla de ingreso usa el logo remasterizado con una presentación más
+  visible y paleta institucional de Analizate.
+- La auditoría clínica cubre los 130 exámenes sembrados y está documentada en
+  `docs/AUDITORIA_CATALOGO_CLINICO_ANALIZATE.md`.
+
+## Previsualización para el cliente
+
+El cliente debe probar una copia aislada, con datos ficticios, antes del NAS y
+de la URL pública. El entorno local completo permite probar autenticación,
+órdenes, muestras, recepción, resultados, validaciones y reportes.
+
+Netlify no ejecuta directamente el stack actual: `server.py` es un servidor
+Python con proxy de compatibilidad, la API es FastAPI y PostgreSQL necesita
+almacenamiento persistente. Para esta fase se recomienda publicar el stack
+Docker completo detrás de HTTPS mediante un túnel temporal o un servidor de
+staging. Netlify puede evaluarse después como frontend separado, cuando la API
+tenga una URL pública estable, CORS restringido, almacenamiento de adjuntos y
+una estrategia de autenticación definida.
+
+La guía completa está en `docs/DESPLIEGUE_NETLIFY_ANALIZATE.md`.
 
 ## Siguiente Bloque Funcional
 
