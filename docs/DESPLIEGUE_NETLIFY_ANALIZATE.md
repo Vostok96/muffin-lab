@@ -91,3 +91,11 @@ API y los botones funcionen automáticamente.
 - Frontend local: saludable.
 - Branding Analízate: logo remasterizado y pantalla de ingreso armonizada.
 - NAS y URL pública: todavía fuera de esta etapa.
+
+## Documentación externa
+
+- [Netlify Functions](https://docs.netlify.com/build/functions/overview/):
+  modelo serverless que Netlify despliega junto al sitio.
+- [Netlify Database](https://docs.netlify.com/build/data-and-storage/netlify-database/):
+  alternativa administrada si en el futuro se migra el backend y el modelo de
+  persistencia a la plataforma.
